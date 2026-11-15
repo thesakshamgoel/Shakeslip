@@ -6,6 +6,7 @@ import { CopyButton } from '../components/CopyButton'
 import { Dialog } from '../components/Dialog'
 import { QR } from '../components/QR'
 import { errText, patch, post } from '../lib/api'
+import { useSession } from '../lib/session'
 import { gstinValid } from '../lib/gst'
 import { useToast } from '../lib/toast'
 import type { Group } from '../lib/types'
@@ -23,6 +24,11 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
   const [v, setV] = useState<ClientForm>(emptyClient())
   const [group, setGroup] = useState<string | null>(null)
   const toast = useToast()
+  const { me } = useSession()
+  const biz = me?.business
+  /* your connect link works for anyone: send it first, or fill in their details below for a personal invite */
+  const connectUrl = biz ? `${location.origin}/c/${biz.slug}` : ''
+  const quick = biz ? `${biz.name} would like to send your invoices through Shakeslip. Connect here: ${connectUrl}` : ''
   const g = group ?? groups[0]?.id ?? ''
 
   function close() { setRes(null); setErr(''); setV(emptyClient()); setGroup(null); onClose() }
@@ -43,6 +49,20 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
     <Dialog open={open} onClose={close} title={res ? `Invite ready for ${res.name}` : 'Add a client'}>
       {!res ? (
         <form className="dlg-form" onSubmit={(e) => { e.preventDefault(); void submit() }}>
+          {connectUrl && (
+            <div className="quick" role="group" aria-label="Send your link">
+              <b>Send your link</b>
+              <small className="hint">Anyone can open it, create a free Slip account and ask to connect. No details needed.</small>
+              <div className="share">
+                {typeof navigator !== 'undefined' && 'share' in navigator && <Button variant="primary" onClick={() => { void navigator.share({ title: 'Connect on Shakeslip', text: quick }).catch(() => {}) }}><Share2 size={18} aria-hidden />Send link</Button>}
+                <a href={`https://wa.me/?text=${encodeURIComponent(quick)}`} target="_blank" rel="noopener noreferrer" className="btn"><MessageCircle size={18} aria-hidden />WhatsApp</a>
+                <a href={`sms:?&body=${encodeURIComponent(quick)}`} className="btn"><MessageSquareText size={18} aria-hidden />SMS</a>
+                <a href={`mailto:?subject=${encodeURIComponent(`${biz?.name} on Shakeslip`)}&body=${encodeURIComponent(quick)}`} className="btn"><Mail size={18} aria-hidden />Email</a>
+                <CopyButton text={connectUrl} />
+              </div>
+            </div>
+          )}
+          <p className="quick-or" aria-hidden><span>or add their details for a personal invite</span></p>
           <p style={{ color: 'var(--text-2)' }}>They get a secure link to connect. After that, every invoice reaches them automatically and you both get updates.</p>
           <ClientFields v={v} set={(p) => setV((x) => ({ ...x, ...p }))} />
           <Select label="Group" value={g} onChange={setGroup} options={[...groups.map((x) => ({ value: x.id, label: x.name })), { value: '', label: 'No group' }]} />

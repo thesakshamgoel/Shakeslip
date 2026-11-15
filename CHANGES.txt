@@ -173,3 +173,7 @@ Before launch (not done)
 2026-11-15 job fields and custom dropdowns
 - Name the exact job: fields are full width, and the words are kept if the switch is turned off by accident (they return when it is turned on again).
 - Dropdowns can offer "Custom..." to type your own value: line and banner wording, deliverable category, custom-field choices, usual GST rate (0 to 28). Dropdowns that map to fixed values (state, group, look, invoice type, tax, sort, filters) do not, so they cannot be broken.
+
+2026-11-15 payments edit/remove, dropdown height
+- Recorded payments can be edited (amount, method, date, reference, note) or removed. Removed payments stay on the record struck through with the reason; every change is in the activity log and the client is notified of amount changes and removals. Invoice status and balance recalculate.
+- Dropdown lists are sized to the room left inside the nearest scrolling area (dialog or page), so they do not push their container into a second scroll.

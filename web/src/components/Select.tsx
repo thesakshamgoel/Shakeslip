@@ -23,7 +23,7 @@ export function Select({ label, value, options, onChange, name, placeholder = 'C
   const id = useId()
   const box = useRef<HTMLDivElement>(null)
   const btn = useRef<HTMLButtonElement>(null)
-  const pos = usePlacement(open, box, 340)
+  const pos = usePlacement(open, box, 320)
   useEffect(() => setCur(value), [value])
   const list = useMemo(() => (q ? options.filter((o) => `${o.label} ${o.hint ?? ''}`.toLowerCase().includes(q.toLowerCase())) : options), [q, options])
   const sel = options.find((o) => o.value === cur) ?? (cu && cur !== '' ? { value: cur, label: cu.suffix ? `${cur}${cu.suffix}` : cur } : undefined)
@@ -61,7 +61,7 @@ export function Select({ label, value, options, onChange, name, placeholder = 'C
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div className={`sel-pop ${pos.up ? 'sel-up' : ''}`} initial={{ opacity: 0, y: pos.up ? 6 : -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }} transition={{ type: 'spring', stiffness: 520, damping: 34 }}>
+          <motion.div className={`sel-pop ${pos.up ? 'sel-up' : ''}`} style={{ maxHeight: pos.maxH }} initial={{ opacity: 0, y: pos.up ? 6 : -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }} transition={{ type: 'spring', stiffness: 520, damping: 34 }}>
             {options.length > 8 && <label className="sel-search"><Search size={15} aria-hidden /><input autoFocus value={q} onChange={(e) => { setQ(e.target.value); setHi(0) }} placeholder="Search" aria-label="Search options" /></label>}
             <ul role="listbox" aria-labelledby={label ? `${id}-l` : undefined}>
               {list.length === 0 && <li className="sel-empty">Nothing matches.</li>}

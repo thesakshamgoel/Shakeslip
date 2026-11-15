@@ -99,6 +99,8 @@ export const invoiceBody = z.object({
   project: text(200).optional().default(''), terms: z.array(text(600)).max(40).optional().default([]), taxInclusive: z.boolean().optional().default(false),
   extra: z.unknown().optional(),
 })
+export const paymentEditBody = z.object({ amount: z.number().int().min(1), method: z.enum(['upi', 'bank', 'cash', 'cheque', 'card', 'other']), ref: text(80), note: text(300).default(''), paidAt: z.string().datetime() })
+export const paymentVoidBody = z.object({ reason: text(200).default('') })
 export const paymentBody = z.object({ amount: z.number().int().min(1), method: z.enum(['upi', 'bank', 'cash', 'cheque', 'card', 'other']), ref: text(80), paidAt: z.string().datetime().optional(),
   kind: z.enum(['payment', 'advance', 'tds', 'writeoff', 'refund']).default('payment'), note: text(300).optional().default('') })
 export const claimBody = z.object({ amount: z.number().int().min(1), ref: text(80), method: z.enum(['upi', 'card', 'cash', 'bank', 'cheque', 'other']).default('other') })

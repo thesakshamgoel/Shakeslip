@@ -46,7 +46,8 @@ export function invoiceDto(row: InvRow, role: 'business' | 'client') {
   const balance = row.status === 'void' ? 0 : Math.max(t.total - t.advance - paid, 0)
   const aud = role === 'business' ? 'business' : 'client'
   const events = db.query("SELECT kind,text,at FROM events WHERE invoice_id = ? AND audience IN ('both', ?) ORDER BY at DESC").all(row.id, aud)
-  const pays = db.query(`SELECT id,amount,method,ref,note,kind,paid_at AS paidAt,status FROM payments WHERE invoice_id = ? ORDER BY paid_at DESC`).all(row.id)
+  /* a removed payment stays in the business's record, struck through, with who/why; the client only sees the activity note */
+  const pays = db.query(`SELECT id,amount,method,ref,note,kind,paid_at AS paidAt,status,voided_at AS voidedAt,void_reason AS voidReason,edited_at AS editedAt FROM payments WHERE invoice_id = ? AND (status != 'voided' OR ? = 'business') ORDER BY paid_at DESC`).all(row.id, aud)
   const marks = db.query('SELECT id,page,x,y,text,created_at AS at FROM annotations WHERE invoice_id = ? ORDER BY created_at, rowid').all(row.id)
   const biz = row.from_snapshot ? json<ReturnType<typeof fromDetails>>(row.from_snapshot, fromDetails(row.business_id)) : fromDetails(row.business_id)
   const billTo = json<Record<string, string>>(row.bill_to, {})

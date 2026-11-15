@@ -1,7 +1,7 @@
 import { db, nowIso, uid } from './db.ts'
 import { sendMail } from './mailer.ts'
 
-export type EventKind = 'created' | 'sent' | 'whatsapp' | 'viewed' | 'reminder' | 'payment' | 'claimed' | 'confirmed' | 'details' | 'change' | 'accepted'
+export type EventKind = 'created' | 'sent' | 'whatsapp' | 'viewed' | 'reminder' | 'payment' | 'claimed' | 'confirmed' | 'details' | 'change' | 'accepted' | 'payment_edit' | 'payment_void'
 
 export function addEvent(invoiceId: string, kind: EventKind, text: string, audience: 'both' | 'business' | 'client' = 'both') {
   db.query('INSERT INTO events (id,invoice_id,kind,text,audience,at) VALUES (?,?,?,?,?,?)').run(uid(), invoiceId, kind, text, audience, nowIso())

@@ -26,9 +26,9 @@ export type Extra = {
   plan: { kind: PlanKind; advancePct: number; text: string }; showBank: boolean; showQr: boolean; showMobile: boolean; showTerms?: boolean; annexure: string; customTerms: string; qrMode?: 'upi' | 'image' | 'none'; discountPct?: number; emailIds?: string[] | null; phoneIds?: string[] | null; phoneId?: string; layout?: 'classic' | 'minimal' | 'band' | 'compact' | 'bold' | 'ledger'; job?: { what: string; kind: string; name: string }; termsAckAt?: string
   reminders?: { before: number[]; onDue: boolean; afterEvery: number | null } | null; remindersOff?: boolean; repeat?: 'none' | 'monthly'
 }
-export type EventKind = 'created' | 'sent' | 'whatsapp' | 'viewed' | 'reminder' | 'payment' | 'claimed' | 'confirmed' | 'details' | 'change' | 'accepted'
+export type EventKind = 'created' | 'sent' | 'whatsapp' | 'viewed' | 'reminder' | 'payment' | 'claimed' | 'confirmed' | 'details' | 'change' | 'accepted' | 'payment_edit' | 'payment_void'
 export type TimelineEvent = { kind: EventKind; text: string; at: string; number?: string; from?: string; invoiceId?: string }
-export type Payment = { id: string; amount: number; method: string; ref: string; paidAt: string; status: 'confirmed' | 'claimed'; kind?: string; note?: string }
+export type Payment = { id: string; amount: number; method: string; ref: string; paidAt: string; status: 'confirmed' | 'claimed' | 'voided'; kind?: string; note?: string; voidedAt?: string; voidReason?: string; editedAt?: string }
 export type Totals = { subtotal: number; discount: number; taxable: number; gst: number; total: number; advance: number; paid: number; balance: number }
 export type InvoiceView = {
   id: string; number: string | null; status: Status; rawStatus: string; linkId: string; typeId: string; type: InvoiceType; theme: string; billTo: BillTo

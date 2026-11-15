@@ -4,8 +4,8 @@ import { requireUser, type Vars } from '../auth.ts'
 import { audit, db, nowIso, uid } from '../db.ts'
 import { renderPdf } from '../pdf.ts'
 import { env } from '../env.ts'
-import { addEvent, notifyAndMail } from '../notify.ts'
-import { extraSchema, invoiceBody, messageBody, paymentBody, sendBody, type TypeSchema } from '../schemas.ts'
+import { addEvent, notify, notifyAndMail } from '../notify.ts'
+import { extraSchema, invoiceBody, messageBody, paymentBody, paymentEditBody, paymentVoidBody, sendBody, type TypeSchema } from '../schemas.ts'
 import { fail } from '../security.ts'
 import { isQuote } from './stats.ts'
 import { financialYear, json, money, shortDate, sha256, token, type Item } from '../util.ts'
@@ -214,6 +214,69 @@ export async function afterPayment(invoiceId: string, bizName: string, amount: n
   const body = newStatus === 'paid' ? `${bizName} received your payment of ${inr(amount)}. Invoice ${row.number} is paid in full. Thank you.` : `${bizName} received ${inr(amount)} toward invoice ${row.number}. Balance: ${inr(dto.totals.balance)}.`
   await notifyAndMail(link.user_id, link.email, newStatus === 'paid' ? `Receipt: ${row.number} is paid` : `Payment received for ${row.number}`, body, link.user_id ? `${env.APP_URL}/slip/invoices/${invoiceId}` : '')
 }
+
+/* Put the invoice status right after a payment changes, without telling the client again. */
+function settle(invoiceId: string) {
+  const row = db.query('SELECT * FROM invoices WHERE id = ?').get(invoiceId) as any
+  if (!row || ['draft', 'void'].includes(row.status)) return
+  const dto = invoiceDto(row, 'business')
+  const s = dto.totals.balance <= 0 ? 'paid' : dto.totals.paid > 0 || dto.totals.advance > 0 ? 'partial' : 'sent'
+  db.query('UPDATE invoices SET status = ? WHERE id = ?').run(s, invoiceId)
+}
+type PayRow = { id: string; invoice_id: string; amount: number; method: string; ref: string; note: string; kind: string; paid_at: string; status: string }
+const payOfBiz = (bizId: string, pid: string) => db.query(`SELECT p.* FROM payments p JOIN invoices i ON i.id = p.invoice_id WHERE p.id = ? AND i.business_id = ? AND p.status = 'confirmed'`).get(pid, bizId) as PayRow | null
+const KIND_LABEL: Record<string, string> = { payment: 'Payment', advance: 'Advance', tds: 'TDS', writeoff: 'Write-off', refund: 'Refund' }
+const METHOD_LABEL: Record<string, string> = { upi: 'UPI', bank: 'bank transfer', cash: 'cash', cheque: 'cheque', card: 'card', other: 'other' }
+
+/* Fix a recorded payment. The old values go into the activity log, so nothing is lost. */
+invoices.put('/payments/:pid', async (c) => {
+  const u = c.get('user'), biz = need(c)
+  const pay = biz && payOfBiz(biz.id, c.req.param('pid'))
+  if (!biz || !pay) return fail(c, 404, 'ERR-PAY-404', 'That payment was not found.')
+  const p = paymentEditBody.safeParse(await c.req.json().catch(() => ({})))
+  if (!p.success) return fail(c, 422, 'ERR-VAL-422', 'Check the amount and date, then try again.')
+  const row = db.query('SELECT * FROM invoices WHERE id = ?').get(pay.invoice_id) as any
+  if (row.status === 'void') return fail(c, 409, 'ERR-INV-409', 'This invoice is void.')
+  const dto = invoiceDto(row, 'business')
+  const inr = (n: number) => money(n, dto.extra.currency)
+  const room = pay.kind === 'refund' ? dto.totals.paid + pay.amount : dto.totals.balance + pay.amount
+  if (p.data.amount > room) return fail(c, 422, 'ERR-VAL-422', `That is more than the most this can be (${inr(room)}).`)
+  const b = p.data, changes: string[] = []
+  if (b.amount !== pay.amount) changes.push(`amount ${inr(pay.amount)} to ${inr(b.amount)}`)
+  if (b.method !== pay.method) changes.push(`method ${METHOD_LABEL[pay.method] ?? pay.method} to ${METHOD_LABEL[b.method]}`)
+  if (b.paidAt.slice(0, 10) !== pay.paid_at.slice(0, 10)) changes.push(`date ${shortDate(pay.paid_at)} to ${shortDate(b.paidAt)}`)
+  if (b.ref !== pay.ref) changes.push('reference')
+  if (b.note !== pay.note) changes.push('note')
+  if (!changes.length) return c.json({ ok: true })
+  db.query('UPDATE payments SET amount = ?, method = ?, ref = ?, note = ?, paid_at = ?, edited_at = ? WHERE id = ?').run(b.amount, b.method, b.ref, b.note, b.paidAt, nowIso(), pay.id)
+  settle(pay.invoice_id)
+  const label = KIND_LABEL[pay.kind] ?? 'Payment'
+  addEvent(pay.invoice_id, 'payment_edit', `${label} corrected: ${changes.join(', ')}`)
+  const link = db.query('SELECT user_id FROM links WHERE id = ?').get(row.link_id) as { user_id: string | null } | null
+  if (b.amount !== pay.amount) notify(link?.user_id, `${label} corrected on ${row.number}`, `${biz.name} corrected a recorded ${label.toLowerCase()} from ${inr(pay.amount)} to ${inr(b.amount)}.`, `${env.APP_URL}/slip/invoices/${row.id}`)
+  audit(u.id, 'edit-payment', 'payment', pay.id)
+  return c.json({ ok: true })
+})
+
+/* Remove a recorded payment without erasing it: it stays on the record, struck through, with the reason. */
+invoices.post('/payments/:pid/void', async (c) => {
+  const u = c.get('user'), biz = need(c)
+  const pay = biz && payOfBiz(biz.id, c.req.param('pid'))
+  if (!biz || !pay) return fail(c, 404, 'ERR-PAY-404', 'That payment was not found.')
+  const p = paymentVoidBody.safeParse(await c.req.json().catch(() => ({})))
+  if (!p.success) return fail(c, 422, 'ERR-VAL-422', 'That reason is too long.')
+  const row = db.query('SELECT * FROM invoices WHERE id = ?').get(pay.invoice_id) as any
+  if (row.status === 'void') return fail(c, 409, 'ERR-INV-409', 'This invoice is void.')
+  db.query("UPDATE payments SET status = 'voided', voided_at = ?, void_reason = ? WHERE id = ?").run(nowIso(), p.data.reason, pay.id)
+  settle(pay.invoice_id)
+  const inr = (n: number) => money(n, invoiceDto(row, 'business').extra.currency)
+  const label = KIND_LABEL[pay.kind] ?? 'Payment'
+  addEvent(pay.invoice_id, 'payment_void', `${label} of ${inr(pay.amount)} removed${p.data.reason ? `: ${p.data.reason}` : ''}`)
+  const link = db.query('SELECT user_id FROM links WHERE id = ?').get(row.link_id) as { user_id: string | null } | null
+  notify(link?.user_id, `${label} removed on ${row.number}`, `${biz.name} removed a recorded ${label.toLowerCase()} of ${inr(pay.amount)}${p.data.reason ? `: ${p.data.reason}` : ''}.`, `${env.APP_URL}/slip/invoices/${row.id}`)
+  audit(u.id, 'void-payment', 'payment', pay.id)
+  return c.json({ ok: true })
+})
 
 invoices.post('/payments/:pid/confirm', async (c) => {
   const biz = need(c)

@@ -204,6 +204,39 @@ test('payment kinds and refunds keep the balance right', async () => {
   expect(inv.payments.some((p: any) => p.kind === 'tds')).toBe(true)
 })
 
+test('a recorded payment can be corrected or removed, and the history stays', async () => {
+  const links = (await owner('GET', '/api/studio/links')).body
+  const aarav = links.find((l: any) => l.email === 'aarav@client.test')
+  const types = (await owner('GET', '/api/studio/types')).body
+  const now = new Date().toISOString()
+  const d = await owner('POST', '/api/studio/invoices', { linkId: aarav.id, typeId: types[1].id, theme: 'classic', items: [{ id: 'a', desc: 'Work', qty: 1, rate: 500000 }], fields: {}, gstPct: 0, discount: 0, advance: 0, issued: now, due: new Date(Date.now() + 30 * 86_400_000).toISOString(), note: '' })
+  await owner('POST', `/api/studio/invoices/${d.body.id}/send`)
+  const id = d.body.id
+  expect((await owner('POST', `/api/studio/invoices/${id}/payments`, { amount: 500000, method: 'upi', ref: 'X1', kind: 'payment' })).status).toBe(200)
+  let inv = (await owner('GET', `/api/studio/invoices/${id}`)).body
+  expect(inv.status).toBe('paid')
+  const pid = inv.payments[0].id
+  // correct the amount down: the invoice is partly paid again, and it is logged
+  expect((await owner('PUT', `/api/studio/invoices/payments/${pid}`, { amount: 300000, method: 'bank', ref: 'X1', note: 'Typo', paidAt: now })).status).toBe(200)
+  inv = (await owner('GET', `/api/studio/invoices/${id}`)).body
+  expect(inv.totals.balance).toBe(200000)
+  expect(inv.status).toBe('partial')
+  expect(inv.events.some((e: any) => e.kind === 'payment_edit')).toBe(true)
+  // cannot be edited past the invoice total
+  expect((await owner('PUT', `/api/studio/invoices/payments/${pid}`, { amount: 900000, method: 'bank', ref: '', note: '', paidAt: now })).status).toBe(422)
+  // remove it: balance is back, the row stays marked removed with its reason
+  expect((await owner('POST', `/api/studio/invoices/payments/${pid}/void`, { reason: 'Bounced' })).status).toBe(200)
+  inv = (await owner('GET', `/api/studio/invoices/${id}`)).body
+  expect(inv.totals.balance).toBe(500000)
+  expect(inv.status).toBe('sent')
+  const gone = inv.payments.find((p: any) => p.id === pid)
+  expect(gone.status).toBe('voided')
+  expect(gone.voidReason).toBe('Bounced')
+  expect(inv.events.some((e: any) => e.kind === 'payment_void')).toBe(true)
+  // a removed payment cannot be edited again
+  expect((await owner('PUT', `/api/studio/invoices/payments/${pid}`, { amount: 100, method: 'upi', ref: '', note: '', paidAt: now })).status).toBe(404)
+})
+
 test('statistics and quotation conversion', async () => {
   const links = (await owner('GET', '/api/studio/links')).body
   const types = (await owner('GET', '/api/studio/types')).body

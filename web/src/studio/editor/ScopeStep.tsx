@@ -1,7 +1,7 @@
 import { Plus, Sparkles } from 'lucide-react'
 import { DatePicker } from '../../components/DatePicker'
 import { Select } from '../../components/Select'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { Button } from '../../components/Button'
 import { Chip } from '../../components/Chip'
 import { Field } from '../../components/Field'
@@ -32,6 +32,11 @@ export function ScopeStep({ d, set, memory, profession, services, setServices }:
   }
   const [jobOn, setJobOn] = useState(false)
   const job = d.extra.job ?? { what: '', kind: '', name: '' }
+  /* turning the switch off by accident must not lose the words: they are kept and come back when it is turned on again */
+  const SK = 'ss-job-stash'
+  const stash = useRef<typeof job | null>(null)
+  if (stash.current === null) { try { stash.current = JSON.parse(sessionStorage.getItem(SK) ?? 'null') } catch { stash.current = null } }
+  if (job.what || job.kind || job.name) { stash.current = job; try { sessionStorage.setItem(SK, JSON.stringify(job)) } catch { /* storage may be off */ } }
   const sentence = jobSentence(job)
   /* the named job becomes the project, the banner and the first line, so the invoice points at exactly this work */
   function setJob(p: Partial<typeof job>) {
@@ -73,26 +78,26 @@ export function ScopeStep({ d, set, memory, profession, services, setServices }:
           <button type="button" className="role tap" aria-pressed={mode === 'each'} onClick={() => { setMode('each'); write(services, 'each') }}><b>A line per service</b><span>Each with its own rate</span></button>
         </div>
         <div className="grid2">
-          <Select label="Line wording" value={itemPre} onChange={(v) => { setItemPre(v); write(services, mode, v) }} options={ITEM_PREFIXES.map((p) => ({ value: p, label: p }))} />
-          <Select label="Banner wording" value={bannerPre} onChange={(v) => { setBannerPre(v); write(services, mode, itemPre, v) }} options={BANNER_PREFIXES.map((p) => ({ value: p, label: p }))} />
+          <Select custom label="Line wording" value={itemPre} onChange={(v) => { setItemPre(v); write(services, mode, v) }} options={ITEM_PREFIXES.map((p) => ({ value: p, label: p }))} />
+          <Select custom label="Banner wording" value={bannerPre} onChange={(v) => { setBannerPre(v); write(services, mode, itemPre, v) }} options={BANNER_PREFIXES.map((p) => ({ value: p, label: p }))} />
         </div>
       </div>
       <div className="st-block">
-        <label className="switch-row"><span><b>Name the exact job</b><small>For example: Editing of the music video "Raat ko Jaagoon"</small></span><input type="checkbox" role="switch" checked={!!d.extra.job?.name || jobOn} onChange={(e) => { setJobOn(e.target.checked); if (!e.target.checked) set({ extra: { ...d.extra, job: { what: '', kind: '', name: '' } } }) }} /></label>
+        <label className="switch-row"><span><b>Name the exact job</b><small>For example: Editing of the music video "Raat ko Jaagoon"</small></span><input type="checkbox" role="switch" checked={!!d.extra.job?.name || jobOn} onChange={(e) => { setJobOn(e.target.checked); if (!e.target.checked) set({ extra: { ...d.extra, job: { what: '', kind: '', name: '' } } }); else if (stash.current && !(job.what || job.kind || job.name)) setJob(stash.current) }} /></label>
         {(jobOn || !!d.extra.job?.name) && (<>
-          <div className="grid3">
+          <div className="job-f">
             <Field label="What you did" value={job.what} placeholder="Editing" onChange={(e) => setJob({ what: e.target.value })} />
             <Field label="Of a" value={job.kind} placeholder="music video" onChange={(e) => setJob({ kind: e.target.value })} />
             <Field label="Named" value={job.name} placeholder="Raat ko Jaagoon" onChange={(e) => setJob({ name: e.target.value })} />
           </div>
-          {sentence && <p className="explain"><Sparkles size={15} aria-hidden />On the invoice: <b>{sentence}</b>. It goes into the project title, the banner and the first line.</p>}
+          {sentence && <p className="explain"><Sparkles size={15} aria-hidden /><span>On the invoice: <b>{sentence}</b>. It goes into the project title, the banner and the first line.</span></p>}
         </>)}
       </div>
       <div className="st-block">
         <h3>Project</h3>
         <Field label="Project or work title" value={d.project} maxLength={200} placeholder="For example, Monsoon brand film" onChange={(e) => set({ project: e.target.value }, 'project')} />
         <div className="grid2">
-          <Select label="Deliverable category" value={d.extra.category} onChange={(v) => set({ extra: { ...d.extra, category: v } })} options={CATEGORIES.map((c) => ({ value: c, label: c || 'None' }))} />
+          <Select custom label="Deliverable category" value={d.extra.category} onChange={(v) => set({ extra: { ...d.extra, category: v } })} options={CATEGORIES.map((c) => ({ value: c, label: c || 'None' }))} />
           <DatePicker label="Shoot or completion date" value={d.extra.completionDate} onChange={(v) => set({ extra: { ...d.extra, completionDate: v } })} />
         </div>
         <label className="field"><span>Banner on the invoice</span><textarea className="input" rows={2} value={d.extra.banner} maxLength={300} placeholder="Invoice towards Professional Charges for..." onChange={(e) => set({ extra: { ...d.extra, banner: e.target.value } }, 'banner')} /></label>

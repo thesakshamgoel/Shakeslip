@@ -91,7 +91,7 @@ function Builder({ initial, id }: { initial: InvoiceType; id?: string }) {
             <h2>Tax, discount and dates</h2>
             <div className="grid2">
               <Select label="Tax" value={t.taxMode} onChange={(v) => set({ taxMode: v as 'gst' | 'none' })} options={[{ value: 'gst', label: 'GST' }, { value: 'none', label: 'No tax' }]} />
-              {t.taxMode === 'gst' && <Select label="Usual GST rate" value={String(t.defaultGst)} onChange={(v) => set({ defaultGst: Number(v) })} options={[0, 5, 12, 18, 28].map((g) => ({ value: String(g), label: `${g}%` }))} />}
+              {t.taxMode === 'gst' && <Select custom={{ numeric: true, min: 0, max: 28, suffix: '%' }} label="Usual GST rate" value={String(t.defaultGst)} onChange={(v) => set({ defaultGst: Number(v) })} options={[0, 5, 12, 18, 28].map((g) => ({ value: String(g), label: `${g}%` }))} />}
               <Field label="Usually due in (days)" inputMode="numeric" value={t.dueDays} onChange={(e) => set({ dueDays: Math.min(365, Number(e.target.value.replace(/\D/g, '')) || 0) })} />
               <Select label="Default look" value={t.theme} onChange={(v) => set({ theme: v })} options={invoiceThemes.map((x) => ({ value: x.id, label: x.name, hint: x.blurb }))} />
             </div>

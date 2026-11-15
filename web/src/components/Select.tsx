@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { Check, ChevronDown, Search } from 'lucide-react'
+import { Check, ChevronDown, PenLine, Search } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
 import { usePlacement } from '../lib/placement'
 import './select.css'
@@ -8,30 +8,43 @@ export type Option = { value: string; label: string; hint?: string }
 
 /* Our own dropdown: the same on every device, keyboard friendly, long text wraps (never "..."),
    and a search box appears when there are many options. A hidden input keeps it working in forms. */
-export function Select({ label, value, options, onChange, name, placeholder = 'Choose one', disabled, hint, error }: {
+export function Select({ label, value, options, onChange, name, placeholder = 'Choose one', disabled, hint, error, custom }: {
   label?: string; value: string; options: Option[]; onChange?: (v: string) => void; name?: string; placeholder?: string; disabled?: boolean; hint?: string; error?: string
+  /* Adds "Custom..." so people can type their own value. Only for dropdowns whose value is free text or a plain number. */
+  custom?: true | { numeric?: boolean; min?: number; max?: number; suffix?: string; maxLength?: number }
 }) {
+  const cu = custom === true ? {} : custom
   const [open, setOpen] = useState(false)
   const [cur, setCur] = useState(value)
   const [q, setQ] = useState('')
   const [hi, setHi] = useState(0)
+  const [typing, setTyping] = useState(false)
+  const [own, setOwn] = useState('')
   const id = useId()
   const box = useRef<HTMLDivElement>(null)
   const btn = useRef<HTMLButtonElement>(null)
   const pos = usePlacement(open, box, 340)
   useEffect(() => setCur(value), [value])
   const list = useMemo(() => (q ? options.filter((o) => `${o.label} ${o.hint ?? ''}`.toLowerCase().includes(q.toLowerCase())) : options), [q, options])
-  const sel = options.find((o) => o.value === cur)
+  const sel = options.find((o) => o.value === cur) ?? (cu && cur !== '' ? { value: cur, label: cu.suffix ? `${cur}${cu.suffix}` : cur } : undefined)
   useEffect(() => {
     if (!open) return
-    setQ(''); setHi(Math.max(0, options.findIndex((o) => o.value === cur)))
+    setQ(''); setTyping(false); setHi(Math.max(0, options.findIndex((o) => o.value === cur)))
     const out = (e: PointerEvent) => { if (!box.current?.contains(e.target as Node)) setOpen(false) }
     document.addEventListener('pointerdown', out)
     return () => document.removeEventListener('pointerdown', out)
   }, [open, cur, options])
+  const ownBad = (() => {
+    const t = own.trim()
+    if (!t) return 'Type a value.'
+    if (cu?.numeric) { const n = Number(t); if (!Number.isFinite(n)) return 'Use a number.'; if (cu.min != null && n < cu.min) return `At least ${cu.min}.`; if (cu.max != null && n > cu.max) return `At most ${cu.max}.` }
+    return ''
+  })()
+  function useOwn() { if (ownBad) return; const t = own.trim(); setCur(t); onChange?.(t); setOpen(false); setTyping(false); btn.current?.focus() }
   function pick(o: Option) { setCur(o.value); onChange?.(o.value); setOpen(false); btn.current?.focus() }
   function key(e: React.KeyboardEvent) {
-    if (e.key === 'Escape') { setOpen(false); btn.current?.focus(); return }
+    if (e.key === 'Escape') { setOpen(false); setTyping(false); btn.current?.focus(); return }
+    if (typing) return
     if (!open && (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); setOpen(true); return }
     if (!open) return
     if (e.key === 'ArrowDown') { e.preventDefault(); setHi((h) => Math.min(list.length - 1, h + 1)) }
@@ -59,6 +72,9 @@ export function Select({ label, value, options, onChange, name, placeholder = 'C
                 </li>
               ))}
             </ul>
+            {cu && (typing
+              ? <div className="sel-own"><input autoFocus value={own} inputMode={cu.numeric ? 'decimal' : 'text'} maxLength={cu.maxLength ?? 80} onChange={(e) => setOwn(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); useOwn() } }} placeholder={cu.numeric ? 'Your own number' : 'Type your own'} aria-label={`Custom ${label ?? 'value'}`} aria-invalid={!!own && !!ownBad} /><button type="button" className="sel-own-b tap" disabled={!!ownBad} onClick={useOwn}>Use</button></div>
+              : <button type="button" className="sel-custom tap" onClick={() => { setOwn(q || (sel && !options.some((o) => o.value === cur) ? cur : '')); setTyping(true) }}><PenLine size={15} aria-hidden />Custom...</button>)}
           </motion.div>
         )}
       </AnimatePresence>

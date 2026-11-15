@@ -204,3 +204,6 @@ input[role='switch']:focus-visible { outline: 2px solid var(--accent); outline-o
   .ed2-viewbar { position: sticky; bottom: 0; z-index: 6; margin: 0; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-2) var(--s-3) calc(var(--s-2) + env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--bg) 94%, transparent); border-top: 1px solid var(--line); }
   .ed2-viewbar-t { display: grid; margin-left: auto; font-weight: 600; } .ed2-viewbar-t small { font-size: var(--t-xs); color: var(--text-3); font-weight: 400; }
 }
+
+.job-f { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+.job-f .input { min-height: 48px; }

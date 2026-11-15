@@ -6,7 +6,7 @@ import type { CustomField } from '../lib/types'
 export function FieldInput({ f, value, onChange, error }: { f: CustomField; value: string; onChange: (v: string) => void; error?: boolean }) {
   const label = f.required ? f.label : `${f.label} (optional)`
   const msg = error ? `Fill in ${f.label.toLowerCase()} to continue.` : undefined
-  if (f.kind === 'select') return <div className={error ? 'shake' : ''}><Select label={label} value={value} onChange={onChange} options={(f.options ?? []).map((o) => ({ value: o, label: o }))} error={msg} /></div>
+  if (f.kind === 'select') return <div className={error ? 'shake' : ''}><Select custom label={label} value={value} onChange={onChange} options={(f.options ?? []).map((o) => ({ value: o, label: o }))} error={msg} /></div>
   if (f.kind === 'date') return <div className={error ? 'shake' : ''}><DatePicker label={label} value={value} onChange={onChange} error={msg} /></div>
   return (
     <label className={`field ${error ? 'err shake' : ''}`}>

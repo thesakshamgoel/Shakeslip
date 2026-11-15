@@ -10,6 +10,7 @@ const schema = z.object({
   FIREBASE_PROJECT_ID: z.string().optional().transform((v) => v || undefined),
   RESEND_API_KEY: z.string().optional().transform((v) => v || undefined),
   MAIL_FROM: z.string().default('Shakeslip <no-reply@example.com>'),
+  WEB_DIST: z.string().default('../web/dist'),
   /* a Chromium-based browser used to render PDFs (Chrome, Chromium, Brave, Edge) */
   PDF_BROWSER: z.string().default('/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'),
 })

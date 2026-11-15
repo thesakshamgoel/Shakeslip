@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { serveStatic } from 'hono/bun'
 import { secureHeaders } from 'hono/secure-headers'
 import { account } from './routes/account.ts'
 import { business } from './routes/business.ts'
@@ -30,6 +31,13 @@ app.route('/api/studio/automation', automation)
 app.route('/api/studio', business)
 app.route('/api/slip/connections', slipConnections)
 app.route('/api/slip/invoices', inbox)
+
+/* Production: the same server also serves the built website, so login cookies stay on one domain. */
+if (isProd) {
+  app.get('/healthz', (c) => c.text('ok'))
+  app.use('*', serveStatic({ root: env.WEB_DIST, onFound: (path, c) => { c.header('Cache-Control', path.includes('/assets/') ? 'public, max-age=31536000, immutable' : 'no-cache') } }))
+  app.get('*', async (c) => (c.req.path.startsWith('/api/') || /\.[a-z0-9]{2,5}$/i.test(c.req.path) ? c.notFound() : new Response(Bun.file(`${env.WEB_DIST}/index.html`), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-cache' } })))
+}
 
 app.notFound((c) => c.json({ code: 'ERR-NF-404', message: 'That does not exist.' }, 404))
 /* Never leak internals: log the real error, show a friendly one. */

@@ -44,13 +44,6 @@ function Story() {
   )
 }
 
-/* Small status cards that float around the sign-in card. They arrive one by one, then drift gently. */
-const CHIPS = [
-  { cls: 'c1', icon: CircleCheck, b: 'Paid ₹2,24,200', s: 'Mehta Weddings', tone: 'ok' },
-  { cls: 'c2', icon: Eye, b: 'Opened', s: 'Slip inbox, just now', tone: 'info' },
-  { cls: 'c3', icon: BellRing, b: 'Reminder scheduled', s: '2 days before due', tone: 'warn' },
-] as const
-
 export function Hero({ first }: { first: boolean }) {
   const reduce = useReducedMotion()
   const { scrollY } = useScroll()
@@ -78,13 +71,6 @@ export function Hero({ first }: { first: boolean }) {
       </motion.div>
 
       <motion.div className="hx-card-wrap" style={reduce ? undefined : { y: cardY }}>
-        {CHIPS.map((c, i) => (
-          <motion.div key={c.cls} className={`hx-chip ${c.cls}`} aria-hidden initial={{ opacity: 0, scale: 0.85, y: 16 }} animate={{ opacity: 1, scale: 1, y: 0 }} transition={{ ...rise, delay: 1.1 + i * 0.18 }}>
-            <motion.div className="hx-chip-in" animate={reduce ? undefined : { y: [0, -7, 0] }} transition={{ duration: 4.5 + i, repeat: Infinity, ease: 'easeInOut', delay: i * 0.6 }}>
-              <span className={`hx-chip-ic ${c.tone}`}><c.icon size={16} /></span><span><b>{c.b}</b><small>{c.s}</small></span>
-            </motion.div>
-          </motion.div>
-        ))}
         <motion.aside className="lp-login" initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ ...rise, delay: 0.3 }} aria-label="Sign in">
           <h2>{first ? 'Welcome to Shakeslip' : 'Welcome back'}</h2>
           <p className="lp-login-lead">{first ? 'Sign in if you have an account. New here? It takes under a minute to create one, and it is free.' : 'Sign in to pick up where you left off.'}</p>

@@ -1,4 +1,4 @@
-import { Check, Mail, MessageCircle } from 'lucide-react'
+import { Check, Mail, MessageCircle, MessageSquareText, Send, Share2 } from 'lucide-react'
 import { Select } from '../components/Select'
 import { useState } from 'react'
 import { Button } from '../components/Button'
@@ -13,7 +13,7 @@ import { whatsappUrl } from '../lib/whatsapp'
 import { ClientFields, emptyClient, type ClientForm } from './ClientFields'
 import './clients.css'
 
-type Result = { inviteUrl: string; message: string; emailed: boolean; phone: string; name: string }
+type Result = { inviteUrl: string; message: string; emailed: boolean; phone: string; name: string; email: string }
 
 /* Three ways to link a client: email (automatic), WhatsApp (one tap), or a link or QR in person. */
 export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean; onClose: () => void; groups: Group[]; onDone: (id?: string) => void }) {
@@ -32,9 +32,9 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
     setBusy(true); setErr('')
     try {
       const { logo, ...rest } = v
-      const r = await post<Omit<Result, 'phone' | 'name'> & { id: string }>('/studio/links/invite', { ...rest, groupId: g || null })
+      const r = await post<Omit<Result, 'phone' | 'name' | 'email'> & { id: string }>('/studio/links/invite', { ...rest, groupId: g || null })
       if (logo) await patch(`/studio/links/${r.id}`, { logo })
-      setRes({ ...r, phone: v.phone, name: v.name })
+      setRes({ ...r, phone: v.phone, name: v.name, email: v.email })
       onDone(r.id)
     } catch (e) { setErr(errText(e)); toast.bad(errText(e)) } finally { setBusy(false) }
   }
@@ -47,7 +47,7 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
           <ClientFields v={v} set={(p) => setV((x) => ({ ...x, ...p }))} />
           <Select label="Group" value={g} onChange={setGroup} options={[...groups.map((x) => ({ value: x.id, label: x.name })), { value: '', label: 'No group' }]} />
           {err && <p className="au-err" role="alert">{err}</p>}
-          <Button variant="primary" type="submit" block disabled={busy || !v.name.trim() || !(v.email || v.phone)}>{busy ? 'Creating invite' : 'Create invite'}</Button>
+          <Button variant="primary" type="submit" block disabled={busy || !v.name.trim() || !(v.email || v.phone)}><Send size={18} aria-hidden />{busy ? 'Adding' : 'Add and send link'}</Button>
           {!(v.email || v.phone) && <p className="hint">Add an email or a WhatsApp number so we can reach them.</p>}
         </form>
       ) : (
@@ -55,7 +55,10 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
           {res.emailed && <p className="au-ok" style={{ display: 'flex', gap: 8 }}><Mail size={18} aria-hidden />We emailed the invite. You can also share it another way:</p>}
           {!res.emailed && <p style={{ color: 'var(--text-2)' }}>Share the invite another way:</p>}
           <div className="share">
-            {res.phone && <a href={whatsappUrl(res.phone, res.message)} target="_blank" rel="noopener noreferrer" className="btn btn-primary"><MessageCircle size={18} aria-hidden />Send on WhatsApp</a>}
+            {typeof navigator !== 'undefined' && 'share' in navigator && <Button variant="primary" onClick={() => { void navigator.share({ title: 'Shakeslip invite', text: res.message }).catch(() => {}) }}><Share2 size={18} aria-hidden />Send link</Button>}
+            {res.phone && <a href={`sms:${res.phone.replace(/[^\d+]/g, '')}?&body=${encodeURIComponent(res.message)}`} className="btn"><MessageSquareText size={18} aria-hidden />SMS</a>}
+            {res.email && <a href={`mailto:${res.email}?subject=${encodeURIComponent('Your Shakeslip invite')}&body=${encodeURIComponent(res.message)}`} className="btn"><Mail size={18} aria-hidden />Email</a>}
+            {res.phone && <a href={whatsappUrl(res.phone, res.message)} target="_blank" rel="noopener noreferrer" className="btn"><MessageCircle size={18} aria-hidden />Send on WhatsApp</a>}
             <CopyButton text={res.inviteUrl} />
           </div>
           <div className="share-qr"><QR value={res.inviteUrl} size={148} /><p className="hint">Or let them scan this with their phone camera. The link works once and expires in 24 hours.</p></div>

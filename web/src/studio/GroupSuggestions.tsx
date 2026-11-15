@@ -45,7 +45,7 @@ export function GroupSuggestions({ links, groups, bizState, onDone }: { links: C
     if (busy) return
     setBusy(s.key)
     try {
-      const g = await post<{ id: string }>('/studio/groups', { name: s.name, typeId: null, theme: 'classic', dueDays: s.dueDays, reminders: { before: [2], onDue: true, afterEvery: 7 } })
+      const g = await post<{ id: string }>('/studio/groups', { name: s.name, typeId: null, theme: '', dueDays: s.dueDays, reminders: { before: [2], onDue: true, afterEvery: 7 } })
       for (const id of s.ids) await patch(`/studio/links/${id}`, { groupId: g.id })
       toast.ok(`${s.name} created with ${s.ids.length} clients. Edit its look and reminders any time.`); onDone()
     } catch (e) { toast.bad(errText(e)) } finally { setBusy('') }

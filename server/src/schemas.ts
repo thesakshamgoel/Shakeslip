@@ -61,7 +61,7 @@ export const typeSchema = z.object({
 export type TypeSchema = z.infer<typeof typeSchema>
 
 export const groupBody = z.object({
-  name: text(60).min(1), typeId: z.string().nullable(), theme: z.string().min(1).max(30), dueDays: z.number().int().min(0).max(365),
+  name: text(60).min(1), typeId: z.string().nullable(), theme: z.string().max(30), dueDays: z.number().int().min(0).max(365),
   reminders: reminderRules,
 })
 

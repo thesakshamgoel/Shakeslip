@@ -27,5 +27,5 @@ export function seedBusiness(businessId: string) {
     return id
   })
   db.query('INSERT INTO groups (id,business_id,name,type_id,theme,due_days,reminders,created_at) VALUES (?,?,?,?,?,?,?,?)').run(
-    uid(), businessId, 'All clients', ids[0], 'classic', 15, JSON.stringify({ before: [2], onDue: true, afterEvery: 7 }), nowIso())
+    uid(), businessId, 'All clients', ids[0], '', 15, JSON.stringify({ before: [2], onDue: true, afterEvery: 7 }), nowIso())
 }

@@ -33,7 +33,7 @@ export function GroupDialog({ open, onClose, group, types, onDone }: { open: boo
         <Field label="Group name" name="name" defaultValue={group?.name} placeholder="For example, Wedding clients" required maxLength={60} />
         <Select label="Usual invoice type" name="type" value={group?.typeId ?? ''} options={[{ value: '', label: 'Ask me each time' }, ...types.map((t) => ({ value: t.id ?? '', label: t.name }))]} />
         <div className="grid2">
-          <Select label="Look" name="theme" value={group?.theme ?? 'classic'} options={invoiceThemes.map((t) => ({ value: t.id, label: t.name, hint: t.blurb }))} />
+          <Select label="Look" name="theme" value={group?.theme ?? ''} options={[{ value: '', label: 'My default design', hint: 'Follows Settings, Defaults' }, ...invoiceThemes.map((t) => ({ value: t.id, label: t.name, hint: t.blurb }))]} />
           <Field label="Due in (days)" name="due" inputMode="numeric" defaultValue={group?.dueDays ?? 7} />
         </div>
         <fieldset className="remind"><legend>Automatic reminders</legend><ReminderRules value={rules} onChange={setRules} /></fieldset>

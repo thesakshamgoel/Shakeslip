@@ -80,7 +80,7 @@ function initial(type: InvoiceType, links: ClientLink[], groups: Group[], existi
   const link = links.find((l) => l.id === preClient) ?? links.find((l) => l.status === 'active') ?? links[0]
   const g = groups.find((x) => x.id === link?.groupId)
   const now = new Date()
-  return { linkId: link?.id ?? '', theme: g?.theme ?? biz?.defaultTheme ?? type.theme, items: [blankLine()], fields: {}, gstPct: type.taxMode === 'none' ? 0 : type.defaultGst, taxInclusive: false, discount: 0, advance: 0, issued: now.toISOString(), due: isoIn(g?.dueDays ?? type.dueDays, now), note: type.defaultNote, project: '', terms: type.defaultTerms?.length ? type.defaultTerms : biz?.defaultTerms ?? [], extra: { ...DEFAULT_EXTRA, layout: (biz?.defaultLayout as Draft['extra']['layout']) ?? 'classic', customTerms: biz?.defaultCustomTerms ?? '' } }
+  return { linkId: link?.id ?? '', theme: g?.theme || biz?.defaultTheme || type.theme, items: [blankLine()], fields: {}, gstPct: type.taxMode === 'none' ? 0 : type.defaultGst, taxInclusive: false, discount: 0, advance: 0, issued: now.toISOString(), due: isoIn(g?.dueDays ?? type.dueDays, now), note: type.defaultNote, project: '', terms: type.defaultTerms?.length ? type.defaultTerms : biz?.defaultTerms ?? [], extra: { ...DEFAULT_EXTRA, layout: (biz?.defaultLayout as Draft['extra']['layout']) ?? 'classic', customTerms: biz?.defaultCustomTerms ?? '' } }
 }
 
 /* Changing the invoice type keeps what you already typed: client, lines, notes, terms, greeting and design. */

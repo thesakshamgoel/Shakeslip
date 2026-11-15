@@ -163,3 +163,6 @@ Before launch (not done)
 
 2026-11-15 studio area and PIN
 - Studio now has Area and PIN code: in setup, in Settings > Business, printed in the From block of invoices, and shared with the Slip profile (fills empty fields both ways).
+
+2026-11-15 default design
+- New invoices start with the business default design. Groups were always created with a fixed Classic look that overrode it; a group look is now optional ("My default design") and old automatic ones were reset once.

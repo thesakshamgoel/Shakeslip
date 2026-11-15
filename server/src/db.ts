@@ -81,3 +81,10 @@ export const uid = () => crypto.randomUUID()
 export const nowIso = () => new Date().toISOString()
 export const audit = (userId: string | null, action: string, entity: string, entityId: string) =>
   db.query('INSERT INTO audit (id,user_id,action,entity,entity_id,at) VALUES (?,?,?,?,?,?)').run(uid(), userId, action, entity, entityId, nowIso())
+
+/* One-off: groups used to be created with a fixed "classic" look that overrode the business's default design.
+   An empty look now means "use my default"; move the old automatic ones over so the default applies. */
+if ((db.query('PRAGMA user_version').get() as { user_version: number }).user_version < 1) {
+  db.exec("UPDATE groups SET theme = '' WHERE theme IN ('classic', 'onyx')")
+  db.exec('PRAGMA user_version = 1')
+}

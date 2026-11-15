@@ -82,7 +82,7 @@ export default function Clients() {
           <section className="grp" key={g.id || 'none'} aria-label={g.name}>
             <header className="grp-h">
               <div><h2>{g.name}</h2><span className="grp-count">{mine.length} {mine.length === 1 ? 'client' : 'clients'}</span></div>
-              {g.id && <div className="grp-side"><ul className="grp-rules"><li>{getInvoiceTheme(g.theme).name} look</li><li>Due in {g.dueDays} days</li><li>{remindText(g)}</li></ul><IconButton label={`Edit ${g.name}`} onClick={() => setGrp({ open: true, group: g })}><Pencil size={18} /></IconButton></div>}
+              {g.id && <div className="grp-side"><ul className="grp-rules"><li>{g.theme ? `${getInvoiceTheme(g.theme).name} look` : 'Your default look'}</li><li>Due in {g.dueDays} days</li><li>{remindText(g)}</li></ul><IconButton label={`Edit ${g.name}`} onClick={() => setGrp({ open: true, group: g })}><Pencil size={18} /></IconButton></div>}
             </header>
             <div className="rows">
               {mine.map((l) => (

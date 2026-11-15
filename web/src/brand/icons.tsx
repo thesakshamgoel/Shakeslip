@@ -8,6 +8,6 @@ const Mark = ({ src, alt, size, className = '', spinning }: IconProps & { src: s
   <img src={src} width={size} height={size} alt={alt} className={`logo-mark ${spinning ? 'is-spinning' : ''} ${className}`} style={{ aspectRatio: '1 / 1', objectFit: 'contain' }} />
 )
 
-export const StudioIcon = ({ size = 40, title = 'Studio', ...p }: IconProps) => <Mark src="/brand/studio.svg" alt={title} size={size} {...p} />
-export const SlipIcon = ({ size = 40, title = 'Slip', ...p }: IconProps) => <Mark src="/brand/slip.svg" alt={title} size={size} {...p} />
-export const LogoMark = ({ size = 32, title = 'Shakeslip', ...p }: IconProps) => <Mark src="/brand/shakeslip.svg" alt={title} size={size} {...p} />
+export const StudioIcon = ({ size = 40, title = 'Studio', ...p }: IconProps) => <Mark src={`${import.meta.env.BASE_URL}brand/studio.svg`} alt={title} size={size} {...p} />
+export const SlipIcon = ({ size = 40, title = 'Slip', ...p }: IconProps) => <Mark src={`${import.meta.env.BASE_URL}brand/slip.svg`} alt={title} size={size} {...p} />
+export const LogoMark = ({ size = 32, title = 'Shakeslip', ...p }: IconProps) => <Mark src={`${import.meta.env.BASE_URL}brand/shakeslip.svg`} alt={title} size={size} {...p} />

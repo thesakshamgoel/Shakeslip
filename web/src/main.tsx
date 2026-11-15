@@ -21,7 +21,7 @@ import { ToastProvider } from './lib/toast'
 if (!location.pathname.startsWith('/print/')) mountSplash()
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '')}>
       <SessionProvider>
         <ToastProvider>
           <App />

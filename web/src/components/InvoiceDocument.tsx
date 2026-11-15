@@ -33,7 +33,7 @@ function Page({ children, n, of, label }: { children: ReactNode; n: number; of: 
     <section className="dp" aria-label={`Page ${n} of ${of}: ${label}`}>
       <div className="dp-bar" aria-hidden><i /><i /></div>
       {children}
-      <footer className="dp-foot"><img src="/brand/shakeslip.svg" alt="" className="dp-foot-logo" /><span>Shakeslip</span></footer>
+      <footer className="dp-foot"><img src={`${import.meta.env.BASE_URL}brand/shakeslip.svg`} alt="" className="dp-foot-logo" /><span>Shakeslip</span></footer>
     </section>
   )
 }

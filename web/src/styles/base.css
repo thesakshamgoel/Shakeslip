@@ -1,0 +1,32 @@
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; color: var(--text);
+  /* a quiet dot grid: texture without decoration */
+  background-color: var(--bg); background-image: radial-gradient(var(--bg-dot) 1px, transparent 1.2px); background-size: 22px 22px; background-attachment: fixed;
+  font: 400 var(--t-md)/1.5 var(--font-body);
+  -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
+}
+h1, h2, h3, h4 { font-family: var(--font-display); margin: 0; letter-spacing: -.02em; line-height: 1.2; }
+p { margin: 0; }
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; background: none; border: 0; padding: 0; touch-action: manipulation; }
+a { color: inherit; text-decoration: none; }
+img, svg { display: block; max-width: 100%; }
+em, i { font-style: normal; }
+.num { font-variant-numeric: tabular-nums; }
+.trunc { min-width: 0; overflow-wrap: anywhere; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: var(--r-sm); }
+
+/* press feedback on anything tappable (motion handles buttons; this covers plain links) */
+.tap { transition: transform var(--d-fast) var(--ease-out), background-color var(--d-fast) var(--ease-out); }
+.tap:active { transform: scale(.97); }
+
+::selection { background: var(--accent-soft); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

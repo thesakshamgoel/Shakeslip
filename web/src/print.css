@@ -1,0 +1,8 @@
+@page { size: A4; margin: 0; }
+html[data-print] body { background: #fff !important; background-image: none !important; margin: 0; }
+.print-doc { width: 210mm; margin: 0 auto; }
+.print-doc .doc { gap: 0; }
+.print-doc .dp-wrap { width: 210mm; break-after: page; page-break-after: always; }
+.print-doc .dp-wrap:last-child { break-after: auto; page-break-after: auto; }
+.print-doc .dp { box-shadow: none !important; border-radius: 0 !important; min-height: 296.4mm; }
+.print-doc .df::after, .print-doc .d-stamp { animation: none !important; }

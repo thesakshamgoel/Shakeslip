@@ -1,0 +1,13 @@
+.hg { min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: var(--s-5); padding: var(--s-6) var(--s-4); text-align: center; position: relative; }
+.hg h1 { font-size: clamp(34px, 6vw, 60px); letter-spacing: -.035em; line-height: 1.05; }
+.hg h1 span { color: var(--accent); }
+.hg-fact { color: var(--text-2); font-size: var(--t-base); min-height: 1.5em; }
+.hg-pick { display: grid; grid-template-columns: repeat(2, minmax(0, 200px)); gap: var(--s-4); margin-top: var(--s-2); }
+.hg-card { display: grid; justify-items: center; gap: 6px; padding: var(--s-6) var(--s-4) var(--s-5); border-radius: var(--r-xl); background: var(--surface); border: 1px solid var(--line); }
+.hg-card.on { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.hg-card b { font: 800 var(--t-lg)/1.1 var(--font-display); margin-top: var(--s-2); }
+.hg-card small { color: var(--text-3); font-size: var(--t-sm); }
+.hg-go { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); font-size: var(--t-xs); font-weight: 700; margin-top: 4px; }
+.hg-bar { position: absolute; left: 0; right: 0; bottom: 0; height: 3px; background: var(--accent); transform-origin: left; }
+@media (max-width: 420px) { .hg-pick { grid-template-columns: 1fr 1fr; gap: var(--s-3); } .hg-card { padding: var(--s-5) var(--s-3); } }
+.hg-card { align-content: start; }

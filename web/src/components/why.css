@@ -1,0 +1,4 @@
+.why { display: grid; grid-template-columns: 18px minmax(0, 1fr) var(--tap); gap: var(--s-2); align-items: start; padding: var(--s-3) var(--s-2) var(--s-3) var(--s-3); border-radius: var(--r-md); background: var(--info-soft); color: var(--text-2); font-size: var(--t-sm); }
+.why > svg { margin-top: 3px; color: var(--accent); }
+.why b { color: var(--text); display: block; } .why p { margin: 2px 0 var(--s-1); }
+[aria-disabled='true'].soft-off { opacity: .45; }

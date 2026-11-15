@@ -1,0 +1,23 @@
+.dsg { display: grid; gap: var(--s-4); }
+.dsg .lays { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+.dsg-col { display: grid; gap: var(--s-2); }
+.dots { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: var(--s-2); justify-items: center; max-width: 440px; }
+.dot-c { position: relative; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; }
+.dot-fill { width: 30px; height: 30px; border-radius: 50%; box-shadow: 0 0 0 1px var(--line-strong); }
+.dot-ring { position: absolute; inset: 1px; border-radius: 50%; border: 2px solid var(--accent); display: grid; place-items: center; }
+.dot-ring svg { position: absolute; color: var(--accent); background: var(--surface); border-radius: 50%; padding: 2px; right: -4px; bottom: -4px; width: 18px; height: 18px; }
+.dsg-name { display: grid; gap: 2px; font-size: var(--t-sm); color: var(--text-2); } .dsg-name b { color: var(--text); }
+@media (max-width: 520px) { .dots { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+/* layout cards */
+.lays { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); }
+.lay { position: relative; display: grid; grid-template-columns: 54px minmax(0, 1fr); grid-template-rows: auto auto; column-gap: var(--s-3); text-align: left; padding: var(--s-3); border: 1px solid var(--line-strong); border-radius: var(--r-md); }
+.lay b { font-size: var(--t-sm); } .lay small { grid-column: 2; color: var(--text-3); font-size: var(--t-xs); }
+.lay-mini { grid-row: span 2; width: 54px; height: 70px; border-radius: 4px; background: #fff; display: grid; align-content: start; gap: 5px; padding: 7px; overflow: hidden; }
+.lay-mini i { display: block; height: 5px; border-radius: 2px; background: #cdd3dc; }
+.lay-mini i:nth-child(2) { width: 60%; } .lay-mini i:nth-child(3) { height: 12px; background: #0f1b33; } .lay-mini i:nth-child(4) { width: 45%; margin-left: auto; height: 8px; background: #0f1b33; }
+.lay-minimal-p .lay-mini i:nth-child(3), .lay-minimal-p .lay-mini i:nth-child(4) { background: none; border-bottom: 1.5px solid #9aa3b2; border-radius: 0; }
+.lay-band-p .lay-mini { padding-top: 0; } .lay-band-p .lay-mini i:nth-child(1) { height: 20px; margin: 0 -7px; border-radius: 0; background: #0f1b33; }
+.lay-compact-p .lay-mini { gap: 3px; } .lay-compact-p .lay-mini i { height: 4px; } .lay-compact-p .lay-mini i:nth-child(3) { height: 18px; background: repeating-linear-gradient(#e7eaf0 0 3px, #fff 3px 6px); }
+.lay-bold-p .lay-mini i:nth-child(1) { height: 12px; width: 70%; background: #0f1b33; } .lay-bold-p .lay-mini i:nth-child(2) { height: 3px; width: 100%; background: #0f1b33; }
+.lay-ledger-p .lay-mini i { border-radius: 0; background: none; border: 1px solid #9aa3b2; height: 7px; } .lay-ledger-p .lay-mini i:nth-child(3) { height: 18px; background: none; } .lay-ledger-p .lay-mini i:nth-child(4) { background: none; }

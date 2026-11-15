@@ -1,0 +1,6 @@
+.profs { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+.prof { display: grid; gap: 4px; text-align: left; padding: var(--s-4); min-height: 88px; border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); transition: border-color var(--d-fast); }
+.prof:hover { border-color: var(--accent); }
+.prof b { font-family: var(--font-display); }
+.prof span { color: var(--text-2); font-size: var(--t-sm); }
+@media (max-width: 460px) { .profs { grid-template-columns: 1fr; } }

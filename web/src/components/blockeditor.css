@@ -1,0 +1,21 @@
+.be { display: grid; gap: var(--s-3); }
+.be-bar { position: sticky; top: calc(var(--s-5) * -1); z-index: 2; display: flex; justify-content: space-between; gap: var(--s-2); flex-wrap: wrap; padding: var(--s-2); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.be-grp { display: flex; align-items: center; gap: var(--s-1); flex-wrap: wrap; }
+.be-grp[role='radiogroup'] { padding: 3px; background: var(--surface); border-radius: var(--r-md); }
+.be-btn { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; padding: 0 var(--s-3); border-radius: calc(var(--r-md) - 3px); font-weight: 600; font-size: var(--t-sm); color: var(--text-2); transition: background-color .2s, color .2s; }
+.be-btn[aria-checked='true'] { background: var(--accent); color: var(--accent-ink); }
+.be-page { display: grid; gap: 2px; min-height: 280px; padding: var(--s-4); background: var(--bg); border: 1px solid var(--line); border-radius: var(--r-lg); align-content: start; }
+.be-row { display: grid; grid-template-columns: 30px minmax(0, 1fr); align-items: start; border-radius: var(--r-sm); padding: 2px var(--s-2); transition: background-color .15s; }
+.be-row.on { background: var(--surface-2); }
+.be-mark { min-width: 26px; padding-top: 6px; color: var(--accent); font-weight: 700; font-variant-numeric: tabular-nums; line-height: 1.6; }
+.be-li .be-mark::before { content: ''; display: block; width: 6px; height: 6px; margin: 11px 0 0 4px; border-radius: 50%; background: var(--accent); }
+.be-b textarea { font-weight: 800; }
+.be-sub2 textarea { font-weight: 700; padding-top: var(--s-2); }
+.be-btn[aria-pressed='true'] { background: var(--accent); color: var(--accent-ink); }
+.be-row textarea { width: 100%; border: 0; background: none; resize: none; overflow: hidden; color: var(--text); font: inherit; line-height: 1.6; padding: 6px 0; outline: none; }
+.be-sub textarea { font-family: var(--font-display); font-weight: 700; font-size: var(--t-lg); padding-top: var(--s-3); }
+.be-row textarea::placeholder { color: var(--text-3); }
+.be-foot { display: flex; justify-content: space-between; align-items: center; gap: var(--s-3); flex-wrap: wrap; } .be-foot small { color: var(--text-3); flex: 1 1 260px; }
+.be-prev { display: grid; gap: 4px; padding: var(--s-3) var(--s-4); background: var(--surface-2); border-radius: var(--r-md); font-size: var(--t-sm); color: var(--text-2); }
+.be-prev h4 { color: var(--text); font-size: var(--t-base); margin-top: var(--s-2); } .be-prev h4:first-child { margin-top: 0; }
+.be-prev .li { padding-left: var(--s-4); position: relative; } .be-prev .li::before { content: '•'; position: absolute; left: var(--s-1); color: var(--accent); font-weight: 700; }

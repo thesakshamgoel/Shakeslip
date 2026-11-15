@@ -1,0 +1,80 @@
+/* Design tokens. Brand colour is sampled from the Shakeslip logo (#7f93b0). */
+:root {
+  --font-display: 'Plus Jakarta Sans Variable', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk Variable', system-ui, sans-serif;
+
+  /* type scale */
+  --t-xs: 12px; --t-sm: 13px; --t-md: 14px; --t-base: 16px;
+  --t-lg: 20px; --t-xl: 24px; --t-2xl: 32px; --t-3xl: 44px;
+
+  /* spacing scale (4px base) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-5: 20px;
+  --s-6: 24px; --s-8: 32px; --s-12: 48px;
+
+  /* radii: outer = inner + padding */
+  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 24px; --r-full: 999px;
+
+  /* motion profile: Apple-like. Springs for movement, ease-out for fades. */
+  --ease-out: cubic-bezier(.22, 1, .36, 1);
+  --ease-sheet: cubic-bezier(.32, .72, 0, 1);
+  --ease-apple: cubic-bezier(.25, .1, .25, 1);
+  --d-fast: 160ms; --d-base: 260ms; --d-slow: 420ms;
+
+  --tap: 44px;
+  --sidebar-w: 248px;
+  --bottom-nav-h: 64px;
+  /* the floating tab bar sits this far above the screen edge; content keeps clear of all of it */
+  --tabs-gap: 12px;
+  --tabs-space: calc(var(--bottom-nav-h) + var(--tabs-gap) * 2 + env(safe-area-inset-bottom));
+
+  /* status: the four logo-family hues, tuned for contrast */
+  --brand: #7f93b0;
+}
+
+:root[data-theme='dark'] {
+  --bg: #09090b;
+  --surface: #111113;
+  --surface-2: #18181b;
+  --surface-3: #202024;
+  --line: rgba(255, 255, 255, .08);
+  --line-strong: rgba(255, 255, 255, .16);
+  --text: #f4f4f5;
+  --text-2: #a8a8b3;
+  --text-3: #8a8a96;
+  --accent: #94aed2;
+  --accent-ink: #0a0e15;
+  --accent-soft: rgba(127, 147, 176, .16);
+  --ok: #4ec06b; --ok-soft: rgba(78, 192, 107, .14);
+  --warn: #f0b13a; --warn-soft: rgba(240, 177, 58, .14);
+  --bad: #f06a6e; --bad-soft: rgba(240, 106, 110, .14);
+  --info: #94aed2; --info-soft: rgba(127, 147, 176, .16);
+  --chart-1: #6a8fd0; --chart-2: #c9823f; /* validated: invoiced, collected */
+  --shadow: 0 1px 0 rgba(255, 255, 255, .04) inset, 0 12px 32px -16px rgba(2, 4, 10, .9);
+  --splash-bg: #09090b;
+  --canvas: #0d0e11; --canvas-dot: rgba(255, 255, 255, .07); --bg-dot: rgba(255, 255, 255, .035);
+  --island: #000000; --island-ink: #f5f5f7;
+}
+
+:root[data-theme='light'] {
+  --bg: #f5f5f6;
+  --surface: #ffffff;
+  --surface-2: #f0f0f2;
+  --surface-3: #e6e6ea;
+  --line: rgba(9, 9, 11, .09);
+  --line-strong: rgba(9, 9, 11, .18);
+  --text: #0b0b0d;
+  --text-2: #4a4a55;
+  --text-3: #62626e;
+  --accent: #4a608a;
+  --accent-ink: #ffffff;
+  --accent-soft: rgba(74, 96, 138, .11);
+  --ok: #1f7a3a; --ok-soft: rgba(31, 122, 58, .11);
+  --warn: #8a5a00; --warn-soft: rgba(176, 116, 0, .13);
+  --bad: #b3262b; --bad-soft: rgba(179, 38, 43, .1);
+  --info: #4a608a; --info-soft: rgba(74, 96, 138, .11);
+  --chart-1: #3d62a6; --chart-2: #c27a35;
+  --shadow: 0 1px 0 rgba(255, 255, 255, .8) inset, 0 10px 28px -16px rgba(30, 40, 70, .28);
+  --splash-bg: #f5f5f6;
+  --canvas: #e9eaee; --canvas-dot: rgba(9, 9, 11, .1); --bg-dot: rgba(9, 9, 11, .045);
+  --island: #0b0b0d; --island-ink: #f5f5f7;
+}

@@ -1,0 +1,15 @@
+.bn { display: flex; gap: var(--s-3); align-items: flex-start; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); font-size: var(--t-sm); }
+.bn > svg { flex: none; margin-top: 1px; }
+.bn b { display: block; color: var(--text); }
+.bn-body { color: var(--text-2); margin-top: 2px; }
+.bn-body ul { margin: 4px 0 0; padding-left: 1.1em; }
+.bn-info { background: var(--info-soft); } .bn-info > svg { color: var(--info); }
+.bn-warn { background: var(--warn-soft); } .bn-warn > svg { color: var(--warn); }
+.bn-error { background: var(--bad-soft); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bad) 35%, transparent); } .bn-error > svg { color: var(--bad); }
+/* missing fields: red outline, and a short shake each time you try to continue */
+.err .input, .err.input, .who-grid.err { border-color: var(--bad) !important; box-shadow: 0 0 0 3px var(--bad-soft); border-radius: var(--r-md); }
+@keyframes shk-a { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+@keyframes shk-b { 0%, 100% { transform: none; } 20% { transform: translateX(-6px); } 40% { transform: translateX(5px); } 60% { transform: translateX(-3px); } 80% { transform: translateX(2px); } }
+.shk-a .shake { animation: shk-a .42s cubic-bezier(.36, .07, .19, .97); }
+.shk-b .shake { animation: shk-b .42s cubic-bezier(.36, .07, .19, .97); }
+@media (prefers-reduced-motion: reduce) { .shk-a .shake, .shk-b .shake { animation: none; } }

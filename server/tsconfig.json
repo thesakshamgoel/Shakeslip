@@ -1,0 +1,1 @@
+{ "compilerOptions": { "target": "es2023", "module": "esnext", "moduleResolution": "bundler", "strict": true, "skipLibCheck": true, "noEmit": true, "types": ["bun"], "noUnusedLocals": true, "noUnusedParameters": true, "verbatimModuleSyntax": true, "allowImportingTsExtensions": true }, "include": ["src"] }

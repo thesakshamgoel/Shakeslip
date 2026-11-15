@@ -1,0 +1,11 @@
+.start { display: grid; gap: var(--s-1); margin-bottom: var(--s-6); padding: var(--s-4) var(--s-5); border: 1px solid var(--accent); border-radius: var(--r-lg); background: var(--accent-soft); }
+.start h2 { font-size: var(--t-base); margin-bottom: var(--s-1); }
+.start-i { display: flex; gap: var(--s-3); align-items: center; min-height: 56px; border-radius: var(--r-md); }
+.start-i b { display: block; } .start-i small { color: var(--text-2); font-size: var(--t-sm); }
+.start-n { flex: none; width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; border: 1.5px solid var(--accent); color: var(--accent); font-weight: 700; font-size: var(--t-sm); }
+.start-n.done { background: var(--accent); color: var(--accent-ink); }
+.stat.ok b { color: var(--ok); } .stat.bad b { color: var(--bad); }
+.dash-two { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+.chart { padding: var(--s-5); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); }
+.insight { color: var(--text-2); font-size: var(--t-sm); } .insight b { color: var(--text); }
+@media (max-width: 900px) { .dash-two { grid-template-columns: 1fr; } }

@@ -1,0 +1,22 @@
+.inv-tools { display: grid; grid-template-columns: minmax(0, 1fr) 200px 170px auto; gap: var(--s-2); align-items: center; margin-bottom: var(--s-3); }
+.inv-search { display: flex; align-items: center; gap: var(--s-2); min-height: var(--tap); padding: 0 var(--s-1) 0 var(--s-3); background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); color: var(--text-3); }
+.inv-search:focus-within { border-color: var(--accent); }
+.inv-search input { flex: 1; min-width: 0; border: 0; background: none; outline: none; font-size: 16px; color: var(--text); height: 42px; }
+.inv-sel .field > span { display: none; }
+.inv-view { display: flex; padding: 3px; gap: 2px; background: var(--surface-2); border: 1px solid var(--line); border-radius: var(--r-md); }
+.inv-view .icon-btn { width: 38px; height: 38px; }
+.inv-view .icon-btn.on { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.chip-n { opacity: .6; margin-left: 2px; }
+.inv-group { margin-bottom: var(--s-6); }
+.inv-gh { display: flex; justify-content: space-between; align-items: baseline; gap: var(--s-3); font-size: var(--t-base); padding: var(--s-2) 0; position: sticky; top: 0; z-index: 2; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); }
+.inv-gh small { color: var(--text-3); font: 600 var(--t-xs)/1 var(--font-body); }
+.inv-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: var(--s-3); }
+.inv-card { display: grid; gap: 4px; height: 100%; padding: var(--s-4); background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-lg); transition: border-color var(--d-fast), transform var(--d-fast); }
+.inv-card:hover { border-color: var(--line-strong); }
+.inv-card-top { display: flex; justify-content: space-between; align-items: center; color: var(--text-3); font-size: var(--t-xs); margin-bottom: var(--s-2); }
+.inv-card-client { font: 700 var(--t-base)/1.25 var(--font-display); }
+.inv-card-no, .inv-card-proj { color: var(--text-2); font-size: var(--t-sm); }
+.inv-card-amt { display: grid; margin-top: auto; padding-top: var(--s-3); font: 800 var(--t-xl)/1.1 var(--font-display); letter-spacing: -.02em; }
+.inv-card-amt small { font: 500 var(--t-xs)/1.4 var(--font-body); color: var(--text-3); letter-spacing: 0; }
+.inv-total { color: var(--text-3); font-size: var(--t-sm); text-align: right; padding: var(--s-3) 0; }
+@media (max-width: 900px) { .inv-tools { grid-template-columns: 1fr 1fr auto; } .inv-search { grid-column: 1 / -1; } }

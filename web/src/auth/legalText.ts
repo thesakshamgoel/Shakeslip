@@ -1,0 +1,44 @@
+/* Based on the owner's original Shakeslip terms, updated to describe how this version works.
+   Must be reviewed by a lawyer before launch. */
+export type Section = { h: string; p: string[] }
+export const LEGAL_UPDATED = 'November 2026'
+
+export const TERMS: Section[] = [
+  { h: 'What Shakeslip is', p: ['Shakeslip ("the Software") helps businesses create and send invoices (Studio) and helps their clients receive them (Slip). It is provided by its owner ("the Owner"), together with any contributors, collaborators, team members and affiliates (together, "the Team"). The Software is a drafting and delivery aid only.'] },
+  { h: 'You are the author of everything you create', p: ['All invoices, terms, clauses, amounts, tax figures, names, logos, signatures, bank details and other content ("Your Content") are created, entered, edited and issued solely by you. The Owner and the Team do not review, verify, approve, endorse or control Your Content, are not a party to any transaction or agreement between you and any other person, and accept no responsibility for it.'] },
+  { h: 'No professional advice', p: ['Templates, designs, suggested services, payment schedules, tax calculations (including the choice between IGST and CGST with SGST) and suggested terms or clauses are generic starting points only. They are not legal, tax, accounting, financial or compliance advice and may not suit your circumstances. You are responsible for checking Your Content, including GST, TDS and e-invoicing requirements, with a qualified professional before relying on it.'] },
+  { h: 'Payments are between you', p: ['Shakeslip does not collect, hold or transfer money. UPI links and QR codes open the payer\'s own payment app. Payments recorded or reported in Shakeslip are notes made by the people involved, not proof of payment. Disputes about payment are between the business and the client.'] },
+  { h: 'Acceptable use', p: ['You agree not to use the Software to create false, misleading, fraudulent, defamatory, infringing or unlawful documents, to impersonate any person or business, to send unwanted messages, or to evade tax or legal obligations. You must have the right to use any logo, image, signature or text you add. Invite only people you actually do business with.'] },
+  { h: 'Provided "as is"; no warranty', p: ['The Software is provided "as is" and "as available", without warranties of any kind, express or implied, including accuracy, fitness for a particular purpose, availability, security or non-infringement. Calculations, GSTIN checks, number-to-words conversion, date handling, numbering and layout may contain errors. Always review every document before sending or signing it.'] },
+  { h: 'Limitation of liability', p: ['To the maximum extent permitted by law, the Owner and the Team will not be liable for any direct, indirect, incidental, special, consequential or punitive loss or damage, including lost profits, lost revenue, lost data, tax penalties, disputes with clients, non-payment, or reputational harm, arising from or related to your use of the Software or any document created with it, even if advised of the possibility. Where liability cannot be excluded, it is limited to the amount you paid for the Software, which is zero.'] },
+  { h: 'Indemnity', p: ['You agree to defend and hold harmless the Owner and the Team from any claim, loss, liability or expense (including reasonable legal fees) arising from Your Content, your use of the Software, or your breach of these terms.'] },
+  { h: 'Accounts and security', p: ['You sign in with your email and a password, which we store only as a secure one-way hash. You are responsible for keeping your password private and for activity on your account. The Owner may suspend or remove access to prevent misuse. You can delete your account at any time from Settings or My details.'] },
+  { h: 'Sent invoices', p: ['When you send an invoice, it is shared with the client you sent it to and kept exactly as sent, including your business and bank details at that moment, so both sides have the same record. A client who has received an invoice can keep seeing it even if the business later changes its details.'] },
+  { h: 'Intellectual property', p: ['The Software, its design and code belong to the Owner or its licensors. You keep ownership of Your Content. You grant the Software the limited permission needed to store, process and deliver Your Content to provide its features.'] },
+  { h: 'Changes and termination', p: ['The Software and these terms may change. We will show the date of the latest version here. Continued use after a change means you accept it. Features may be modified or discontinued.'] },
+  { h: 'Governing law', p: ['These terms are governed by the laws of India. Courts at Mumbai, Maharashtra have exclusive jurisdiction, subject to any mandatory consumer rights that cannot be waived.'] },
+]
+
+export const PRIVACY: Section[] = [
+  { h: 'What we collect', p: ['Your name, email address and, if you add it, a phone number. For businesses: the business name, address, GSTIN, PAN, bank and UPI details, and signature you choose to add. For clients: the billing details you choose to add. The invoices, clients, groups and terms you create. A record of when you accepted these terms.'] },
+  { h: 'Why we use it', p: ['Only to run Shakeslip: to sign you in, to show invoices to the right people, to send the emails and updates you expect (new invoices, receipts, reminders, invites), and to keep the service secure. We do not sell your data, show you ads, or use your content to train AI models.'] },
+  { h: 'Who can see what', p: ['A business sees only its own clients and invoices. A client sees only invoices sent to them, from businesses they are connected to. Your billing details are shared only with businesses you connect to. Nobody else can open your invoices.'] },
+  { h: 'Emails and messages', p: ['We send emails that are part of the service, such as invites, invoices, receipts, reminders and password resets. WhatsApp sharing opens WhatsApp on your own device; we do not send WhatsApp messages on your behalf.'] },
+  { h: 'Cookies and storage', p: ['We use one essential cookie to keep you signed in. Your browser also remembers your light or dark choice. We do not use advertising or tracking cookies, and we do not run third-party analytics.'] },
+  { h: 'How long we keep it', p: ['We keep your account while you use it. If you delete your account, you are signed out everywhere and your login stops working. Invoices that were already sent remain part of the other party\'s records, because tax law expects businesses to keep them.'] },
+  { h: 'Your rights', p: ['You can see and correct your details at any time in the app, and delete your account from Settings or My details. For anything else, including a copy of your data, contact the Owner. These rights are in line with India\'s Digital Personal Data Protection Act.'] },
+]
+
+export const COOKIES: Section[] = [
+  { h: 'What we store', p: ['One essential cookie, named ss_session, keeps you signed in. It is HttpOnly (scripts cannot read it), lasts up to 30 days, and is deleted when you sign out.', 'Your browser also remembers a few preferences on your device only: light or dark mode, the last page you had open, and whether you have seen this notice.'] },
+  { h: 'What we do not store', p: ['No advertising cookies, no tracking pixels, no third-party analytics, and nothing that follows you to other sites.'] },
+  { h: 'Your choices', p: ['Because we only use what is needed for the app to work, there is nothing to switch off. You can clear cookies and site data in your browser at any time; you will simply be signed out.'] },
+]
+
+export const LICENCE: Section[] = [
+  { h: 'Your licence to use Shakeslip', p: ['You may use Shakeslip to create, send, receive and keep invoices and related documents for your own business or personal use. This is a personal, non-transferable, revocable permission.'] },
+  { h: 'What you may not do', p: ['Copy, resell or rebrand the software; reverse engineer it beyond what the law allows; scrape or overload the service; use it to send spam or unsolicited invoices; try to access accounts, invoices or data that are not yours; or remove notices of ownership.'] },
+  { h: 'Fair use', p: ['Invite only people you actually do business with. Automated reminders and messages must relate to real invoices. We may limit or suspend accounts that are used to harass people or that put the service at risk.'] },
+  { h: 'Open-source components', p: ['Shakeslip is built with open-source libraries and fonts, each under its own licence. A list is kept in the CREDITS file that ships with the software.'] },
+  { h: 'Ownership', p: ['The software, its design and code belong to the Owner. Your invoices, client details and documents belong to you.'] },
+]

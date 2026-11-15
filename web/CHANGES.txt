@@ -1,0 +1,6 @@
+
+2026-11-15 mobile refinement (v5)
+- Phone layer: slide push/pop/tab transitions, swipe between tabs, edge-swipe back, pull-to-refresh, back-bar with titles.
+- Bottom sheets: grab handle and drag to dismiss. Settings is a list that opens section screens.
+- Invoice detail: tile actions. Editor: compact header, swipe between steps, full-screen flow with close button.
+- More: light/dark toggle. Manifest shortcuts: New invoice, Invoices, Clients.

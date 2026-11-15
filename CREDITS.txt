@@ -1,0 +1,8 @@
+Shakeslip v2 credits
+Fonts (self-hosted via npm, SIL Open Font License 1.1): Plus Jakarta Sans, Hanken Grotesk, and for signatures Great Vibes, Allura, Caveat, Dancing Script, Sacramento, Parisienne (fontsource packages)
+Icons: Lucide (ISC licence) via lucide-react; Studio and Slip app icons drawn for this project
+Libraries: React, React Router, Motion, Vite (MIT)
+Logo and loader mark: Shakeslip logo supplied by the owner. The personal brush logo is not used.
+QR codes: qrcode (MIT), generated in the browser.
+Terms of use wording: adapted from the owner's original Shakeslip terms.
+Demo logos: simple fictional marks drawn for this project (server/src/demoLogos.ts), local testing only.

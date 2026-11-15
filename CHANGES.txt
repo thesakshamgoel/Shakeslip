@@ -1,0 +1,138 @@
+2026-11-14  v2 frontend preview (no backend)
+- New project v2/web: Vite, React, TypeScript, React Router, Motion. Runs locally: npm run dev (port 5173).
+- Brand: Shakeslip star-ring logo and the original loader kept as is (spin, settle upright, star-shaped reveal).
+- New Studio and Slip icons drawn in the logo's ring language.
+- Studio: dashboard, invoices (URL-synced filters), invoice detail, create invoice with live A4 preview, clients and groups.
+- Slip: inbox, invoice view (pay notice, confirm details, ask for change), activity, my details.
+- Invoice themes are a registry (v2/web/src/themes/invoice.ts): Onyx, Swiss, Editorial. Add one by adding an entry.
+- Dark and light themes, mobile bottom tabs, desktop sidebar.
+- All data is sample data. Nothing is saved or sent.
+
+2026-11-15  v2 real software (local)
+- Logo: icons now use your exact ring (inner star removed, ring pixels untouched) with a page+plus glyph (Studio) and a receipt glyph (Slip).
+- New API (v2/server): Bun, Hono, SQLite. Accounts with Argon2id, sessions, login rate limit, password reset, CSRF and security headers, soft account deletion.
+- Studio: setup, dashboard with a getting-started checklist, invoices, create invoice from any type, invoice types builder (custom fields, columns, tax, prefix), clients and groups (look, due days, reminders), settings with connect link and QR.
+- Slip: inbox, invoice view (I have paid, details correct, ask for a change), connections (join by code or link), updates, my details.
+- Linking: email invite, WhatsApp share, single-use link, QR, business connect code with approval.
+- Automation: emails and updates on send, view, payment, reminders; numbering assigned at send.
+- Tests: 5 API tests (journey, privacy between users, rate limit, reset) all pass.
+- Removed the Phase 1 sample data and mock pages.
+
+Before launch (not done)
+- Email verification at sign-up, and a real email provider key.
+- PDF attached to emails (today: portal link plus browser print to PDF).
+- Fully automatic WhatsApp (needs Meta Business API); today it opens WhatsApp ready to send.
+- Terms and privacy text is a draft and needs a lawyer.
+- Hosting, HTTPS, backups with a tested restore, error reporting, Search Console/Analytics.
+- Remove leftover Vite template files: web/public/vite.svg, web/public/icons.svg, web/public/favicon.svg, web/src/assets/.
+
+2026-11-15  v3 (new folder; v2 left untouched)
+- Home page rebuilt around a live story of the product, plus how it works, smart features, the six designs, and privacy.
+- Invoice document rebuilt on the original Shakeslip layout: meta table, project banner, amount in words, bank table, UPI QR, signature, Terms pages, paid/overdue stamps. Six designs.
+- Guided editor: Client, Items, Amounts, Terms, Review. Undo/redo, item memory, profession quick-add, IGST/CGST explainer, Terms library with Suggest, pre-flight checks, animated Sent.
+- Smart: GSTIN check digit, IGST vs CGST/SGST, tax-inclusive, amount in words (lakh/crore), UPI deep link and QR, gap-free numbering, Duplicate, dashboard insights and chart.
+- Motion: spinning logo ring while working, island notifications, count-up numbers, page and step transitions, zoomable document canvas, Cmd+K palette.
+- Settings: PAN, state, website, profession, UPI and bank, signature (typed or image). Setup asks for your profession.
+- Full Terms of use and Privacy policy, based on the original wording, updated for how v3 works. Still needs a lawyer.
+- Server: additive migrations, frozen business snapshot on send, item suggestions, duplicate, insights. 7 tests pass.
+
+2026-11-15  v4 (new folder; v3 left untouched)
+- Audited the original tool panel by panel and brought over what was missing: client title, kind attention and salutation, area and PIN, scope builder with service chips and prefix formats, category and completion date, payment terms with schedule, currencies, units, bank/QR/mobile toggles, draw/type/upload signature, grouped Terms, custom terms, Annexure page, Void, logo with four sizes, Corporate, Nordic Mint and Sunset Coral designs.
+- New: client logos (set by the business or by the client in Slip), smart paste for client details, Match services for terms, Annexure written from scope.
+- Editor follows along: the part of the invoice you are editing glows, and the Terms page opens when you edit terms. Pages grow instead of cutting content.
+- Home page: hero tilt and scroll drift, professions strip, live smart-paste demo, nine-design showcase.
+- Server: additive migrations, logo and client detail fields, invoice extras, void, currency-aware emails. 8 tests pass.
+
+2026-11-15  v5 (started; v4 untouched)
+- Footer logo + name, no page numbers, no side-lines, terms only paginate when full, Terms page switch, sharp loader, zoom slider + full screen + pan, no double scroll in editor, amounts moved to Amounts step, remembers last page, /maintenance page.
+- Remaining work planned in PLAN-v5.md.
+- Amounts step fixed: description gets its own full-width row (it was squeezed to one letter per line), past-item suggestions no longer cover the Qty and Rate fields (tapping Rate was picking an old item), solid Back/Next bar.
+- Planned for after reset: unsaved-changes prompt, 24 h connect codes, return-visit app chooser, FAQs, service catalogue with rates, client data sharing controls, multiple emails/phones/addresses, what-you-do tags, recents and history, undo/redo states, calmer grouping (PLAN-v5.md items 32-42).
+- Planned: privacy hardening, better step order, rebuilt lines editor, INR only, true PDF download, richer payment recording, bigger auto terms + liability pop-up, sorting, grid/list view, time-based greeting splash, leave protection, shake on missing fields, design flow pass (items 43-55).
+2026-11-16  v5 continued (plan items 1-6, 41, 44-47, 53-54 done)
+- Own dropdown and calendar everywhere (no OS controls, long text wraps, search in long lists, keyboard friendly).
+- Editor in six steps: Client, Work, Amounts, Payment, Terms, Review. New line table (drag to reorder, duplicate, Enter for a new line, labels in card layout), live total in the bottom bar, new Payment step with a timeline schedule.
+- Guidance: banners list what is missing, missing fields shake and turn red, matching parts of the invoice preview are outlined in red; Send jumps to the first problem.
+- Selected states: filled and ticked on cards, radios, signature styles and designs.
+- Terms follow the payment plan, services and due date while in suggested mode; plan-specific clause wording with live amounts.
+- Undo and redo greyed out when unavailable; autosave every 20 seconds; leaving with unsaved changes asks Save draft, Discard or Stay.
+- INR only, other currencies marked coming soon.
+- Real PDF download: rendered on the server from the same design at A4 (vector text, all pages, named by invoice number), for Studio and Slip.
+- Settings rebuilt into sections (Business, Getting paid, Invoice defaults, Logo and signature, Connect link, Account and privacy) with a side menu kept in the URL; each section saves on its own.
+- Payment QR: upload your own QR image or use the generated UPI QR, chosen per invoice. Several labelled payment numbers with a default, chosen per invoice.
+- Default design and default terms in Settings, used by every new invoice.
+- Invoice list: search (number, client, project, amount), sort (newest, oldest, due soonest, client, highest amount, most owed, status), group (client, month, status), list or grid view, counts on status chips, owed totals per group; all kept in the URL.
+- Legal: Cookie policy and Software licence and acceptable use pages, links in footer and Settings; an honest cookie notice (one essential cookie, no tracking).
+- Return-visit greeting: after the loader, "Good morning/afternoon/evening, name" with one useful fact and Studio or Slip cards, then your last page. Once per visit; waits for the loader to finish.
+- Designs split into 4 layouts (Classic, Minimal, Header band, Compact) and 16 colour sets including 7 dark ones (Midnight, Forest Night, Plum Dark, Graphite, Deep Ocean, Espresso, Slate Dusk); layout picker in Review.
+- Name the exact job (what, of a, named) feeds the project title, banner and first line.
+- More clause groups (usage and confidentiality, expenses and delays), annexure templates with live tokens, and a one-time liability confirmation per client and project before sending suggested terms (recorded on the invoice).
+- Money in and out: record payment, advance, TDS, write-off or refund with method, date, reference and note; history list on the invoice; refunds re-open the balance (tested).
+- Connect codes refresh every 24 hours (time left shown); invite links last 24 hours.
+- Google and Apple sign-in buttons on login and sign-up, ready for Firebase (they explain they are coming soon).
+- Rubber-band bounce at the ends of pages for mouse and trackpad scrolling.
+- Insights on Home (16): financial year and client filters (kept in the URL); invoiced, collected, GST charged (CGST/SGST/IGST split) and quotes won; invoiced vs collected by month with hover/focus tooltip and a table view; overdue ageing (0-30, 31-60, 60+ days); top clients with how fast they usually pay. Chart colours checked for colour-blind safety in light and dark.
+- Quotations: "Turn into invoice" makes an invoice draft from a quotation and links the two, so conversion is counted (tested).
+- Automation (13, 19): new Settings > Automation with a reminder schedule and an optional late fee (percent a month or flat, with a grace period). Reminders mention the fee; a sent invoice is never changed, "Bill late fee" drafts a separate invoice. Per invoice in Payment: use the usual schedule, a custom one, or none, and "Repeat every month" (a copy is drafted a month later, once). Group dialog uses the same reminder chips. Tested on the server (11 tests).
+- Services and rates (36): new Settings section for services (name, rate, per hour/day/project/video/photo/month, star favourites) and packages (bundle services at one price, shows the saving). In the Work step, catalogue services come first with their rates, packages add one line, rates fill in automatically (one line sums them until you type your own), and the catalogue leads the line suggestions in Amounts. Server validates and keeps packages to your own services (tested, 12 tests).
+- Plain-language limit messages instead of raw validation text for rates and prices.
+- Create stands out (25): filled accent Create in the sidebar and a raised Create button in the phone tab bar.
+- Home is calmer: the old six-month chart (duplicated by Insights, and its labels were cut off) is gone; Needs attention and Recent activity sit side by side, with an all-clear line when nothing needs you.
+- Sign in and sign up (22): faint brand rings drift slowly behind the form (transform only, still with reduced motion); on desktop a side panel shows an example invoice, an inbox notice and three plain facts, labelled as an example; sign-up role cards carry the Studio and Slip icons.
+- FAQ page (35, public part): /faq with grouped questions and answers that match what the product does today; the open question is kept in the link. Linked from the landing footer, legal pages and Settings. Per-client FAQs are still to do.
+- Web app manifest so Shakeslip can be added to the home screen and open like an app (logo resized only, not altered).
+- Group suggestions (18): Clients page offers one-tap groups for monthly retainers (invoiced in 3+ of the last 6 months) and clients in other states (IGST), only when they are not already grouped on their own; Make group creates it and moves them, or dismiss it.
+
+2026-11-15 (feedback round: defaults, send, PDF, drafts)
+- Scroll: removed the custom overscroll bounce (it lagged); native scrolling is back.
+- Create: bold accent-coloured text in the sidebar and tab bar, no fill.
+- Invoice defaults: fixed overlapping design cards (chart legend CSS reused the .sw class). New shared DesignPicker: 6 layouts (added Bold, Ledger) and 16 colour circles. Default layout saved per business (default_layout).
+- Greyed-out options stay tappable and open a reason card with a fix link (QR image, UPI QR, bank details).
+- Terms: clause chips show short titles, no "..." cut-offs; .trunc and landing ellipsis now wrap.
+- Terms and annexure: new block editor (Heading, Point, Text buttons, move, delete, Enter for next line) in a large dialog; no # or - typed. Used in editor, annexure and defaults.
+- Send dialog: Through Shakeslip or Just the PDF, plus "ask the client to accept and sign". Client signs in Slip (typed name, optional drawn signature); both sides notified; signature prints on the invoice; PDF-only invoices stay out of the Slip inbox. Server: needs_accept, accepted_*, delivery columns, POST /slip/invoices/:id/accept, test added (13 pass).
+- PDF: no blank page. Long invoices now split across A4 pages (docPlan.ts); totals and payment block move to a page of their own when they do not fit. Page height 141.2cqw, trailing break removed.
+- Amount in words now shows the amount after discount and advance.
+- Add a client from inside the invoice editor (invite dialog); the new client is selected.
+- Text boxes have caps (lib/limits.ts) with a visible count near the limit.
+- Calendar and dropdowns open upward or align right when there is no room.
+- Drafts: unsent work is kept in the browser as you type, restored after refresh, offered on the Create page.
+- Logos: Shakeslip, Studio, Slip SVGs from /Logos now used for the mark, Studio and Slip icons, loader, favicon and invoice footer. PNG kept for apple-touch icon.
+
+2026-11-15 (round 3)
+- Logos: tight viewBox on the public SVG copies (artwork untouched, originals in /Logos unchanged) so they show larger; sidebar, auth and landing marks enlarged. Loader restored to the original PNG mark (my SVG swap had broken it).
+- Discount: amount or percent (5/10/15/20/25 or typed); invoice shows "Discount (10%)"; saved as the rupee amount. extra.discountPct on the server.
+- Next button: label slides between steps, arrow nudges; gentler step transition.
+- Terms/annexure editor: Heading (auto-numbered), Subheading, Point, Numbered, Text, Bold; headings numbered on the invoice; "Write everything myself" clears library clauses.
+- Connect link: after sign-in or sign-up the client is connected automatically; new businesses default to connecting straight away (switchable in Settings).
+- Popups at top right with a soft synthesized chime for new updates; connection requests have Approve/Decline.
+- Greeting: banner offers "Update to latest" when the client's title or name changed.
+- Change type keeps client, lines, notes, terms, greeting and design.
+- QR: two options (UPI QR, My QR image) plus a Show QR switch; missing UPI ID or QR image can be added inline and saves to Settings.
+- Multiple emails (Settings > Getting paid) and numbers; per invoice tick which print, with + to add; remembered per client (this browser).
+- Invoice defaults: live preview.
+
+2026-11-15 (round 4)
+- Home page (/): sign-in card beside the headline; "Welcome to Shakeslip" on a first visit, "Welcome back" after. The product scene moved below.
+- Welcome greeting ("Good afternoon, Riya"): centred, holds, then glides into the page heading while the app fades in. Plays after signing in or after 6+ hours away, not on every load. /home is now just a redirect (home.css is unused; delete it by hand).
+- Shimmering steel name with soft glow, as in the original app (styles/glow.css): brand name everywhere, hero emphasis, greeting name. Still for reduced motion.
+- Studio/Slip switch: the other app's logo turns like the loader while it opens.
+- Contacts on the invoice header can be unticked (none chosen means none; untouched means the defaults); main email and number are in the list; multiple emails in Settings and on the invoice verified.
+- Auto-generated clauses can be edited in place (pencil); annexure editor already worked.
+- Payment: client taps "Payment done" and picks UPI, Card, Cash, Bank transfer or Something else; the business sees how they paid.
+- Ask for a change: tap the invoice to drop numbered marks, describe each; the business sees the marks on the invoice and a list. Server: annotations table, 14 tests pass.
+- Reminders after the due date: Daily, Weekly, Monthly.
+- AppShell.tsx was accidentally emptied and rebuilt from v4 plus this version's changes; check it.
+
+2026-11-15 (round 5)
+- Annexure editor bug: it opened empty after "Write from scope" and typing overwrote the annexure (two effects raced). Fixed with a functional update.
+- Terms: "Edit all in one place" / "Edit with the suggested terms" moves every suggested clause into the editor as headings and points ({tokens} kept), so any word can be changed; Undo brings them back.
+- Leave prompt now also catches the browser back button, the search palette (Enter no longer lands on the prompt's close button) and the Studio/Slip switch (lib/navguard.ts).
+- Studio/Slip switch: opens instantly (the 750 ms wait is gone) with a short loader using the target app's logo.
+- Glow: no animated filter any more (the lag); shimmer moves only the background.
+- Home hero rebuilt (landing/Hero.tsx): headline rises word by word, brand rings turn slowly behind it with gentle pointer parallax (fully in view), a live line cycles through an invoice's journey, three status chips float round the sign-in card, hero eases away on scroll. Product scene now reveals on scroll (its scroll drift caused the breakage). No autofocus on the home page (it scrolled phones to the form).
+- App icons for the phone: app-192/512, maskable 512 and apple-touch 180 from the new SVG on the dark background; manifest opens /home.
+
+2026-11-15 (round 6)
+- Phone tab bar: now a floating, rounded bar that stays on screen while scrolling. Cause of it sitting at the page end: the app fade-in left a transform on the frame, which broke fixed positioning; the frame now fades with opacity only and the content slides. Editor footer and cookie notice sit above the bar.
+- Studio | Slip switch at the top (sidebar under the logo; phone top bar between logo and search): the highlight slides to the other side and its logo spins like the loader, then the other app opens with a short logo loader. Old bottom switch button removed.

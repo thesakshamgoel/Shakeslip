@@ -1,0 +1,10 @@
+.dt { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: var(--s-8); align-items: start; }
+.dt-form { display: grid; gap: var(--s-4); justify-items: start; }
+.dt-form .grid2 { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-3); }
+.dt-form .field { width: 100%; }
+.dt-side { display: grid; gap: var(--s-3); color: var(--text-2); }
+.dt-side h2 { display: flex; align-items: center; gap: var(--s-2); font-size: var(--t-base); color: var(--text); }
+.dt-side ul { list-style: none; padding: 0; margin: 0; border-top: 1px solid var(--line); }
+.dt-side li { display: flex; justify-content: space-between; gap: var(--s-3); min-height: 48px; align-items: center; border-bottom: 1px solid var(--line); }
+.dt-side li b { color: var(--text); font-weight: 600; min-width: 0; }
+@media (max-width: 900px) { .dt { grid-template-columns: minmax(0, 1fr); } .dt-form .grid2 { grid-template-columns: 1fr; } .dt-form .btn { width: 100%; } }

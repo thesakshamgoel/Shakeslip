@@ -1,0 +1,5 @@
+.soc { display: grid; gap: var(--s-2); }
+.soc-b { display: flex; align-items: center; justify-content: center; gap: 10px; min-height: 48px; border-radius: var(--r-md); border: 1px solid var(--line-strong); background: var(--surface); font-weight: 600; transition: background-color var(--d-fast); }
+.soc-b:hover { background: var(--surface-2); }
+.soc-or { display: flex; align-items: center; gap: var(--s-3); color: var(--text-3); font-size: var(--t-xs); margin: var(--s-2) 0; }
+.soc-or::before, .soc-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }

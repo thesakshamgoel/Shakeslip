@@ -1,0 +1,9 @@
+.island-wrap { position: fixed; top: calc(10px + env(safe-area-inset-top)); left: 0; right: 0; z-index: 9500; display: flex; justify-content: center; pointer-events: none; padding: 0 16px; }
+.island {
+  display: flex; align-items: center; gap: 10px; max-width: min(480px, 100%); padding: 10px 18px 10px 10px; border-radius: 999px;
+  background: var(--island); color: var(--island-ink); font-weight: 600; font-size: var(--t-sm); line-height: 1.35;
+  box-shadow: 0 10px 30px -10px rgba(0, 0, 0, .55), 0 0 0 1px rgba(255, 255, 255, .06);
+}
+.island-ic { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; }
+.island-ok .island-ic { background: #30d158; color: #002b0f; }
+.island-bad .island-ic { background: #ff453a; color: #fff; }

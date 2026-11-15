@@ -1,0 +1,16 @@
+.welcome { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; background: var(--bg); padding: var(--s-6); text-align: center; }
+.greet-big { font: 800 clamp(2rem, 6vw, 4rem)/1.15 var(--font-display); letter-spacing: -.03em; }
+.greet-h { font: 800 var(--t-2xl)/1.15 var(--font-display); letter-spacing: -.03em; }
+/* The frame only fades (a transform on it would stop the floating tab bar from staying on screen).
+   The content slides up a touch, and keeps no transform once it has arrived. */
+.shell-in { animation: shell-fade .6s cubic-bezier(.22, 1, .36, 1) backwards; }
+.shell-in > .main { animation: shell-rise .7s cubic-bezier(.22, 1, .36, 1) backwards; }
+@keyframes shell-fade { from { opacity: 0; } }
+@keyframes shell-rise { from { transform: translateY(14px); } }
+@media (prefers-reduced-motion: reduce) { .shell-in, .shell-in > .main { animation: none; } }
+.shell-wait { opacity: 0; }
+.welcome .greet-big { will-change: transform; }
+
+.switch-ov { position: fixed; inset: 0; z-index: 190; display: grid; place-items: center; background: var(--bg); }
+.switch-ov-in { display: grid; justify-items: center; gap: var(--s-3); } .switch-ov-in b { font: 800 var(--t-xl)/1.2 var(--font-display); letter-spacing: -.02em; }
+.switch-ov .logo-mark.is-spinning { animation-duration: 1s; }

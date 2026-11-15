@@ -1,0 +1,4 @@
+@keyframes ring-spin { to { transform: rotate(360deg); } }
+.logo-mark.is-spinning { animation: ring-spin 6s linear infinite; }
+@media (prefers-reduced-motion: reduce) { .logo-mark.is-spinning { animation: none; } }
+.ptr .logo-mark.is-spinning { animation-duration: .9s; }

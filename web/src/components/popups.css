@@ -1,0 +1,7 @@
+.pop-wrap { position: fixed; top: var(--s-4); right: var(--s-4); z-index: 80; display: grid; gap: var(--s-2); width: min(380px, calc(100vw - 2 * var(--s-4))); pointer-events: none; }
+.pop { pointer-events: auto; display: grid; grid-template-columns: 36px minmax(0, 1fr) var(--tap); gap: var(--s-2); align-items: start; padding: var(--s-3) var(--s-2) var(--s-3) var(--s-3); background: var(--surface); border: 1px solid var(--line-strong); border-radius: var(--r-lg); box-shadow: 0 20px 50px -20px rgba(0, 0, 0, .6); }
+.pop-ask { border-color: var(--accent); }
+.pop-ic { display: grid; place-items: center; width: 36px; height: 36px; border-radius: 50%; background: var(--accent-soft); color: var(--accent); }
+.pop-t { display: grid; gap: 2px; min-width: 0; font-size: var(--t-sm); } .pop-t b { overflow-wrap: anywhere; } .pop-t span { color: var(--text-2); overflow-wrap: anywhere; }
+.pop-act { display: flex; gap: var(--s-2); margin-top: var(--s-2); flex-wrap: wrap; }
+@media (max-width: 900px) { .pop-wrap { top: calc(var(--s-3) + env(safe-area-inset-top)); right: var(--s-3); } }

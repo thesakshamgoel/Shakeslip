@@ -1,0 +1,17 @@
+/* The Shakeslip name, as in the original app: a slow steel shimmer with a soft glow.
+   Used for the name and for one emphasised phrase per screen, never for body text. */
+@keyframes ss-shimmer { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+.glow-text, .brand-word, .au-brand > span, .lp-brand > span, .lg-brand > span, .hg h1 span, .greet-name {
+  display: inline-block; padding: 2px 2px 6px 0; overflow: visible;
+  background: linear-gradient(100deg, #e2e8f0 0%, #94a3b8 25%, #c7d2e4 50%, #7f93b0 75%, #e2e8f0 100%); background-size: 200% 100%;
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; color: transparent;
+  /* the shimmer moves only the background; the glow is a fixed soft shadow, so nothing heavy repaints each frame */
+  filter: drop-shadow(0 0 7px rgba(148, 175, 215, .45));
+  animation: ss-shimmer 7s linear infinite;
+}
+:root[data-theme='light'] .glow-text, :root[data-theme='light'] .brand-word, :root[data-theme='light'] .au-brand > span, :root[data-theme='light'] .lp-brand > span,
+:root[data-theme='light'] .lg-brand > span, :root[data-theme='light'] .hg h1 span, :root[data-theme='light'] .greet-name {
+  background-image: linear-gradient(100deg, #2b4062 0%, #5b7499 25%, #3d5a80 50%, #7f93b0 75%, #2b4062 100%);
+}
+:root[data-theme='light'] .glow-text, :root[data-theme='light'] .brand-word, :root[data-theme='light'] .greet-name { filter: drop-shadow(0 0 5px rgba(61, 90, 128, .25)); }
+@media (prefers-reduced-motion: reduce) { .glow-text, .brand-word, .au-brand > span, .lp-brand > span, .lg-brand > span, .hg h1 span, .greet-name { animation: none; } }

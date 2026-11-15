@@ -1,0 +1,35 @@
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: var(--tap); color: var(--text-2); font-weight: 600; margin-bottom: var(--s-2); border-radius: var(--r-md); }
+.back:hover { color: var(--text); }
+.split { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: var(--s-8); align-items: start; }
+.split-side { display: grid; gap: var(--s-4); position: sticky; top: var(--s-6); }
+.balance { display: grid; gap: 2px; }
+.balance small { color: var(--text-2); font-weight: 600; }
+.balance b { font: 800 var(--t-2xl)/1.1 var(--font-display); letter-spacing: -.02em; }
+.stack { display: grid; gap: var(--s-2); }
+.notice { color: var(--ok); font-size: var(--t-sm); background: var(--ok-soft); padding: var(--s-3); border-radius: var(--r-md); }
+.side-h { font-size: var(--t-base); margin-top: var(--s-2); }
+@media (max-width: 900px) { .split { grid-template-columns: minmax(0, 1fr); gap: var(--s-6); } .split-side { position: static; } .split-main { order: 2; } .split-side { order: 1; } }
+@media print { .side, .topbar, .tabs, .split-side, .ph, .back { display: none !important; } .shell { display: block; } .page { padding: 0; max-width: none; } }
+.claim { display: grid; gap: var(--s-2); padding: var(--s-3); border: 1px solid var(--warn); background: var(--warn-soft); border-radius: var(--r-md); }
+.dlg-form { display: grid; gap: var(--s-4); }
+.paylist { list-style: none; margin: 0; padding: 0; } .paylist li { display: flex; justify-content: space-between; gap: var(--s-3); padding: var(--s-2) 0; border-bottom: 1px solid var(--line); } .paylist span { display: grid; min-width: 0; } .paylist small { color: var(--text-3); font-size: var(--t-xs); } .paylist .neg { color: var(--warn); }
+
+.claim b { color: var(--text); } .claim > span { color: var(--text-2); font-size: var(--t-sm); }
+.claim.ok-card { border-color: var(--ok); background: var(--ok-soft, var(--surface-2)); }
+.sig-done { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); padding: var(--s-3); background: #fff; border-radius: var(--r-md); } .sig-done img { max-height: 64px; max-width: 60%; object-fit: contain; }
+
+.notes { display: grid; gap: var(--s-3); padding: var(--s-3); border: 1px solid var(--accent); border-radius: var(--r-md); background: var(--accent-soft); }
+.note-i { display: grid; grid-template-columns: 26px minmax(0, 1fr) var(--tap); gap: var(--s-2); align-items: start; } .note-i b { display: grid; place-items: center; width: 26px; height: 26px; margin-top: 8px; border-radius: 50%; background: #d93a3f; color: #fff; font-size: 13px; }
+.mark-list { display: grid; gap: var(--s-2); } .mark-list p { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: var(--s-2); } .mark-list b { display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; background: #d93a3f; color: #fff; font-size: 13px; }
+
+/* phone: the amount, one big action, then the rest as a tidy tile grid, the way a banking app does it */
+@media (max-width: 900px) {
+  .ph { align-items: center; }
+  .ph h1 { font-size: var(--t-xl); }
+  .balance { padding: var(--s-4) var(--s-5); border-radius: var(--r-lg); background: var(--surface); border: 1px solid var(--line); }
+  .split-side .stack { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); }
+  .split-side .stack > .btn-primary, .split-side .stack > .btn-block.btn-primary { grid-column: 1 / -1; min-height: 56px; font-size: var(--t-base); }
+  .split-side .stack > .btn:not(.btn-primary) { flex-direction: column; justify-content: center; min-height: 84px; height: auto; padding: var(--s-3) var(--s-1); gap: 8px; font-size: var(--t-xs); line-height: 1.2; text-align: center; background: var(--surface); border: 1px solid var(--line); }
+  .split-side .stack > .btn:not(.btn-primary) svg { width: 22px; height: 22px; color: var(--accent); }
+  .split-main::before { content: 'Invoice'; display: block; font: 700 var(--t-base) var(--font-display); margin-bottom: var(--s-3); }
+}

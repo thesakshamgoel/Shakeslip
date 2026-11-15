@@ -136,3 +136,9 @@ Before launch (not done)
 2026-11-15 (round 6)
 - Phone tab bar: now a floating, rounded bar that stays on screen while scrolling. Cause of it sitting at the page end: the app fade-in left a transform on the frame, which broke fixed positioning; the frame now fades with opacity only and the content slides. Editor footer and cookie notice sit above the bar.
 - Studio | Slip switch at the top (sidebar under the logo; phone top bar between logo and search): the highlight slides to the other side and its logo spins like the loader, then the other app opens with a short logo loader. Old bottom switch button removed.
+
+2026-11-15 swipe, editor view button, one-step sign in
+- Swipe rebuilt: the page follows the finger one to one, finishes the slide from where you let go, and the next page glides in (no snap-back, no second animation). Edges push back with a rubber band.
+- Editor (phone): one icon button for Preview / Edit, always at the bottom. Tapping a step number returns to Edit and names the step.
+- Sign in and sign up are one flow: an email or Google account with no account goes straight on to creating one, no error. Signing up with an existing email and the right password just signs in.
+- Production: opener policy allows the Google popup.

@@ -30,7 +30,8 @@ export function SocialButtons({ role, agree, next, onError }: Props) {
     try {
       const idToken = await googleIdToken()
       if (!idToken) return
-      const r = await post<{ next: string | null }>('/account/google', { idToken, role, acceptTerms: role ? true : undefined })
+      const r = await post<{ next: string | null; needs?: 'setup'; email?: string; name?: string }>('/account/google', { idToken, role, acceptTerms: role ? true : undefined })
+      if (r.needs) { nav(`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`, { state: { google: { idToken, email: r.email, name: r.name } } }); return }
       markLogin(); await refresh()
       nav(next ?? r.next ?? '/home', { replace: true })
     } catch (x) { say(errText(x)) } finally { setBusy(false) }

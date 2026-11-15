@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '../components/Button'
 import { Field } from '../components/Field'
-import { errText, post } from '../lib/api'
+import { ApiError, errText, post } from '../lib/api'
 import { useSession } from '../lib/session'
 import { markLogin } from '../lib/welcome'
 import { AuthLayout } from './AuthLayout'
@@ -25,7 +25,11 @@ export function LoginPanel({ next, autoFocus = false }: { next: string | null; a
       await post('/account/login', { email: f.get('email'), password: f.get('password') })
       markLogin(); await refresh()
       nav(next ?? '/home', { replace: true })
-    } catch (x) { setErr(errText(x)) } finally { setBusy(false) }
+    } catch (x) {
+      /* no account yet: carry on to creating one, with the email already filled in */
+      if (x instanceof ApiError && x.code === 'ERR-AUTH-404') { nav(`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`, { state: { email: String(f.get('email') ?? '') } }); return }
+      setErr(errText(x))
+    } finally { setBusy(false) }
   }
 
   /* Local testing only: this block is removed from production builds. */

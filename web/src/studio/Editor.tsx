@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, ArrowRight, FileDown, MessageCircle, Redo2, Save, Send, Undo2, UserPlus } from 'lucide-react'
+import { ArrowLeft, ArrowRight, FileDown, MessageCircle, Eye, Pencil, Redo2, Save, Send, Undo2, UserPlus } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { autoMatch, suggestClauses } from '../lib/clauses'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -33,11 +33,24 @@ import { PaymentStep } from './editor/PaymentStep'
 import { Banner } from '../components/Banner'
 import { clearCarry, clearDraft, draftKey, readCarry, readDraft, writeCarry, writeDraft } from './editor/localDraft'
 import { SendDialog, type SendOpts } from './editor/SendDialog'
+import { tick } from '../mobile/basics'
 import { useSwipeClaim } from '../mobile/swipe'
 import TypePicker from './TypePicker'
 import './editor/editor.css'
 
 const BACK = '__back'
+/* One icon button, always in the same place at the bottom: preview the invoice, or go back to editing it. Phone only. */
+function ViewToggle({ tab, setTab }: { tab: 'edit' | 'preview'; setTab: (t: 'edit' | 'preview') => void }) {
+  const prev = tab === 'edit'
+  return (
+    <button type="button" className="ed2-view tap" aria-label={prev ? 'Preview the invoice' : 'Back to editing'} title={prev ? 'Preview' : 'Edit'} onClick={() => { tick(8); setTab(prev ? 'preview' : 'edit'); window.scrollTo({ top: 0 }) }}>
+      <AnimatePresence mode="popLayout" initial={false}>
+        <motion.span key={tab} initial={{ opacity: 0, scale: 0.6, rotate: -30 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.6, rotate: 30 }} transition={{ type: 'spring', stiffness: 520, damping: 30 }}>{prev ? <Eye size={22} aria-hidden /> : <Pencil size={22} aria-hidden />}</motion.span>
+      </AnimatePresence>
+    </button>
+  )
+}
+
 const STEPS = ['Client', 'Work', 'Amounts', 'Payment', 'Terms', 'Review'] as const
 const FOCUS: DocFocus[] = ['bill', 'scope', 'items', 'totals', 'terms', '']
 type Issue = { text: string; focus: DocFocus }
@@ -107,6 +120,14 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
   const [editing, setEditing] = useState<ClientLink | null>(null)
   const [keepGreet, setKeepGreet] = useState('')
   const [invite, setInvite] = useState(false)
+  /* tapping a step number: back to editing if previewing, and say which step this is for a moment */
+  const [hint, setHint] = useState<number | null>(null)
+  const hintT = useRef<number>(0)
+  const pick = (i: number) => {
+    tick(6); setTab('edit'); go(i); setHint(i)
+    window.clearTimeout(hintT.current); hintT.current = window.setTimeout(() => setHint(null), 1800)
+  }
+  useEffect(() => () => window.clearTimeout(hintT.current), [])
   const go = (n: number) => { setDir(n > step ? 1 : -1); setStep(n); document.querySelector('.ed2-panel')?.scrollTo({ top: 0, behavior: 'smooth' }) }
 
   const link = links.find((l) => l.id === d.linkId)
@@ -155,6 +176,8 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
   useSwipeClaim({
     left: () => { if (tab !== 'edit' || step >= STEPS.length - 1) return 'block'; tryGo(step + 1); return true },
     right: () => { if (tab !== 'edit' || step <= 0) return 'block'; tryGo(step - 1); return true },
+    canLeft: () => tab === 'edit' && step < STEPS.length - 1,
+    canRight: () => tab === 'edit' && step > 0,
   })
   function trySend() {
     const first = issues.findIndex((x) => x.length)
@@ -255,16 +278,16 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
       <nav className="ed2-steps" aria-label="Steps">
         <motion.span className="ed2-progress" animate={{ scaleX: (step + 1) / STEPS.length }} transition={springSoft} style={{ originX: 0 }} aria-hidden />
         {STEPS.map((s, i) => (
-          <button key={s} className="ed2-step tap" aria-current={i === step ? 'step' : undefined} onClick={() => go(i)}>
+          <button key={s} className="ed2-step tap" aria-current={i === step ? 'step' : undefined} onClick={() => pick(i)}>
             {i === step && <motion.span layoutId="ed2-step-pill" className="ed2-step-pill" transition={spring} />}
             <span className="ed2-step-n num">{i + 1}</span><span className="ed2-step-l">{s}</span>
           </button>
         ))}
       </nav>
 
-      <div className="seg ed2-seg" role="tablist" aria-label="View">
-        {(['edit', 'preview'] as const).map((k) => <button key={k} role="tab" aria-selected={tab === k} className="seg-b tap" onClick={() => setTab(k)}>{k === 'edit' ? 'Edit' : 'Preview'}</button>)}
-      </div>
+      <AnimatePresence>
+        {hint !== null && <motion.p key="hint" className="ed2-hint" role="status" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ type: 'spring', stiffness: 420, damping: 32 }}>Step {hint + 1} of {STEPS.length}: <b>{STEPS[hint]}</b></motion.p>}
+      </AnimatePresence>
 
       <div className="ed2-body" data-tab={tab}>
         <div className={`ed2-panel ${shk % 2 ? 'shk-a' : 'shk-b'}`}>
@@ -277,6 +300,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
             </motion.div>
           </AnimatePresence>
           <div className="ed2-foot">
+            <ViewToggle tab={tab} setTab={setTab} />
             {step > 0 ? <Button onClick={() => tryGo(step - 1)}><ArrowLeft size={18} aria-hidden />Back</Button> : <span />}
             {step < STEPS.length - 1
               ? <><span className="ed2-total num" aria-live="polite"><small>Total</small>{money(t.total)}</span><Button variant="primary" className="next-btn" onClick={() => tryGo(step + 1)}>
@@ -290,6 +314,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
           </div>
         </div>
         <div className="ed2-doc"><DocViewer d={doc} focus={FOCUS[step]} errors={docErrors} page={step === 4 && d.extra.showTerms !== false && d.terms.length + d.extra.customTerms.length > 0 ? 1 : step < 4 ? 0 : undefined} /></div>
+        {tab === 'preview' && <div className="ed2-viewbar"><ViewToggle tab={tab} setTab={setTab} /><span className="ed2-viewbar-t num"><small>Total</small>{money(t.total)}</span></div>}
       </div>
 
       <Dialog open={ackOpen} onClose={() => setAckOpen(false)} title="Review the suggested terms">

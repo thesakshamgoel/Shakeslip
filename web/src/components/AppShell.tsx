@@ -72,6 +72,9 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
   useSwipe(mainRef, claim, {
     tabLeft: () => depth === 0 && idx >= 0 && idx < tabs.length - 1 && goTab(tabs[idx + 1]),
     tabRight: () => depth === 0 && idx > 0 && goTab(tabs[idx - 1]),
+    canTabLeft: () => depth === 0 && idx >= 0 && idx < tabs.length - 1,
+    canTabRight: () => depth === 0 && idx > 0,
+    canBack: () => depth > 0,
     back: goBack,
   }, phone)
   const [kb, setKb] = useState(false)

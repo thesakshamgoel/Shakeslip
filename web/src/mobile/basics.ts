@@ -42,3 +42,8 @@ export function parentOf(pathname: string): string {
   if (/\/types\/[^/]+$/.test(pathname)) return `/${app}/types`
   return `/${app}/more`
 }
+
+/* A swipe already moved the page itself, so the route change underneath must swap with no slide of its own. */
+let swapNext = false
+export const markSwipeNav = () => { swapNext = true }
+export const takeSwipeNav = () => { const v = swapNext; swapNext = false; return v }

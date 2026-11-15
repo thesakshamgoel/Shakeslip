@@ -41,7 +41,9 @@ account.post('/login', async (c) => {
   if (wait) return fail(c, 429, 'ERR-RATE-429', `Too many attempts. Please wait ${Math.ceil(wait / 60)} minutes and try again.`)
   const u = db.query('SELECT id,password_hash FROM users WHERE email = ? AND deleted_at IS NULL').get(p.data.email) as { id: string; password_hash: string } | null
   const ok = await verifyPassword(p.data.password, u?.password_hash ?? DUMMY_HASH)
-  if (!u || !ok) return fail(c, 401, 'ERR-AUTH-401', 'That email and password do not match. Please try again.')
+  /* no account for this email: say so plainly, so the app can carry on to creating one instead of showing a dead end */
+  if (!u) { if (limited(`login-ip:${ipOf(c)}`, 40, 15 * 60_000)) return fail(c, 429, 'ERR-RATE-429', 'Too many attempts. Please try again in a few minutes.'); return fail(c, 404, 'ERR-AUTH-404', 'No account for that email yet.') }
+  if (!ok) return fail(c, 401, 'ERR-AUTH-401', 'That email and password do not match. Please try again.')
   clearLimit(key)
   startSession(c, u.id)
   audit(u.id, 'login', 'user', u.id)
@@ -59,7 +61,8 @@ account.post('/google', async (c) => {
   if (!g) return fail(c, 401, 'ERR-AUTH-401', 'We could not verify that Google account. Please try again.')
   const u = db.query('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL').get(g.email) as { id: string } | null
   if (u) { startSession(c, u.id); audit(u.id, 'login-google', 'user', u.id); return c.json({ ok: true, next: null }) }
-  if (!p.data.role) return fail(c, 404, 'ERR-AUTH-404', 'There is no Shakeslip account for that Google email yet. Create one from the sign-up page.')
+  /* a new Google email: not an error, the app moves on to the quick set-up (role and terms) */
+  if (!p.data.role) return c.json({ ok: true, needs: 'setup', email: g.email, name: g.name })
   if (p.data.acceptTerms !== true) return fail(c, 422, 'ERR-VAL-422', 'Please tick the box to accept the terms and privacy policy.')
   const id = uid(), t = nowIso()
   /* no password for Google accounts: store a hash of a random value nobody knows */

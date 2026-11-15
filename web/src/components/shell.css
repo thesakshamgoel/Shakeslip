@@ -96,3 +96,4 @@
   .shell.flow { padding-bottom: 0; } .shell.flow .tabs { display: none; }
   .shell.flow .ed2-foot { bottom: 0; padding-bottom: calc(var(--s-3) + env(safe-area-inset-bottom)); }
 }
+@media (max-width: 900px) { html, body { overflow-x: clip; } main { backface-visibility: hidden; } }

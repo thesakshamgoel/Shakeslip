@@ -13,6 +13,7 @@ import { safeNext } from './Guard'
 export function LoginPanel({ next, autoFocus = false }: { next: string | null; autoFocus?: boolean }) {
   const nav = useNavigate()
   const { refresh } = useSession()
+  const prefill = useSearchParams()[0].get('email') ?? undefined
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
 
@@ -48,7 +49,7 @@ export function LoginPanel({ next, autoFocus = false }: { next: string | null; a
     <>
       <SocialButtons next={next} onError={setErr} />
       <form className="au-form" onSubmit={submit}>
-        <Field label="Email" name="email" type="email" inputMode="email" autoComplete="email" required autoFocus={autoFocus} />
+        <Field label="Email" name="email" type="email" inputMode="email" autoComplete="email" defaultValue={prefill} required autoFocus={autoFocus} />
         <Field label="Password" name="password" type="password" autoComplete="current-password" required />
         {err && <p className="au-err" role="alert">{err}</p>}
         <Button variant="primary" type="submit" block disabled={busy}>{busy ? 'Signing in' : 'Sign in'}</Button>

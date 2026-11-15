@@ -1,5 +1,5 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
-import { ChevronLeft, Ellipsis, X, LogOut, Moon, Search, Sun, type LucideIcon } from 'lucide-react'
+import { ChevronLeft, Ellipsis, X, Search, type LucideIcon } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { SlipIcon, StudioIcon } from '../brand/icons'
@@ -7,7 +7,7 @@ import { useBusy } from '../lib/busy'
 import { spring } from '../lib/motion'
 import { CommandPalette } from './CommandPalette'
 import { useSession } from '../lib/session'
-import { useTheme } from '../lib/theme'
+import { AccountMenu } from './Account'
 import { takeWelcome, touchSeen } from '../lib/welcome'
 import { depthOf, parentOf, tick, titleOf, usePhone } from '../mobile/basics'
 import { PullToRefresh } from '../mobile/PullToRefresh'
@@ -25,8 +25,7 @@ export type NavItem = { to: string; label: string; icon: LucideIcon; end?: boole
 type Props = { app: 'studio' | 'slip'; nav: NavItem[]; more: NavItem[]; switchTo: string; switchLabel?: string }
 
 export function AppShell({ app, nav, more, switchTo }: Props) {
-  const { theme, toggle } = useTheme()
-  const { me, logout, refresh } = useSession()
+  const { me, refresh } = useSession()
   const { pathname, search } = useLocation()
   const navigate = useNavigate()
   const Icon = app === 'studio' ? StudioIcon : SlipIcon
@@ -53,8 +52,6 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
   useEffect(() => { void refresh() }, [pathname, refresh])
   /* remember where you were, so coming back opens the same place */
   useEffect(() => { try { if (!pathname.endsWith('/more')) localStorage.setItem(`ss-last-${app}`, pathname + location.search) } catch { /* storage may be off */ } }, [pathname, app])
-  const themeBtn = <IconButton label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'} onClick={toggle}>{theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}</IconButton>
-  const out = async () => { await logout(); navigate('/', { replace: true }) }
   const all = [...nav, ...more]
 
   /* phone: where tabs are, how deep we are, swipes, the keyboard */
@@ -116,12 +113,7 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
             ))}
           </nav>
           <div className="side-foot">
-            <div className="who">
-              <span className="avatar" aria-hidden>{me?.user?.name.slice(0, 1)}</span>
-              <span className="trunc who-name">{me?.user?.name.split(' ')[0]}</span>
-              {themeBtn}
-              <IconButton label="Sign out" onClick={out}><LogOut size={18} /></IconButton>
-            </div>
+            <AccountMenu />
           </div>
         </aside>
 

@@ -60,14 +60,14 @@ account.post('/google', async (c) => {
   const g = await verifyGoogleToken(p.data.idToken)
   if (!g) return fail(c, 401, 'ERR-AUTH-401', 'We could not verify that Google account. Please try again.')
   const u = db.query('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL').get(g.email) as { id: string } | null
-  if (u) { startSession(c, u.id); audit(u.id, 'login-google', 'user', u.id); return c.json({ ok: true, next: null }) }
+  if (u) { if (g.photo) db.query('UPDATE users SET photo_url = ? WHERE id = ?').run(g.photo, u.id); startSession(c, u.id); audit(u.id, 'login-google', 'user', u.id); return c.json({ ok: true, next: null }) }
   /* a new Google email: not an error, the app moves on to the quick set-up (role and terms) */
   if (!p.data.role) return c.json({ ok: true, needs: 'setup', email: g.email, name: g.name })
   if (p.data.acceptTerms !== true) return fail(c, 422, 'ERR-VAL-422', 'Please tick the box to accept the terms and privacy policy.')
   const id = uid(), t = nowIso()
   /* no password for Google accounts: store a hash of a random value nobody knows */
-  db.query('INSERT INTO users (id,email,name,phone,password_hash,terms_version,terms_accepted_at,created_at) VALUES (?,?,?,?,?,?,?,?)')
-    .run(id, g.email, g.name, '', await hashPassword(token()), TERMS_VERSION, t, t)
+  db.query('INSERT INTO users (id,email,name,phone,password_hash,terms_version,terms_accepted_at,created_at,photo_url) VALUES (?,?,?,?,?,?,?,?,?)')
+    .run(id, g.email, g.name, '', await hashPassword(token()), TERMS_VERSION, t, t, g.photo)
   db.query('INSERT INTO client_profiles (user_id) VALUES (?)').run(id)
   audit(id, 'signup-google', 'user', id)
   startSession(c, id)

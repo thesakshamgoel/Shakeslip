@@ -4,7 +4,7 @@ import { db, nowIso } from './db.ts'
 import { isProd } from './env.ts'
 import { sha256, token } from './util.ts'
 
-export type User = { id: string; email: string; name: string; phone: string }
+export type User = { id: string; email: string; name: string; phone: string; photo: string }
 export type Vars = { user: User }
 const COOKIE = 'ss_session'
 const DAYS = 30
@@ -31,7 +31,7 @@ export function endSession(c: Context) {
 export function currentUser(c: Context): User | null {
   const t = getCookie(c, COOKIE)
   if (!t) return null
-  const row = db.query(`SELECT u.id,u.email,u.name,u.phone FROM sessions s JOIN users u ON u.id = s.user_id
+  const row = db.query(`SELECT u.id,u.email,u.name,u.phone,u.photo_url AS photo FROM sessions s JOIN users u ON u.id = s.user_id
     WHERE s.token_hash = ? AND s.expires_at > ? AND u.deleted_at IS NULL`).get(sha256(t), nowIso()) as User | null
   return row
 }

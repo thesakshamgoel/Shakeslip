@@ -44,7 +44,7 @@ export type InvoiceRow = { id: string; number: string | null; status: Status; cu
 export type Group = { id: string; name: string; typeId: string | null; theme: string; dueDays: number; clients: number; reminders: { before: number[]; onDue: boolean; afterEvery: number | null } }
 export type Link = { id: string; name: string; email: string; phone: string; company: string; gstin: string; city: string; address: string; state?: string; honorific?: Honorific; attention?: string; area?: string; pin?: string; pan?: string; logo?: string; groupId: string | null; status: 'invited' | 'pending' | 'active'; joined: 0 | 1; invoices: number }
 export type Me = {
-  user: { id: string; email: string; name: string; phone: string } | null
+  user: { id: string; email: string; name: string; phone: string; photo?: string } | null
   business?: (Business & { id: string; slug: string; slugAt?: string; autoApprove: boolean; profession: string }) | null
   profile?: { company: string; gstin: string; address: string; city: string; pin: string; state?: string; honorific?: Honorific; area?: string; pan?: string; logo?: string }
   unread?: number

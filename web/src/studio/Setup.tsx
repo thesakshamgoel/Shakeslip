@@ -17,7 +17,7 @@ export default function Setup() {
   const { me, refresh } = useSession()
   const nav = useNavigate()
   const [prof, setProf] = useState<string | null>(null)
-  const [gst, setGst] = useState('')
+  const [gst, setGst] = useState(me?.profile?.gstin ?? '')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState('')
   const gstBad = gst.length === 15 && !gstinValid(gst)
@@ -50,9 +50,9 @@ export default function Setup() {
     <AuthLayout title="Set up your Studio" lead="Your business details go on every invoice. Four invoice types are ready for you to use or change.">
       <form className="au-form" onSubmit={submit}>
         <Field label="Business name" name="name" defaultValue={me?.profile?.company ?? ''} required autoFocus autoComplete="organization" />
-        <Field label="City" name="city" autoComplete="address-level2" />
+        <Field label="City" name="city" defaultValue={me?.profile?.city ?? ''} autoComplete="address-level2" />
         <Field label="GSTIN (optional)" value={gst} onChange={(e) => setGst(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 15))} autoCapitalize="characters" hint={gstBad ? 'That GSTIN does not pass its check digit. Look for a typo.' : gst.length === 15 ? 'GSTIN checks out.' : 'Skip it if you are not GST registered. You can add it later.'} aria-invalid={gstBad} />
-        <Field label="Phone (optional)" name="phone" type="tel" inputMode="tel" autoComplete="tel" />
+        <Field label="Phone (optional)" name="phone" type="tel" inputMode="tel" defaultValue={me?.user?.phone ?? ''} autoComplete="tel" />
         {err && <p className="au-err" role="alert">{err}</p>}
         <Button variant="primary" type="submit" block disabled={busy || gstBad}>{busy ? 'Setting up' : 'Open my Studio'}</Button>
         <Button type="button" variant="ghost" block onClick={() => setProf(null)}>Back</Button>

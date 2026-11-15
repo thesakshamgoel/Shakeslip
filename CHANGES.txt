@@ -157,3 +157,6 @@ Before launch (not done)
 2026-11-15 returning users
 - Installed app opens straight on sign-in when signed out (no brochure page).
 - Sign-in lists accounts used on this device; one tap fills the email. A device that has signed in before no longer shows the new-user copy.
+
+2026-11-15 shared details
+- Studio and Slip share one set of personal details: phone, GSTIN, PAN, address, city and state filled on either side fill the empty fields on the other (never overwriting). Studio setup is prefilled from My details.

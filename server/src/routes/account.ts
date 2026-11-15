@@ -5,6 +5,7 @@ import { refreshCode } from './business.ts'
 import { DUMMY_HASH, endSession, hashPassword, requireUser, startSession, verifyPassword, currentUser, type Vars } from '../auth.ts'
 import { audit, db, nowIso, uid } from '../db.ts'
 import { env } from '../env.ts'
+import { syncShared } from '../shared.ts'
 import { verifyGoogleToken } from '../google.ts'
 import { sendMail } from '../mailer.ts'
 import { clientProfileBody, forgotBody, googleBody, logoBody, loginBody, resetBody, signupBody } from '../schemas.ts'
@@ -79,6 +80,8 @@ account.post('/logout', (c) => { endSession(c); return c.json({ ok: true }) })
 account.get('/me', (c) => {
   const user = currentUser(c)
   if (!user) return c.json({ user: null })
+  syncShared(user.id)
+  user.phone = (db.query('SELECT phone FROM users WHERE id = ?').get(user.id) as { phone: string }).phone
   let biz = bizOf(user.id)
   if (biz) { refreshCode(biz as never); biz = bizOf(user.id) }
   const profile = db.query('SELECT company,gstin,address,city,pin,state,honorific,area,pan,logo FROM client_profiles WHERE user_id = ?').get(user.id)
@@ -100,6 +103,7 @@ account.put('/me', requireUser, async (c) => {
   db.query('UPDATE users SET name = ?, phone = ? WHERE id = ?').run(b.name, b.phone, u.id)
   db.query('UPDATE client_profiles SET company = ?, gstin = ?, address = ?, city = ?, pin = ?, state = ?, honorific = ?, area = ?, pan = ? WHERE user_id = ?')
     .run(b.company, b.gstin, b.address, b.city, b.pin, b.gstin ? b.gstin.slice(0, 2) : b.state, b.honorific, b.area, b.pan, u.id)
+  syncShared(u.id)
   return c.json({ ok: true })
 })
 

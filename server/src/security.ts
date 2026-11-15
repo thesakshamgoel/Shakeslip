@@ -38,4 +38,4 @@ setInterval(() => { const now = Date.now(); for (const [k, v] of hits) if (v.res
 
 export const ipOf = (c: Context) => c.req.header('x-forwarded-for')?.split(',')[0].trim() || 'local'
 
-export const fail = (c: Context, status: 400 | 401 | 403 | 404 | 409 | 422 | 429, code: string, message: string) => c.json({ code, message }, status)
+export const fail = (c: Context, status: 400 | 401 | 403 | 404 | 409 | 422 | 429 | 503, code: string, message: string) => c.json({ code, message }, status)

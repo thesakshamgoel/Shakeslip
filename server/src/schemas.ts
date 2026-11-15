@@ -43,6 +43,7 @@ export const signupBody = z.object({
   name: text(80).min(1), email, password: z.string().min(10, 'Use at least 10 characters').max(200),
   role: z.enum(['studio', 'slip']), acceptTerms: z.literal(true, { error: 'Please accept the terms to continue' }),
 })
+export const googleBody = z.object({ idToken: z.string().min(20).max(4000), role: z.enum(['studio', 'slip']).optional(), acceptTerms: z.boolean().optional() })
 export const loginBody = z.object({ email, password: z.string().min(1).max(200) })
 
 export const fieldSchema = z.object({

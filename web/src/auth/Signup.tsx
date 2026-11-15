@@ -39,7 +39,7 @@ export default function Signup() {
         <button type="button" className="role role-i tap" aria-pressed={role === 'studio'} onClick={() => setRole('studio')}><StudioIcon size={36} /><span><b>I send invoices</b><span>Studio, for my business or freelance work</span></span></button>
         <button type="button" className="role role-i tap" aria-pressed={role === 'slip'} onClick={() => setRole('slip')}><SlipIcon size={36} /><span><b>I receive invoices</b><span>Slip, my inbox for bills</span></span></button>
       </div>
-      <SocialButtons />
+      <SocialButtons role={role} agree={agree} next={next} onError={setErr} />
       <form className="au-form" onSubmit={submit}>
         <Field label="Your name" name="name" autoComplete="name" required />
         <Field label="Email" name="email" type="email" inputMode="email" autoComplete="email" required />

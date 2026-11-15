@@ -42,7 +42,7 @@ export function LoginPanel({ next, autoFocus = false }: { next: string | null; a
 
   return (
     <>
-      <SocialButtons />
+      <SocialButtons next={next} onError={setErr} />
       <form className="au-form" onSubmit={submit}>
         <Field label="Email" name="email" type="email" inputMode="email" autoComplete="email" required autoFocus={autoFocus} />
         <Field label="Password" name="password" type="password" autoComplete="current-password" required />

@@ -5,8 +5,9 @@ import { refreshCode } from './business.ts'
 import { DUMMY_HASH, endSession, hashPassword, requireUser, startSession, verifyPassword, currentUser, type Vars } from '../auth.ts'
 import { audit, db, nowIso, uid } from '../db.ts'
 import { env } from '../env.ts'
+import { verifyGoogleToken } from '../google.ts'
 import { sendMail } from '../mailer.ts'
-import { clientProfileBody, forgotBody, logoBody, loginBody, resetBody, signupBody } from '../schemas.ts'
+import { clientProfileBody, forgotBody, googleBody, logoBody, loginBody, resetBody, signupBody } from '../schemas.ts'
 import { sha256, token } from '../util.ts'
 import { clearLimit, fail, ipOf, limited } from '../security.ts'
 
@@ -45,6 +46,29 @@ account.post('/login', async (c) => {
   startSession(c, u.id)
   audit(u.id, 'login', 'user', u.id)
   return c.json({ ok: true })
+})
+
+/* Continue with Google (Firebase Auth). Existing accounts are signed in; new ones need a role and accepted terms. */
+account.post('/google', async (c) => {
+  const wait = limited(`google:${ipOf(c)}`, 20, 15 * 60_000)
+  if (wait) return fail(c, 429, 'ERR-RATE-429', 'Too many attempts. Please try again in a few minutes.')
+  if (!env.FIREBASE_PROJECT_ID) return fail(c, 503, 'ERR-AUTH-503', 'Google sign-in is not set up yet. Please use email for now.')
+  const p = googleBody.safeParse(await c.req.json().catch(() => ({})))
+  if (!p.success) return fail(c, 422, 'ERR-VAL-422', 'Google sign-in did not complete. Please try again.')
+  const g = await verifyGoogleToken(p.data.idToken)
+  if (!g) return fail(c, 401, 'ERR-AUTH-401', 'We could not verify that Google account. Please try again.')
+  const u = db.query('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL').get(g.email) as { id: string } | null
+  if (u) { startSession(c, u.id); audit(u.id, 'login-google', 'user', u.id); return c.json({ ok: true, next: null }) }
+  if (!p.data.role) return fail(c, 404, 'ERR-AUTH-404', 'There is no Shakeslip account for that Google email yet. Create one from the sign-up page.')
+  if (p.data.acceptTerms !== true) return fail(c, 422, 'ERR-VAL-422', 'Please tick the box to accept the terms and privacy policy.')
+  const id = uid(), t = nowIso()
+  /* no password for Google accounts: store a hash of a random value nobody knows */
+  db.query('INSERT INTO users (id,email,name,phone,password_hash,terms_version,terms_accepted_at,created_at) VALUES (?,?,?,?,?,?,?,?)')
+    .run(id, g.email, g.name, '', await hashPassword(token()), TERMS_VERSION, t, t)
+  db.query('INSERT INTO client_profiles (user_id) VALUES (?)').run(id)
+  audit(id, 'signup-google', 'user', id)
+  startSession(c, id)
+  return c.json({ ok: true, next: p.data.role === 'studio' ? '/studio/setup' : '/slip' })
 })
 
 account.post('/logout', (c) => { endSession(c); return c.json({ ok: true }) })

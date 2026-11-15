@@ -6,6 +6,8 @@ const schema = z.object({
   APP_URL: z.string().url().default('http://localhost:5173'),
   NODE_ENV: z.enum(['development', 'production', 'test']).default('development'),
   DB_PATH: z.string().min(1).default('./data/shakeslip.db'),
+  /* Firebase project used for Google sign-in (the project id is public, not a secret). Empty = Google sign-in is off. */
+  FIREBASE_PROJECT_ID: z.string().optional().transform((v) => v || undefined),
   RESEND_API_KEY: z.string().optional().transform((v) => v || undefined),
   MAIL_FROM: z.string().default('Shakeslip <no-reply@example.com>'),
   /* a Chromium-based browser used to render PDFs (Chrome, Chromium, Brave, Edge) */

@@ -88,7 +88,7 @@ account.get('/me', (c) => {
   const unread = (db.query('SELECT COUNT(*) AS n FROM notifications WHERE user_id = ? AND read_at IS NULL').get(user.id) as { n: number }).n
   const b = biz as any
   return c.json({ user, profile, unread, business: b && {
-    id: b.id, name: b.name, slug: b.slug, gstin: b.gstin, address: b.address, city: b.city, email: b.email, phone: b.phone, autoApprove: !!b.auto_approve,
+    id: b.id, name: b.name, slug: b.slug, gstin: b.gstin, address: b.address, area: b.area, pin: b.pin, city: b.city, email: b.email, phone: b.phone, autoApprove: !!b.auto_approve,
     pan: b.pan, website: b.website, state: b.state, upiId: b.upi_id, bankName: b.bank_name, accountName: b.account_name, accountNo: b.account_no, ifsc: b.ifsc,
     profession: b.profession, signature: JSON.parse(b.signature || '{}'), logo: b.logo, logoSize: b.logo_size,
     slugAt: b.slug_at, phones: JSON.parse(b.phones || '[]'), emails: JSON.parse(b.emails || '[]'), catalogue: JSON.parse(b.catalogue || '{"services":[],"packages":[]}'), qrImage: b.qr_image, defaultTheme: b.default_theme, defaultLayout: b.default_layout, defaultTerms: JSON.parse(b.default_terms || '[]'), defaultCustomTerms: b.default_custom_terms,

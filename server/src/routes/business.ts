@@ -25,12 +25,12 @@ business.post('/', async (c) => {
   if (!p.success) return fail(c, 422, 'ERR-VAL-422', p.error.issues[0].message)
   const b = p.data
   /* details already given as a client carry over, so nothing is asked twice */
-  const mine = db.query('SELECT gstin,address,city,state,pan FROM client_profiles WHERE user_id = ?').get(u.id) as Record<string, string> | null
-  for (const k of ['gstin', 'address', 'city', 'state', 'pan'] as const) if (!b[k] && mine?.[k]) b[k] = mine[k]
+  const mine = db.query('SELECT gstin,address,area,pin,city,state,pan FROM client_profiles WHERE user_id = ?').get(u.id) as Record<string, string> | null
+  for (const k of ['gstin', 'address', 'area', 'pin', 'city', 'state', 'pan'] as const) if (!b[k] && mine?.[k]) b[k] = mine[k]
   if (!b.phone) b.phone = (db.query('SELECT phone FROM users WHERE id = ?').get(u.id) as { phone: string } | null)?.phone ?? ''
   const id = uid()
-  db.query('INSERT INTO businesses (id,owner_id,name,slug,gstin,address,city,email,phone,state,profession,pan,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)')
-    .run(id, u.id, b.name, newSlug(b.name), b.gstin, b.address, b.city, b.email || u.email, b.phone, b.gstin ? b.gstin.slice(0, 2) : b.state, b.profession, b.pan, nowIso())
+  db.query('INSERT INTO businesses (id,owner_id,name,slug,gstin,address,area,pin,city,email,phone,state,profession,pan,created_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)')
+    .run(id, u.id, b.name, newSlug(b.name), b.gstin, b.address, b.area, b.pin, b.city, b.email || u.email, b.phone, b.gstin ? b.gstin.slice(0, 2) : b.state, b.profession, b.pan, nowIso())
   seedBusiness(id)
   syncShared(u.id)
   audit(u.id, 'create', 'business', id)
@@ -43,8 +43,8 @@ business.put('/', async (c) => {
   const p = businessBody.safeParse(await c.req.json().catch(() => ({})))
   if (!p.success) return fail(c, 422, 'ERR-VAL-422', p.error.issues[0].message)
   const b = p.data
-  db.query(`UPDATE businesses SET name=?,gstin=?,address=?,city=?,email=?,phone=?,auto_approve=?,pan=?,website=?,state=?,upi_id=?,bank_name=?,account_name=?,account_no=?,ifsc=?,profession=? WHERE id=?`)
-    .run(b.name, b.gstin, b.address, b.city, b.email, b.phone, b.autoApprove ? 1 : 0, b.pan, b.website, b.gstin ? b.gstin.slice(0, 2) : b.state, b.upiId, b.bankName, b.accountName, b.accountNo, b.ifsc, b.profession, biz.id)
+  db.query(`UPDATE businesses SET name=?,gstin=?,address=?,area=?,pin=?,city=?,email=?,phone=?,auto_approve=?,pan=?,website=?,state=?,upi_id=?,bank_name=?,account_name=?,account_no=?,ifsc=?,profession=? WHERE id=?`)
+    .run(b.name, b.gstin, b.address, b.area, b.pin, b.city, b.email, b.phone, b.autoApprove ? 1 : 0, b.pan, b.website, b.gstin ? b.gstin.slice(0, 2) : b.state, b.upiId, b.bankName, b.accountName, b.accountNo, b.ifsc, b.profession, biz.id)
   syncShared(c.get('user').id)
   return c.json({ ok: true })
 })

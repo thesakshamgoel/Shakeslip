@@ -28,7 +28,7 @@ export default function Setup() {
     const f = new FormData(e.currentTarget)
     setBusy(true); setErr('')
     try {
-      await post('/studio', { name: f.get('name'), city: f.get('city'), gstin: gst, phone: String(f.get('phone') ?? ''), address: '', email: '', profession: prof ?? 'general' })
+      await post('/studio', { name: f.get('name'), area: f.get('area') ?? '', pin: f.get('pin') ?? '', city: f.get('city'), gstin: gst, phone: String(f.get('phone') ?? ''), address: '', email: '', profession: prof ?? 'general' })
       await refresh()
       nav('/studio', { replace: true })
     } catch (x) { setErr(errText(x)) } finally { setBusy(false) }
@@ -50,7 +50,9 @@ export default function Setup() {
     <AuthLayout title="Set up your Studio" lead="Your business details go on every invoice. Four invoice types are ready for you to use or change.">
       <form className="au-form" onSubmit={submit}>
         <Field label="Business name" name="name" defaultValue={me?.profile?.company ?? ''} required autoFocus autoComplete="organization" />
+        <Field label="Area (optional)" name="area" defaultValue={me?.profile?.area ?? ''} />
         <Field label="City" name="city" defaultValue={me?.profile?.city ?? ''} autoComplete="address-level2" />
+        <Field label="PIN code (optional)" name="pin" defaultValue={me?.profile?.pin ?? ''} inputMode="numeric" maxLength={6} autoComplete="postal-code" />
         <Field label="GSTIN (optional)" value={gst} onChange={(e) => setGst(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 15))} autoCapitalize="characters" hint={gstBad ? 'That GSTIN does not pass its check digit. Look for a typo.' : gst.length === 15 ? 'GSTIN checks out.' : 'Skip it if you are not GST registered. You can add it later.'} aria-invalid={gstBad} />
         <Field label="Phone (optional)" name="phone" type="tel" inputMode="tel" defaultValue={me?.user?.phone ?? ''} autoComplete="tel" />
         {err && <p className="au-err" role="alert">{err}</p>}

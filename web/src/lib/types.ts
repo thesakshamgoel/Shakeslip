@@ -10,7 +10,7 @@ export type Honorific = '' | 'Mr.' | 'Ms.' | 'Mrs.' | 'Dr.' | 'M/s.'
 export type BillTo = { name: string; company: string; gstin: string; city: string; address: string; email: string; phone: string; state?: string; honorific?: Honorific; attention?: string; area?: string; pin?: string; pan?: string; logo?: string }
 export type Signature = { kind?: 'none' | 'typed' | 'image'; text?: string; font?: 'great-vibes' | 'allura' | 'caveat' | 'dancing-script' | 'sacramento' | 'parisienne'; image?: string }
 export type Business = {
-  name: string; gstin: string; address: string; city: string; email: string; phone: string
+  name: string; gstin: string; address: string; area?: string; pin?: string; city: string; email: string; phone: string
   pan?: string; website?: string; state?: string; upiId?: string; bankName?: string; accountName?: string; accountNo?: string; ifsc?: string; signature?: Signature
   logo?: string; logoSize?: 's' | 'm' | 'l' | 'xl'
   phones?: Phone[]; emails?: Email[]; qrImage?: string; defaultTheme?: string; defaultLayout?: string; defaultTerms?: string[]; defaultCustomTerms?: string; catalogue?: Catalogue

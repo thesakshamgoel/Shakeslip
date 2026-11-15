@@ -160,3 +160,6 @@ Before launch (not done)
 
 2026-11-15 shared details
 - Studio and Slip share one set of personal details: phone, GSTIN, PAN, address, city and state filled on either side fill the empty fields on the other (never overwriting). Studio setup is prefilled from My details.
+
+2026-11-15 studio area and PIN
+- Studio now has Area and PIN code: in setup, in Settings > Business, printed in the From block of invoices, and shared with the Slip profile (fills empty fields both ways).

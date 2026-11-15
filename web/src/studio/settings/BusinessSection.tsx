@@ -21,7 +21,7 @@ export function BusinessSection() {
     if (busy || bad) return
     const f = new FormData(e.currentTarget), v = (k: string) => String(f.get(k) ?? '').trim()
     setBusy(true)
-    try { await saveBusiness(me!, { name: v('name'), gstin: gst, pan: v('pan').toUpperCase(), address: v('address'), city: v('city'), state: v('state'), email: v('email'), phone: v('phone'), website: v('website'), profession: v('profession') }); await refresh(); toast.ok('Business details saved.') } catch (x) { toast.bad(errText(x)) } finally { setBusy(false) }
+    try { await saveBusiness(me!, { name: v('name'), gstin: gst, pan: v('pan').toUpperCase(), address: v('address'), area: v('area'), pin: v('pin'), city: v('city'), state: v('state'), email: v('email'), phone: v('phone'), website: v('website'), profession: v('profession') }); await refresh(); toast.ok('Business details saved.') } catch (x) { toast.bad(errText(x)) } finally { setBusy(false) }
   }
   return (
     <form className="set-card" onSubmit={save}>
@@ -34,9 +34,11 @@ export function BusinessSection() {
         <Field label="GSTIN" value={gst} onChange={(e) => setGst(e.target.value.toUpperCase().replace(/[^0-9A-Z]/g, '').slice(0, 15))} aria-invalid={bad} hint={bad ? 'This does not pass the GSTIN check digit.' : gst ? `Registered in ${STATES[gst.slice(0, 2)] ?? 'an unknown state'}` : 'Leave empty if you are not GST registered.'} />
         <Field label="PAN" name="pan" defaultValue={b.pan} maxLength={10} autoCapitalize="characters" />
       </div>
-      <Field label="Address" name="address" defaultValue={b.address} />
+      <Field label="Address" name="address" defaultValue={b.address} autoComplete="street-address" />
       <div className="grid2">
-        <Field label="City" name="city" defaultValue={b.city} />
+        <Field label="Area" name="area" defaultValue={b.area ?? ''} />
+        <Field label="City" name="city" defaultValue={b.city} autoComplete="address-level2" />
+        <Field label="PIN code" name="pin" defaultValue={b.pin ?? ''} inputMode="numeric" maxLength={6} autoComplete="postal-code" />
         <Select label="State" name="state" value={b.state ?? ''} options={STATE_OPTIONS} disabled={!!gst} hint={gst ? 'Taken from your GSTIN.' : 'Decides IGST or CGST and SGST.'} />
         <Field label="Email on invoices" name="email" type="email" inputMode="email" defaultValue={b.email} />
         <Field label="Main phone" name="phone" type="tel" inputMode="tel" defaultValue={b.phone} />

@@ -31,7 +31,7 @@ export function displayStatus(row: InvRow, balance: number): string {
 export function fromDetails(bizId: string) {
   const b = db.query('SELECT * FROM businesses WHERE id = ?').get(bizId) as any
   return {
-    id: b.id, name: b.name, gstin: b.gstin, pan: b.pan, address: b.address, city: b.city, state: b.state, email: b.email, phone: b.phone, website: b.website,
+    id: b.id, name: b.name, gstin: b.gstin, pan: b.pan, address: b.address, area: b.area, pin: b.pin, city: b.city, state: b.state, email: b.email, phone: b.phone, website: b.website,
     upiId: b.upi_id, bankName: b.bank_name, accountName: b.account_name, accountNo: b.account_no, ifsc: b.ifsc, signature: json(b.signature, {}),
     logo: b.logo, logoSize: b.logo_size, phones: json(b.phones ?? '[]', [] as { id: string; label: string; number: string; isDefault: boolean }[]), emails: json(b.emails ?? '[]', [] as { id: string; label: string; address: string; isDefault: boolean }[]), qrImage: b.qr_image,
   }

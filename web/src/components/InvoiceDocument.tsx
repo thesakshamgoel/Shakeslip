@@ -90,7 +90,7 @@ export function InvoiceDocument({ d, only, focus = '', errors = [] }: { d: DocDa
           <div className="d-from-t">
             <h2>{d.from.name}</h2>
             {d.from.address && <p>{d.from.address}</p>}
-            <p>{[d.from.city, stateName(stateOf(d.from.gstin, d.from.state))].filter(Boolean).join(', ')}</p>
+            <p>{[d.from.area, d.from.city, d.from.pin, stateName(stateOf(d.from.gstin, d.from.state))].filter(Boolean).join(', ')}</p>
             <p>{contactLine.join(' · ')}</p>
           </div>
         </div>

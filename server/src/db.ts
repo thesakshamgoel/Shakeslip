@@ -56,6 +56,8 @@ function ensureColumn(table: string, col: string, def: string) {
 for (const [col, def] of [['pan', "TEXT NOT NULL DEFAULT ''"], ['website', "TEXT NOT NULL DEFAULT ''"], ['state', "TEXT NOT NULL DEFAULT ''"], ['upi_id', "TEXT NOT NULL DEFAULT ''"],
   ['bank_name', "TEXT NOT NULL DEFAULT ''"], ['account_name', "TEXT NOT NULL DEFAULT ''"], ['account_no', "TEXT NOT NULL DEFAULT ''"], ['ifsc', "TEXT NOT NULL DEFAULT ''"],
   ['profession', "TEXT NOT NULL DEFAULT 'general'"], ['signature', "TEXT NOT NULL DEFAULT '{}'"]] as const) ensureColumn('businesses', col, def)
+ensureColumn('businesses', 'area', "TEXT NOT NULL DEFAULT ''")
+ensureColumn('businesses', 'pin', "TEXT NOT NULL DEFAULT ''")
 ensureColumn('users', 'photo_url', "TEXT NOT NULL DEFAULT ''")
 ensureColumn('client_profiles', 'state', "TEXT NOT NULL DEFAULT ''")
 for (const col of ['honorific', 'area', 'pan', 'logo']) ensureColumn('client_profiles', col, "TEXT NOT NULL DEFAULT ''")

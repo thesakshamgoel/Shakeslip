@@ -66,7 +66,7 @@ export const groupBody = z.object({
 })
 
 export const businessBody = z.object({
-  name: text(80).min(1), gstin, address: text(200), city: text(60), email: email.or(z.literal('')), phone, autoApprove: z.boolean().optional(),
+  name: text(80).min(1), gstin, address: text(200), area: text(100).optional().default(''), city: text(60), pin: pin.optional().default(''), email: email.or(z.literal('')), phone, autoApprove: z.boolean().optional(),
   pan: z.string().trim().toUpperCase().regex(/^([A-Z]{5}[0-9]{4}[A-Z])?$/, 'That PAN does not look right').optional().default(''),
   website: text(120).optional().default(''), state: stateCode.optional().default(''),
   upiId: z.string().trim().regex(/^([\w.-]{2,64}@[A-Za-z]{2,32})?$/, 'A UPI ID looks like name@bank').optional().default(''),

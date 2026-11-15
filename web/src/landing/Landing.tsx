@@ -30,8 +30,10 @@ const SMART: { title: string; body: string; icon: LucideIcon }[] = [
 
 export default function Landing() {
   /* first visit: a welcome; after that, a welcome back */
-  const [first] = useState(() => { try { const f = !localStorage.getItem('ss-visited'); localStorage.setItem('ss-visited', '1'); return f } catch { return true } })
+  const [first] = useState(() => { try { const f = !localStorage.getItem('ss-visited') && !localStorage.getItem('ss-accounts'); localStorage.setItem('ss-visited', '1'); return f } catch { return true } })
   const { me, ready } = useSession()
+  /* the installed app is not a brochure: signed out, it opens straight on sign-in */
+  const installed = typeof matchMedia !== 'undefined' && (matchMedia('(display-mode: standalone)').matches || (navigator as { standalone?: boolean }).standalone === true)
   const { scrollY } = useScroll()
   const navShadow = useTransform(scrollY, [0, 40], [0, 1])
   /* the hero scene has depth: it tilts toward the pointer and drifts as you scroll */
@@ -39,6 +41,7 @@ export default function Landing() {
   const rx = useSpring(useTransform(my, [-1, 1], [5, -5]), { stiffness: 120, damping: 18 })
   const ry = useSpring(useTransform(mx, [-1, 1], [-7, 7]), { stiffness: 120, damping: 18 })
   if (ready && me?.user) return <Navigate to="/home" replace />
+  if (installed && ready) return <Navigate to="/login" replace />
 
   return (
     <div className="lp">

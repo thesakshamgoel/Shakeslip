@@ -153,3 +153,7 @@ Before launch (not done)
 
 2026-11-15 client phone
 - A client's phone saved in their My details now shows to the studio (client list, Bill to on new invoices, WhatsApp share). It used to show only the number the studio typed.
+
+2026-11-15 returning users
+- Installed app opens straight on sign-in when signed out (no brochure page).
+- Sign-in lists accounts used on this device; one tap fills the email. A device that has signed in before no longer shows the new-user copy.

@@ -19,3 +19,5 @@
 .acc-head { display: flex; align-items: center; gap: var(--s-3); }
 .acc-head .acc-t b { font-size: var(--t-lg); }
 .acc-h { font-size: var(--t-sm); font-weight: 600; color: var(--text-3); margin: var(--s-5) 0 var(--s-2); }
+.known { display: grid; gap: 2px; margin-bottom: var(--s-4); padding-bottom: var(--s-3); border-bottom: 1px solid var(--line); }
+.known-b { border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }

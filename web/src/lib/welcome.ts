@@ -1,7 +1,7 @@
 /* The welcome greeting plays after signing in, and when you come back after a long time away.
    Not on every page load: quick returns go straight to your work. */
 const FLAG = 'ss-welcome', SEEN = 'ss-last-seen', AWAY = 6 * 3_600_000
-export const markLogin = () => { try { sessionStorage.setItem(FLAG, '1') } catch { /* storage may be off */ } }
+export const markLogin = () => { try { sessionStorage.setItem(FLAG, '1'); localStorage.setItem('ss-visited', '1') } catch { /* storage may be off */ } }
 export function takeWelcome(): boolean {
   try {
     const fresh = sessionStorage.getItem(FLAG) === '1'

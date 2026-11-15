@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Avatar, useAccounts } from '../components/Account'
 import { Button } from '../components/Button'
 import { Field } from '../components/Field'
 import { ApiError, errText, post } from '../lib/api'
@@ -49,7 +50,7 @@ export function LoginPanel({ next, autoFocus = false }: { next: string | null; a
     <>
       <SocialButtons next={next} onError={setErr} />
       <form className="au-form" onSubmit={submit}>
-        <Field label="Email" name="email" type="email" inputMode="email" autoComplete="email" defaultValue={prefill} required autoFocus={autoFocus} />
+        <Field key={prefill ?? ""} label="Email" name="email" type="email" inputMode="email" autoComplete="email" defaultValue={prefill} required autoFocus={autoFocus} />
         <Field label="Password" name="password" type="password" autoComplete="current-password" required />
         {err && <p className="au-err" role="alert">{err}</p>}
         <Button variant="primary" type="submit" block disabled={busy}>{busy ? 'Signing in' : 'Sign in'}</Button>
@@ -66,11 +67,29 @@ export function LoginPanel({ next, autoFocus = false }: { next: string | null; a
   )
 }
 
+/* Accounts this device has used: one tap fills the email, so a returning person is never treated like a new one. */
+function Known() {
+  const [, setParams] = useSearchParams()
+  const { list } = useAccounts()
+  if (!list.length) return null
+  return (
+    <div className="known" role="group" aria-label="Accounts on this device">
+      {list.map((a) => (
+        <button key={a.email} type="button" className="acc-pick known-b tap" onClick={() => setParams({ email: a.email }, { replace: true })}>
+          <Avatar name={a.name} photo={a.photo} size={36} />
+          <span className="acc-t"><b className="trunc">{a.name}</b><small className="trunc">{a.email}</small></span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export default function Login() {
   const [params] = useSearchParams()
   const next = safeNext(params.get('next'))
   return (
     <AuthLayout title="Welcome back" lead="Sign in to see your invoices." foot={<>New here? <Link to={`/signup${next ? `?next=${encodeURIComponent(next)}` : ''}`}>Create an account</Link></>}>
+      <Known />
       <LoginPanel next={next} autoFocus />
     </AuthLayout>
   )

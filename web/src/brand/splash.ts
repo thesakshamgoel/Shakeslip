@@ -4,7 +4,8 @@
 export function mountSplash(): void {
   const host = document.getElementById('splash-root')
   if (!host) return
-  host.innerHTML =
+  /* the loader is already on screen from index.html; reuse it so the spin carries on without a restart */
+  if (!document.getElementById('splash')) host.innerHTML =
     '<div id="splash" role="status" aria-label="Loading Shakeslip"><div class="splash-zoom"><div class="splash-mark"></div></div></div>'
   const s = document.getElementById('splash') as HTMLElement
   const sp = s.querySelector('.splash-mark') as HTMLElement

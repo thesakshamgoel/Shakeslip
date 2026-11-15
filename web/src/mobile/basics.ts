@@ -43,7 +43,8 @@ export function parentOf(pathname: string): string {
   return `/${app}/more`
 }
 
-/* A swipe already moved the page itself, so the route change underneath must swap with no slide of its own. */
-let swapNext = false
-export const markSwipeNav = () => { swapNext = true }
-export const takeSwipeNav = () => { const v = swapNext; swapNext = false; return v }
+/* A swipe already moved the screen with the finger, so the route change underneath continues that motion instead of starting its own slide. */
+export type SwipeNav = { dir: number; w: number; off: number }
+let swapNext: SwipeNav | null = null
+export const markSwipeNav = (n: SwipeNav) => { swapNext = n }
+export const takeSwipeNav = (): SwipeNav | null => { const v = swapNext; swapNext = null; return v }

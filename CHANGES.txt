@@ -180,3 +180,7 @@ Before launch (not done)
 
 2026-11-15 add a client, send link at top
 - Add a client: a "Send your link" block at the top of the popup (Send link, WhatsApp, SMS, Email, Copy) shares your connect link with no details needed; the personal-invite form stays below.
+
+2026-11-15 seamless swipe, instant loader
+- Swipe: both screens now move together like a carousel (old one leaves from where the finger let go, the next one arrives edge to edge beside it): no fade, no black gap, no second animation.
+- Loader: the spinning logo is in index.html with its image preloaded, so it shows with the first bytes instead of after the app bundle downloads.

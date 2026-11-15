@@ -8,6 +8,7 @@
     <link rel="icon" type="image/svg+xml" href="/brand/shakeslip.svg" />
     <link rel="apple-touch-icon" href="/brand/apple-touch-180.png" />
     <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="preload" as="image" href="/brand/shakeslip-logo.png" fetchpriority="high" />
     <title>Shakeslip</title>
     <script>
       try {
@@ -17,9 +18,18 @@
         document.documentElement.style.colorScheme = t;
       } catch (e) { document.documentElement.dataset.theme = 'dark'; }
     </script>
+    <!-- the loader paints with the very first bytes: it must not wait for the app bundle -->
+    <style>
+      html { background: #09090b; } html[data-theme='light'] { background: #f5f5f6; }
+      #splash { position: fixed; inset: 0; z-index: 9999; background: var(--splash-bg, #09090b); display: grid; place-items: center; transition: opacity .45s ease; }
+      html[data-theme='light'] #splash { background: var(--splash-bg, #f5f5f6); }
+      .splash-zoom { display: grid; place-items: center; will-change: transform; }
+      .splash-mark { width: 84px; height: 84px; background: url('/brand/shakeslip-logo.png') center / contain no-repeat; animation: ss-spin 1.5s linear infinite; }
+      @keyframes ss-spin { to { transform: rotate(360deg); } }
+    </style>
   </head>
   <body>
-    <div id="splash-root"></div>
+    <div id="splash-root"><div id="splash" role="status" aria-label="Loading Shakeslip"><div class="splash-zoom"><div class="splash-mark"></div></div></div></div>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

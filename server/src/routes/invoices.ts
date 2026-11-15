@@ -16,11 +16,14 @@ invoices.use('*', requireUser)
 type LinkRow = { id: string; user_id: string | null; name: string; email: string; phone: string; company: string; gstin: string; city: string; address: string; state: string; status: string; honorific: string; attention: string; area: string; pin: string; pan: string; logo: string }
 const need = (c: any) => { const b = bizOf(c.get('user').id); return b }
 
+/* the client's own number (from their My details) wins over the one the business typed */
+const phoneOf = (link: LinkRow) => (link.user_id ? (db.query('SELECT phone FROM users WHERE id = ?').get(link.user_id) as { phone: string } | null)?.phone : '') || link.phone
+
 function billTo(link: LinkRow) {
   /* The client's own profile wins; the business's record of them fills any gaps. */
   const prof = link.user_id ? (db.query('SELECT company,gstin,city,address,state,honorific,area,pin,pan,logo FROM client_profiles WHERE user_id = ?').get(link.user_id) as Record<string, string> | null) : null
   const pick = (k: string) => (prof?.[k] || (link as Record<string, unknown>)[k] || '') as string
-  return { name: link.name, company: pick('company'), gstin: pick('gstin'), city: pick('city'), address: pick('address'), state: pick('state'), email: link.email, phone: link.phone,
+  return { name: link.name, company: pick('company'), gstin: pick('gstin'), city: pick('city'), address: pick('address'), state: pick('state'), email: link.email, phone: phoneOf(link),
     honorific: pick('honorific'), attention: link.attention || link.name, area: pick('area'), pin: pick('pin'), pan: pick('pan'), logo: pick('logo') }
 }
 
@@ -135,7 +138,7 @@ invoices.post('/:id/send', async (c) => {
   addEvent(row.id, 'sent', pdfOnly ? 'Issued as a PDF. Shared by the business directly.' : `${link.email ? `Emailed to ${link.email}` : 'Sent to the client portal'}${needsAccept ? ', waiting for their acceptance' : ''}`)
   audit(u.id, 'send', 'invoice', row.id)
   const message = pdfOnly ? `Hi ${link.name}, please find ${type.title.toLowerCase()} ${n.number} from ${biz.name} for ${inr(due)}, due ${shortDate(row.due)}, attached.` : `Hi ${link.name}, ${type.title.toLowerCase()} ${n.number} from ${biz.name} for ${inr(due)} is due ${shortDate(row.due)}. View it here: ${url}`
-  return c.json({ number: n.number, message, phone: link.phone })
+  return c.json({ number: n.number, message, phone: phoneOf(link) })
 })
 
 /* Cancel a sent invoice. It keeps its number (GST records need it) and is clearly stamped Void. */

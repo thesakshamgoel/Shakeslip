@@ -23,11 +23,11 @@ studioLinks.use('*', requireUser)
 studioLinks.get('/', (c) => {
   const biz = bizOf(c.get('user').id)
   if (!biz) return c.json([])
-  /* the client's own profile wins over what the business typed, same as on invoices */
-  const rows = db.query(`SELECT l.id,l.name,l.email,l.phone,l.attention,COALESCE(NULLIF(cp.company, ''), l.company) AS company,COALESCE(NULLIF(cp.gstin, ''), l.gstin) AS gstin,COALESCE(NULLIF(cp.city, ''), l.city) AS city,COALESCE(NULLIF(cp.address, ''), l.address) AS address,COALESCE(NULLIF(cp.state, ''), l.state) AS state,COALESCE(NULLIF(cp.honorific, ''), l.honorific) AS honorific,COALESCE(NULLIF(cp.area, ''), l.area) AS area,COALESCE(NULLIF(cp.pin, ''), l.pin) AS pin,COALESCE(NULLIF(cp.pan, ''), l.pan) AS pan,COALESCE(NULLIF(cp.logo, ''), l.logo) AS logo,
+  /* the client's own profile wins over what the business typed, same as on invoices; so does their own phone number */
+  const rows = db.query(`SELECT l.id,l.name,l.email,COALESCE(NULLIF(u.phone, ''), l.phone) AS phone,l.attention,COALESCE(NULLIF(cp.company, ''), l.company) AS company,COALESCE(NULLIF(cp.gstin, ''), l.gstin) AS gstin,COALESCE(NULLIF(cp.city, ''), l.city) AS city,COALESCE(NULLIF(cp.address, ''), l.address) AS address,COALESCE(NULLIF(cp.state, ''), l.state) AS state,COALESCE(NULLIF(cp.honorific, ''), l.honorific) AS honorific,COALESCE(NULLIF(cp.area, ''), l.area) AS area,COALESCE(NULLIF(cp.pin, ''), l.pin) AS pin,COALESCE(NULLIF(cp.pan, ''), l.pan) AS pan,COALESCE(NULLIF(cp.logo, ''), l.logo) AS logo,
     l.group_id AS groupId,l.status,(l.user_id IS NOT NULL) AS joined,
     (SELECT COUNT(*) FROM invoices i WHERE i.link_id = l.id AND i.deleted_at IS NULL) AS invoices
-    FROM links l LEFT JOIN client_profiles cp ON cp.user_id = l.user_id WHERE l.business_id = ? AND l.deleted_at IS NULL AND l.status != 'ended' ORDER BY l.created_at DESC`).all(biz.id)
+    FROM links l LEFT JOIN client_profiles cp ON cp.user_id = l.user_id LEFT JOIN users u ON u.id = l.user_id WHERE l.business_id = ? AND l.deleted_at IS NULL AND l.status != 'ended' ORDER BY l.created_at DESC`).all(biz.id)
   return c.json(rows)
 })
 

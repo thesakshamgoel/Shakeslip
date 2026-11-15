@@ -150,3 +150,6 @@ Before launch (not done)
 - Sidebar account card: profile photo (Google photo, or initial), full name and email on one line, menu to switch account, add another account, theme, sign out.
 - More page (phone): account header and the same list. Remembered accounts live in this browser only (name, email, photo; no passwords or sessions).
 - Server: users.photo_url, filled from Google sign-in.
+
+2026-11-15 client phone
+- A client's phone saved in their My details now shows to the studio (client list, Bill to on new invoices, WhatsApp share). It used to show only the number the studio typed.

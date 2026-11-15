@@ -142,3 +142,6 @@ Before launch (not done)
 - Editor (phone): one icon button for Preview / Edit, always at the bottom. Tapping a step number returns to Edit and names the step.
 - Sign in and sign up are one flow: an email or Google account with no account goes straight on to creating one, no error. Signing up with an existing email and the right password just signs in.
 - Production: opener policy allows the Google popup.
+
+2026-11-15 paste fix
+- Terms: pasting several lines (or a long block) now becomes one clause or row per line, cut at word breaks, instead of one truncated run-on line. Applies to Add a clause and the Terms/Annexure editor.

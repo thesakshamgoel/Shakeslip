@@ -2,6 +2,7 @@ import { ArrowDown, ArrowUp, Bold, Heading2, Heading3, List, ListOrdered, Plus, 
 import { useEffect, useRef, useState } from 'react'
 import { Button, IconButton } from './Button'
 import { Dialog } from './Dialog'
+import { splitPaste } from '../lib/paste'
 import { numberHeadings, parseFormatted, type Block } from './docParts'
 import './blockeditor.css'
 
@@ -17,14 +18,14 @@ const NAME: Record<Kind, string> = { sub: 'Heading', sub2: 'Subheading', li: 'Po
 /* what shows in the margin: heading numbers and list numbers count up by themselves */
 function labels(rows: Row[]): string[] { let h = 0, n = 0; return rows.map((r) => { if (r.k === 'sub') { n = 0; return `${++h}.` } if (r.k === 'num') return `${++n}.`; if (r.k !== 'sub2') n = r.k === 'li' ? 0 : n; return '' }) }
 
-function Line({ r, label, active, onFocus, onChange, onKey }: { r: Row; label: string; active: boolean; onFocus: () => void; onChange: (t: string) => void; onKey: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void }) {
+function Line({ r, label, active, onFocus, onChange, onKey, onPaste }: { r: Row; label: string; active: boolean; onFocus: () => void; onChange: (t: string) => void; onKey: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void; onPaste: (e: React.ClipboardEvent<HTMLTextAreaElement>) => void }) {
   const el = useRef<HTMLTextAreaElement>(null)
   useEffect(() => { if (el.current) { el.current.style.height = 'auto'; el.current.style.height = `${el.current.scrollHeight}px` } }, [r.text])
   return (
     <div className={`be-row be-${r.k} ${r.b ? 'be-b' : ''} ${active ? 'on' : ''}`}>
       <span className="be-mark" aria-hidden>{label}</span>
       <textarea ref={el} data-row={r.id} rows={1} value={r.text} maxLength={600} aria-label={NAME[r.k]}
-        placeholder={r.k === 'p' ? 'Write here' : NAME[r.k]} onFocus={onFocus} onChange={(e) => onChange(e.target.value.replace(/\n/g, ' '))} onKeyDown={onKey} />
+        placeholder={r.k === 'p' ? 'Write here' : NAME[r.k]} onFocus={onFocus} onChange={(e) => onChange(e.target.value.replace(/\n/g, ' '))} onKeyDown={onKey} onPaste={onPaste} />
     </div>
   )
 }
@@ -44,6 +45,18 @@ export function BlockEditorDialog({ open, onClose, title, value, onChange, max =
   const setType = (k: Kind) => commit(rows.map((r, i) => (i === at ? { ...r, k } : r)))
   const move = (d: number) => { const j = at + d; if (j < 0 || j >= rows.length) return; const n = [...rows]; [n[at], n[j]] = [n[j], n[at]]; commit(n); setAt(j) }
   const del = () => { if (rows.length <= 1) { commit([{ ...rows[0], text: '' }]); return } const n = rows.filter((_, i) => i !== at); commit(n); setAt(Math.max(0, at - 1)); focus(n[Math.max(0, at - 1)].id) }
+  /* pasting several lines, or more than one line can hold, becomes one row per line instead of one cut-off run-on */
+  function paste(i: number, e: React.ClipboardEvent<HTMLTextAreaElement>) {
+    const t = e.clipboardData.getData('text')
+    if (!/[\r\n]/.test(t) && t.length + rows[i].text.length <= 600) return
+    const lines = splitPaste(t)
+    if (!lines.length) return
+    e.preventDefault()
+    const fresh = toRows(lines.join('\n'))
+    const from = rows[i].text.trim() ? i + 1 : i
+    commit([...rows.slice(0, from), ...fresh, ...rows.slice(i + 1)])
+    setAt(from + fresh.length - 1); focus(fresh[fresh.length - 1].id)
+  }
   function key(i: number, e: React.KeyboardEvent<HTMLTextAreaElement>) {
     const r = rows[i]
     if (e.key === 'Enter') { e.preventDefault(); if (!r.text.trim() && (r.k === 'li' || r.k === 'num')) { commit(rows.map((x, j) => (j === i ? { ...x, k: 'p' } : x))); return } add(i, r.k === 'li' || r.k === 'num' ? r.k : 'p') }
@@ -66,7 +79,7 @@ export function BlockEditorDialog({ open, onClose, title, value, onChange, max =
             <IconButton label="Delete line" onClick={del}><Trash2 size={16} /></IconButton>
           </div>
         </div>
-        <div className="be-page">{rows.map((r, i) => <Line key={r.id} r={r} label={lab[i]} active={i === at} onFocus={() => setAt(i)} onChange={(t) => commit(rows.map((x, j) => (j === i ? { ...x, text: t } : x)))} onKey={(e) => key(i, e)} />)}</div>
+        <div className="be-page">{rows.map((r, i) => <Line key={r.id} r={r} label={lab[i]} active={i === at} onFocus={() => setAt(i)} onChange={(t) => commit(rows.map((x, j) => (j === i ? { ...x, text: t } : x)))} onKey={(e) => key(i, e)} onPaste={(e) => paste(i, e)} />)}</div>
         <div className="be-foot"><small className="num">{used.toLocaleString('en-IN')} of {max.toLocaleString('en-IN')} characters. Names and amounts can be typed as {'{client}'}, {'{total}'}, {'{due_date}'}.</small><Button variant="primary" onClick={onClose}>Done</Button></div>
       </div>
     </Dialog>

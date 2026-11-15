@@ -7,6 +7,7 @@ import { Chip } from '../../components/Chip'
 import { autoMatch, CLAUSES, clauseTitle, fillClause, groupTerms, suggestClauses, type ClauseContext } from '../../lib/clauses'
 import { fmtDate } from '../../lib/dates'
 import { springSoft } from '../../lib/motion'
+import { splitPaste } from '../../lib/paste'
 import type { Draft } from './state'
 import { ANNEX_TEMPLATES } from '../../lib/annexures'
 
@@ -74,7 +75,7 @@ export function TermsStep({ d, set, ctx, profession, services, auto, setAuto, ma
           </AnimatePresence>
         </ol>
         <form className="inline-add" onSubmit={(e) => { e.preventDefault(); const v = custom.trim(); if (v && !has(v)) { set({ terms: [...d.terms, v] }); setCustom('') } }}>
-          <input className="input" value={custom} maxLength={600} onChange={(e) => setCustom(e.target.value)} placeholder="Add one clause. You can use {client}, {total}, {due_date}." aria-label="Add a clause" />
+          <input className="input" value={custom} maxLength={600} onChange={(e) => setCustom(e.target.value)} onPaste={(e) => { const t = e.clipboardData.getData('text'); if (!/[\r\n]/.test(t) && t.length + custom.length <= 600) return; e.preventDefault(); const add = splitPaste(t).filter((x) => !has(x)); if (add.length) set({ terms: [...d.terms, ...add] }) }} placeholder="Add one clause. You can use {client}, {total}, {due_date}." aria-label="Add a clause" />
           <Button type="submit" disabled={!custom.trim()}><Plus size={16} aria-hidden />Add</Button>
         </form>
       </div>

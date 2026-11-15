@@ -17,7 +17,7 @@ import './db.ts'
 
 const app = new Hono()
 app.use('*', securityHeaders)
-app.use('*', secureHeaders())
+app.use('*', secureHeaders({ crossOriginOpenerPolicy: 'same-origin-allow-popups' })) /* popups allowed: Google sign-in opens one */
 app.use('/api/*', csrfGuard)
 
 if (!isProd) app.route('/api/dev', devRoutes((r) => app.fetch(r)))

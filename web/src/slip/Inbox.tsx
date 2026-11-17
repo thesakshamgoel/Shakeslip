@@ -35,7 +35,7 @@ export default function Inbox() {
       <div className="chips" role="group" aria-label="Filter">
         {F.map((x) => <button key={x.id} className="chip tap" aria-pressed={f === x.id} onClick={() => set('show', x.id, 'pay')}>{x.label}</button>)}
       </div>
-      <div className="inv-view" role="radiogroup" aria-label="View"><IconButton label="Grid view" role="radio" aria-checked={view === 'grid'} onClick={() => set('view', 'grid', 'grid')}><LayoutGrid size={18} /></IconButton><IconButton label="List view" role="radio" aria-checked={view === 'list'} onClick={() => set('view', 'list', 'grid')}><List size={18} /></IconButton></div>
+      {all.length > 0 && <div className="inv-view" role="radiogroup" aria-label="View"><IconButton label="Grid view" role="radio" aria-checked={view === 'grid'} onClick={() => set('view', 'grid', 'grid')}><LayoutGrid size={18} /></IconButton><IconButton label="List view" role="radio" aria-checked={view === 'list'} onClick={() => set('view', 'list', 'grid')}><List size={18} /></IconButton></div>}
       {!loading && list.length === 0 ? (
         <div className="empty">
           <h3>{all.length ? 'Nothing here' : 'No invoices yet'}</h3>

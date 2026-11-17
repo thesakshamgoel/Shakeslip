@@ -199,3 +199,8 @@ All motion uses named tokens in `web/src/lib/motion.ts` (springs described by lo
 - Do not add new hand-tuned stiffness/damping values; pick a token. Exception: landing pointer-follow springs.
 - `askConfirm()` (components/ConfirmHost) is the only way to ask "are you sure?": red button, never `window.confirm`.
 - The welcome greeting waits for the loader event `ss-splash-open`.
+
+## 15. Loader, greeting and entrance (2026-11-17)
+
+Sequence on a fresh sign-in or after 6 hours away: loader spins, star opens (`ss-splash-open`), about 0.4 s later the greeting writes on letter by letter at measured positions (components/Welcome.tsx), rests, rises onto the real heading (`[data-greet-target]`, only on Studio dashboard and Slip inbox) or, on every other page, rises and fades where a heading would sit (`place()` makes a hidden probe heading). Then the backdrop fades and `AppShell` moves phase hold -> enter -> idle: `.shell-enter` fades the frame and CSS (`tile-in`, welcome.css) staggers tiles and blocks. The star finishing fires `ss-splash-done`.
+Rules: the greeting must never block (7.5 s failsafe); never add page entrance animations that run while `.shell-wait` is on (nobody sees them); the heading is excluded from the entrance when `.shell-greeted` is set.

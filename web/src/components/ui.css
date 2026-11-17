@@ -99,9 +99,9 @@ textarea.input { padding: var(--s-3); min-height: 88px; resize: vertical; }
 .cap { color: var(--warn); font-size: var(--t-xs); }
 
 /* Empty states get one slow logo ring behind them, so a new screen feels alive instead of blank.
-   Same ring and tint as the landing page and sign-in; it never covers the text and stops with reduced motion. */
-.empty { position: relative; isolation: isolate; overflow: hidden; }
-.empty::before { content: ''; position: absolute; z-index: -1; left: 50%; top: 50%; width: min(300px, 70%); aspect-ratio: 1; translate: -50% -50%;
+   The ring is drawn "contain" inside the whole box, so it shrinks to fit a short box and is never cropped. */
+.empty { position: relative; isolation: isolate; min-height: 220px; align-content: center; }
+.empty::before { content: ''; position: absolute; z-index: -1; top: 8px; bottom: 8px; left: 50%; width: min(100%, 340px); translate: -50% 0;
   background: var(--brand); -webkit-mask: url(/brand/ring.png) center / contain no-repeat; mask: url(/brand/ring.png) center / contain no-repeat;
   opacity: .07; animation: empty-turn 80s linear infinite; pointer-events: none; }
 @keyframes empty-turn { to { rotate: 360deg; } }

@@ -3,22 +3,34 @@
 /* drawn with the heading's own type, so it lands on the real heading pixel for pixel */
 .greet-fly { position: fixed; margin: 0; z-index: 1; will-change: transform; }
 .greet-h { font: 800 var(--t-2xl)/1.15 var(--font-display); letter-spacing: -.03em; }
-/* The frame only fades (a transform on it would stop the floating tab bar from staying on screen).
-   The content slides up a touch, and keeps no transform once it has arrived. */
-.shell-in { animation: shell-fade .6s cubic-bezier(.22, 1, .36, 1) backwards; }
-.shell-in > .main { animation: shell-rise .7s cubic-bezier(.22, 1, .36, 1) backwards; }
-@keyframes shell-fade { from { opacity: 0; } }
-@keyframes shell-rise { from { transform: translateY(14px); } }
-@media (prefers-reduced-motion: reduce) { .shell-in, .shell-in > .main { animation: none; } }
-.shell-wait { opacity: 0; }
 
 .switch-ov { position: fixed; inset: 0; z-index: 190; display: grid; place-items: center; background: var(--bg); }
 .switch-ov-in { display: grid; justify-items: center; gap: var(--s-3); } .switch-ov-in b { font: 800 var(--t-xl)/1.2 var(--font-display); letter-spacing: -.02em; }
 .switch-ov .logo-mark.is-spinning { animation-duration: 1s; }
 
-/* after a welcome the app is simply there behind the fading backdrop: no second fade or rise, so the heading never moves or ghosts */
-.shell-ready { opacity: 1; }
 .greet-fly.one-line { white-space: nowrap; }
 /* each letter sits exactly where the real text puts it; the name's letters share one continuous shimmer gradient */
 .greet-letter { position: absolute; white-space: pre; padding: 0 !important; will-change: transform, opacity; }
 .greet-name-ch { display: block; animation: none !important; }
+
+/* The page arrives after the loader (and the greeting), block by block, like content settling into place.
+   The frame (sidebar, bars) fades; the blocks and tiles rise in turn. Only transform and opacity. */
+.shell-wait { opacity: 0; }
+.shell-enter { animation: shell-fade .5s var(--ease-out) backwards; }
+@keyframes shell-fade { from { opacity: 0; } }
+@keyframes tile-in { from { opacity: 0; transform: translateY(18px) scale(.985); } }
+.shell-enter .page > :where(*:not(.stats):not(.inv-grid):not(.client-grid):not(.tcards):not(.types-grid):not(.rows):not(.dash-two):not(.set-list):not(.feed)),
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > * {
+  animation: tile-in .62s var(--spring-smooth) backwards; animation-delay: calc(var(--n, 0) * 55ms + 80ms); }
+.shell-enter .page > :nth-child(1) { --n: 0 } .shell-enter .page > :nth-child(2) { --n: 1 } .shell-enter .page > :nth-child(3) { --n: 2 } .shell-enter .page > :nth-child(4) { --n: 3 }
+.shell-enter .page > :nth-child(5) { --n: 4 } .shell-enter .page > :nth-child(n+6) { --n: 5 }
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > :nth-child(1) { --n: 2 }
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > :nth-child(2) { --n: 3 }
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > :nth-child(3) { --n: 4 }
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > :nth-child(4) { --n: 5 }
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > :nth-child(5) { --n: 6 }
+.shell-enter :where(.stats, .inv-grid, .client-grid, .tcards, .types-grid, .rows, .dash-two, .set-list, .feed) > :nth-child(n+6) { --n: 7 }
+/* after the greeting has landed on the heading, the heading itself must not animate again */
+.shell-greeted .page > .ph { animation: none; }
+.shell-greeted .ph p, .shell-greeted .ph > :not(div:first-child) { animation: tile-in .62s var(--spring-smooth) backwards; animation-delay: 120ms; }
+@media (prefers-reduced-motion: reduce) { .shell-enter, .shell-enter *, .shell-greeted .ph p { animation: none !important; } }

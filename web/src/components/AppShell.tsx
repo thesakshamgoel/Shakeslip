@@ -40,11 +40,23 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
   /* the overlay outlives the wait: it stays on top until its backdrop has faded away around the real heading */
   const [overlay, setOverlay] = useState(welcome)
   const [greeted, setGreeted] = useState(false)
+  /* the page waits behind the loader and the greeting, then arrives block by block: hold -> enter -> idle */
+  const [phase, setPhase] = useState<'hold' | 'enter' | 'idle'>(() => (welcome || document.getElementById('splash') ? 'hold' : 'enter'))
   /* arriving from the other app: its logo turns like the loader for a moment while this one settles in */
   const [arrive, setArrive] = useState(() => { try { const v = sessionStorage.getItem('ss-switch') === '1'; sessionStorage.removeItem('ss-switch'); return v } catch { return false } })
   useEffect(() => { if (!arrive) return; const t = setTimeout(() => setArrive(false), 650); return () => clearTimeout(t) }, [arrive])
   /* the greeting decides when it is finished (it waits for the loader, writes itself on, then rests) */
-  const revealWelcome = useCallback(() => { setGreeted(true); setWelcome(false) }, [])
+  const revealWelcome = useCallback(() => { setGreeted(true); setWelcome(false); setPhase('enter') }, [])
+  /* no greeting: the page arrives shortly after the loader's star starts to open (a little before it finishes) */
+  useEffect(() => {
+    if (phase !== 'hold' || welcome) return
+    if (!document.getElementById('splash')) { setPhase('enter'); return }
+    const go = () => setTimeout(() => setPhase('enter'), 650)
+    addEventListener('ss-splash-open', go, { once: true })
+    const t = setTimeout(() => setPhase('enter'), 6000)
+    return () => { removeEventListener('ss-splash-open', go); clearTimeout(t) }
+  }, [phase, welcome])
+  useEffect(() => { if (phase !== 'enter') return; const t = setTimeout(() => setPhase('idle'), 2400); return () => clearTimeout(t) }, [phase])
   const endWelcome = useCallback(() => setOverlay(false), [])
   useEffect(() => {
     const id = setInterval(touchSeen, 60_000)
@@ -87,7 +99,7 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
 
   return (
     <LayoutGroup id="welcome"><WelcomeCtx.Provider value={welcome}>
-      <div className={`shell ${welcome ? 'shell-wait' : greeted ? 'shell-ready' : 'shell-in'} ${kb ? 'kb' : ''} ${flow ? 'flow' : ''}`} data-app={app} data-depth={depth}>
+      <div className={`shell ${phase === 'hold' ? 'shell-wait' : phase === 'enter' ? `shell-enter ${greeted ? 'shell-greeted' : ''}` : ''} ${kb ? 'kb' : ''} ${flow ? 'flow' : ''}`} data-app={app} data-depth={depth}>
         <ConfirmHost />
         {overlay && <WelcomeOverlay name={me?.user?.name.split(' ')[0] ?? ''} onReveal={revealWelcome} onDone={endWelcome} />}
         <AnimatePresence>

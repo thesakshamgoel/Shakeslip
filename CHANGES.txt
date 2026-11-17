@@ -223,3 +223,11 @@ Before launch (not done)
 2026-11-17 welcome: letter by letter, faster
 - The greeting is written on letter by letter again, each letter animated in at the exact spot the real text puts it (measured, so kerning and the name shimmer stay identical), then it becomes the real text with no shift.
 - Faster: letters in about 0.55 s, short rest, quicker rise and fade (about 2.4 s in total instead of about 3.5 s).
+
+2026-11-17 pre-ship fixes: greeting everywhere, entrance, logo cut, Create tab
+- BUG FIXED: on any page without the big heading (Updates, Settings, Clients, ...) the welcome showed only a blank backdrop and never cleared. The greeting now has a landing spot on every page (a rise-and-fade where a heading would sit), and a 7.5 s failsafe means it can never hold the screen.
+- Greeting timing: it now starts about 0.4 s after the loader star starts to open instead of playing hidden behind the loader. Letters write on in about 0.55 s, a short rest, then it rises (about 0.4 s) and the page fades in.
+- Page entrance after the loader: the sidebar fades in and tiles, cards, rows and blocks rise in one after another (about 55 ms apart). Before, they animated behind the loader and were finished before it opened. Loader announces ss-splash-open and ss-splash-done events.
+- Logo ring in empty states: drawn contained inside the whole box, so it can no longer be cropped.
+- Slip inbox: the grid/list toggle no longer shows when there is nothing to list.
+- Create tab: types grouped With GST / Without tax; each card has a kind icon (GST invoice, quotation, event, plain bill), a tax badge with the rate, what it calculates and its numbering; compact on phone.

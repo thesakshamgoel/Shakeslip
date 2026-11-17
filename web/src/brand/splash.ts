@@ -41,8 +41,10 @@ export function mountSplash(): void {
     }
     setTimeout(() => {
       s.classList.add('out')
-      /* the welcome greeting waits for this, so it never plays underneath the loader */
+      /* the greeting and the page's entrance wait for these: the star is open, then it is gone */
       window.dispatchEvent(new Event('ss-splash-open'))
+      if (simple) setTimeout(() => window.dispatchEvent(new Event('ss-splash-done')), 450)
+      else s.addEventListener('animationend', (e) => { if ((e as AnimationEvent).animationName === 'ss-star') window.dispatchEvent(new Event('ss-splash-done')) })
       document.body.classList.add('app-enter')
       setTimeout(() => document.body.classList.remove('app-enter'), 2000)
       setTimeout(() => host.replaceChildren(), 2300)

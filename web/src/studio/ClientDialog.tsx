@@ -7,7 +7,7 @@ import { useToast } from '../lib/toast'
 import type { Link as ClientLink } from '../lib/types'
 import { ClientFields, type ClientForm } from './ClientFields'
 
-const toForm = (l: ClientLink): ClientForm => ({ name: l.name, company: l.company, email: l.email, phone: l.phone, honorific: l.honorific ?? '', attention: l.attention ?? '', gstin: l.gstin, pan: l.pan ?? '', address: l.address, area: l.area ?? '', city: l.city, pin: l.pin ?? '', state: l.state ?? '', logo: l.logo ?? '' })
+const toForm = (l: ClientLink): ClientForm => ({ phones: l.phones ?? [], emails: l.emails ?? [], name: l.name, company: l.company, email: l.email, phone: l.phone, honorific: l.honorific ?? '', attention: l.attention ?? '', gstin: l.gstin, pan: l.pan ?? '', address: l.address, area: l.area ?? '', city: l.city, pin: l.pin ?? '', state: l.state ?? '', logo: l.logo ?? '' })
 
 /* Everything a business keeps about a client. If the client fills in their own profile in Slip, theirs is used on invoices. */
 export function ClientDialog({ link, onClose, onSaved }: { link: ClientLink | null; onClose: () => void; onSaved: () => void }) {

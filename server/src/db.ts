@@ -91,3 +91,8 @@ if ((db.query('PRAGMA user_version').get() as { user_version: number }).user_ver
   db.exec("UPDATE groups SET theme = '' WHERE theme IN ('classic', 'onyx')")
   db.exec('PRAGMA user_version = 1')
 }
+
+// Named writing templates belong to one business, across devices.
+db.exec(`CREATE TABLE IF NOT EXISTS document_templates (id TEXT PRIMARY KEY, business_id TEXT NOT NULL REFERENCES businesses(id), name TEXT NOT NULL, kind TEXT NOT NULL, content TEXT NOT NULL, created_at TEXT NOT NULL)` )
+
+for (const table of ['client_profiles', 'links']) for (const col of ['phones', 'emails']) ensureColumn(table, col, "TEXT NOT NULL DEFAULT '[]'")

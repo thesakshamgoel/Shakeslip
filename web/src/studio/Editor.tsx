@@ -1,5 +1,6 @@
 import { AnimatePresence, motion } from 'motion/react'
-import { ArrowLeft, ArrowRight, FileDown, MessageCircle, Eye, Pencil, Redo2, Save, Send, Undo2, UserPlus } from 'lucide-react'
+import { WhatsAppIcon } from '../components/WhatsAppIcon'
+import { ArrowLeft, ArrowRight, FileDown, Eye, Pencil, Redo2, Save, Send, Undo2, UserPlus } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { autoMatch, suggestClauses } from '../lib/clauses'
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom'
@@ -13,7 +14,7 @@ import { setNavGuard } from '../lib/navguard'
 import { liveTotals } from '../lib/format'
 import { isInterState, stateOf } from '../lib/gst'
 import { money } from '../lib/money'
-import { spring, springSoft } from '../lib/motion'
+import { snappy, spring, springSoft } from '../lib/motion'
 import { useSession } from '../lib/session'
 import { useToast } from '../lib/toast'
 import type { Business, Group, InvoiceType, InvoiceView, Link as ClientLink } from '../lib/types'
@@ -45,7 +46,7 @@ function ViewToggle({ tab, setTab }: { tab: 'edit' | 'preview'; setTab: (t: 'edi
   return (
     <button type="button" className="ed2-view tap" aria-label={prev ? 'Preview the invoice' : 'Back to editing'} title={prev ? 'Preview' : 'Edit'} onClick={() => { tick(8); setTab(prev ? 'preview' : 'edit'); window.scrollTo({ top: 0 }) }}>
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span key={tab} initial={{ opacity: 0, scale: 0.6, rotate: -30 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.6, rotate: 30 }} transition={{ type: 'spring', stiffness: 520, damping: 30 }}>{prev ? <Eye size={22} aria-hidden /> : <Pencil size={22} aria-hidden />}</motion.span>
+        <motion.span key={tab} initial={{ opacity: 0, scale: 0.6, rotate: -30 }} animate={{ opacity: 1, scale: 1, rotate: 0 }} exit={{ opacity: 0, scale: 0.6, rotate: 30 }} transition={snappy}>{prev ? <Eye size={22} aria-hidden /> : <Pencil size={22} aria-hidden />}</motion.span>
       </AnimatePresence>
     </button>
   )
@@ -138,7 +139,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
   const subtotal = d.items.reduce((n, i) => n + Math.round(i.qty * i.rate), 0)
   const discount = type.discount ? (d.extra.discountPct ? Math.round((subtotal * d.extra.discountPct) / 100) : d.discount) : 0
   const t = liveTotals(d.items, gst, discount, type.advance ? d.advance : 0, d.taxInclusive)
-  const billTo = link ? { name: link.name, company: link.company, gstin: link.gstin, city: link.city, address: link.address, email: link.email, phone: link.phone, state: link.state, honorific: link.honorific, attention: link.attention || link.name, area: link.area, pin: link.pin, pan: link.pan, logo: link.logo } : null
+  const billTo = link ? { phones: link.phones, emails: link.emails, name: link.name, company: link.company, gstin: link.gstin, city: link.city, address: link.address, email: link.email, phone: link.phone, state: link.state, honorific: link.honorific, attention: link.attention || link.name, area: link.area, pin: link.pin, pan: link.pan, logo: link.logo } : null
   const doc: DocData = { number: existing?.number ?? null, type, theme: d.theme, billTo, from, items: d.items, fields: d.fields, gstPct: gst, issued: d.issued, due: d.due, note: d.note, project: d.project, terms: d.terms, taxInclusive: d.taxInclusive, interState: isInterState(stateOf(from.gstin, from.state), stateOf(link?.gstin, link?.state)), totals: t, extra: d.extra }
   const ctx = docCtx(doc)
   /* while terms are in suggested mode, rebuild them when the plan, services or due date change */
@@ -185,7 +186,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
     /* suggested terms: ask once per client and project to confirm they were reviewed */
     let acked = false
     try { acked = localStorage.getItem(ackKey) === '1' } catch { /* storage may be off */ }
-    if (generated && (d.terms.length || d.extra.annexure) && !acked && !d.extra.termsAckAt) { setAck(false); setAckOpen(true); return }
+    if (generated && (d.terms.length || d.extra.customTerms || d.extra.annexure) && !acked && !d.extra.termsAckAt) { setAck(false); setAckOpen(true); return }
     setSendOpen(true)
   }
 
@@ -286,13 +287,13 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
       </nav>
 
       <AnimatePresence>
-        {hint !== null && <motion.p key="hint" className="ed2-hint" role="status" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ type: 'spring', stiffness: 420, damping: 32 }}>Step {hint + 1} of {STEPS.length}: <b>{STEPS[hint]}</b></motion.p>}
+        {hint !== null && <motion.p key="hint" className="ed2-hint" role="status" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={snappy}>Step {hint + 1} of {STEPS.length}: <b>{STEPS[hint]}</b></motion.p>}
       </AnimatePresence>
 
       <div className="ed2-body" data-tab={tab}>
         <div className={`ed2-panel ${shk % 2 ? 'shk-a' : 'shk-b'}`}>
           <AnimatePresence mode="popLayout" initial={false} custom={dir}>
-            <motion.div key={step} custom={dir} variants={{ in: (k: number) => ({ opacity: 0, x: 16 * k }), on: { opacity: 1, x: 0 }, out: (k: number) => ({ opacity: 0, x: -10 * k, transition: { duration: 0.12 } }) }} initial="in" animate="on" exit="out" transition={{ type: 'spring', stiffness: 420, damping: 38 }}>
+            <motion.div key={step} custom={dir} variants={{ in: (k: number) => ({ opacity: 0, x: 16 * k }), on: { opacity: 1, x: 0 }, out: (k: number) => ({ opacity: 0, x: -10 * k, transition: { duration: 0.12 } }) }} initial="in" animate="on" exit="out" transition={snappy}>
               {staleGreet && <Banner tone="warn" title="Client details changed">The greeting says "{d.extra.salutation}", but their details now give "{freshGreet}". <button type="button" className="au-link" onClick={() => set({ extra: { ...d.extra, salutation: freshGreet } })}>Update to latest</button> <button type="button" className="au-link" onClick={() => setKeepGreet(freshGreet)}>Keep mine</button></Banner>}
               {restored && dirty && !savedAt && <Banner tone="info" title="Picked up where you left off">We restored your unsaved invoice from {new Date(restored.at).toLocaleString('en-IN', { day: 'numeric', month: 'short', hour: 'numeric', minute: '2-digit' })}. <button type="button" className="au-link" onClick={() => { clearDraft(key); location.reload() }}>Start fresh instead</button></Banner>}
               {shown(step).length > 0 && <Banner tone="error" shake={shk} title={shown(step).length === 1 ? shown(step)[0].text : 'A few things need your attention'}>{shown(step).length > 1 && <ul>{shown(step).map((x) => <li key={x.text}>{x.text}</li>)}</ul>}</Banner>}
@@ -304,7 +305,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
             {step > 0 ? <Button onClick={() => tryGo(step - 1)}><ArrowLeft size={18} aria-hidden />Back</Button> : <span />}
             {step < STEPS.length - 1
               ? <><span className="ed2-total num" aria-live="polite"><small>Total</small>{money(t.total)}</span><Button variant="primary" className="next-btn" onClick={() => tryGo(step + 1)}>
-                  <span className="next-l"><AnimatePresence mode="popLayout" initial={false}><motion.span key={step} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ type: 'spring', stiffness: 520, damping: 38 }}>Next: {STEPS[step + 1]}</motion.span></AnimatePresence></span>
+                  <span className="next-l"><AnimatePresence mode="popLayout" initial={false}><motion.span key={step} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={snappy}>Next: {STEPS[step + 1]}</motion.span></AnimatePresence></span>
                   <ArrowRight size={18} aria-hidden className="next-a" />
                 </Button></>
               : <div className="ed2-send">
@@ -352,7 +353,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
             : <p>{done?.number} is on its way to {link?.company || link?.name}. {link?.email ? 'They were emailed a copy and it is in their Slip inbox.' : 'It is waiting in their Slip inbox.'} You will hear when they open it and when they pay.</p>}
         </div>
         {delivery === 'pdf' && <Button variant="primary" block onClick={async () => { try { await downloadPdf(`/studio/invoices/${done!.id}/pdf`, `${done!.number}.pdf`); toast.ok('PDF downloaded.') } catch (e) { toast.bad(errText(e)) } }}><FileDown size={18} aria-hidden />Download PDF</Button>}
-        {link?.phone && <Button block onClick={() => { void post(`/studio/invoices/${done!.id}/whatsapp-sent`); window.open(whatsappUrl(done!.phone, done!.message), '_blank', 'noopener') }}><MessageCircle size={18} aria-hidden />Also share on WhatsApp</Button>}
+        {link?.phone && <Button block onClick={() => { void post(`/studio/invoices/${done!.id}/whatsapp-sent`); window.open(whatsappUrl(done!.phone, done!.message), '_blank', 'noopener') }}><WhatsAppIcon size={18} />Also share on WhatsApp</Button>}
         <Button variant={delivery === 'pdf' ? 'secondary' : 'primary'} block onClick={() => nav(`/studio/invoices/${done?.id}`)}>View invoice</Button>
       </Dialog>
     </div>

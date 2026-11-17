@@ -184,3 +184,33 @@ Before launch (not done)
 2026-11-15 seamless swipe, instant loader
 - Swipe: both screens now move together like a carousel (old one leaves from where the finger let go, the next one arrives edge to edge beside it): no fade, no black gap, no second animation.
 - Loader: the spinning logo is in index.html with its image preloaded, so it shows with the first bytes instead of after the app bundle downloads.
+
+2026-11-17 interface, motion and writing workflow
+- Preserved v5 before edits in backups/shakeslip-v5-before-ux-2026-11-16.tar.gz; older versions unchanged.
+- Kept the existing palette and typefaces, tightened working layouts and spacing, sized long and numeric fields appropriately, and defaulted Studio invoices, clients and Slip inbox to grid with list switches.
+- Added gentle logo outer-ring motion, a saved ambient-motion setting and reduced-motion support; simplified launch, page and dialog transitions. Original logo files remain unchanged.
+- Added WhatsApp and email connect-link drafts, with the WhatsApp glyph.
+- Added a compact red account deletion action with typed confirmation and a matching server guard; red destructive controls and confirmation dialogs for client removal and invoice voiding.
+- Replaced line-at-a-time writing with a continuous rich editor: headings, bold, underline, lists, indentation, undo/redo, formatted Copy, cleaned paste and local DOCX/TXT import. Info panel explains supported formatting and PDF text-paste limitations.
+- Moved Terms/Annexure tabs to the top, combined selected clauses with editable terms, added private named writing templates, and retained formatting in invoice previews/PDF output. Existing plain-text documents remain readable.
+- Added optional labeled phone/email collections for client records and Slip details, with per-invoice printed-contact selection. Sent invoice snapshots stay frozen. Delivery still uses the primary email.
+- Added regression checks for template ownership, contact persistence and snapshots, account-delete confirmation, legacy/rich text, placeholders and pagination; local browser/PDF review scripts live in test/.
+- Verification: 22 server/document tests passed (180 assertions); server type check and web production build passed. Browser checks covered grid defaults, share drafts, formatted paste/Word import, saved templates and widths 360–1440. PDF export produced three pages with formatted terms and annexure text.
+- Known limits: no PDF-file import or scanned-document OCR; no claim of physical-device 120 Hz verification. Build warns about installed Node 20.18.1 versus Vite's minimum 20.19, and a main bundle over 500 KB. Server audit clean; web audit reports two existing @grpc/grpc-js advisories through Firebase. Compatible audit fix is blocked by Firestore's ~1.9.0 dependency range.
+- Final browser pass also verified typed account deletion, disabled/enabled danger action, native focus containment, Escape cancellation and scroll restoration. Payment-removal controls now use the same red treatment.
+- Final end-to-end check passed with no browser errors, including formatted HTML/plain-text clipboard copy. Verification-only writing templates were cleaned up.
+
+2026-11-17 motion sample (not yet applied everywhere)
+- New Apple-style motion tokens: smooth, snappy, bouncy, quick (springs by look-duration and bounce, like SwiftUI) in lib/motion.ts, with identical CSS curves (--spring-*) in tokens.css.
+- Applied only to the sample: sheets and dialogs (open on smooth/snappy, close fully off-screen with no cut), dropdowns (grow from their edge, fade out), and press feedback on every tappable element (gives way at once, springs back).
+- Backup before this work: v5-backup-2026-11-17 folder and git tag backup-2026-11-17.
+
+2026-11-17 review of Astra's work, motion system everywhere, welcome
+- Reviewed and kept Astra's work: Word-style editor (Tiptap) with safe paste and .docx import, terms and annexure as one document at the top of the terms step with saved templates, several phones and emails for clients and Slip profiles, red confirmations with typed DELETE for account deletion, connect-link WhatsApp and email shortcuts, WhatsApp glyph, field sizing (short numbers, long text), page padding pass.
+- Restored the original branded loader (spin then star reveal) and the Shakeslip name shimmer, which Astra had replaced without being asked. Their versions are saved in ../v5-astra-replaced-2026-11-17.
+- Logo-ring background: removed from every app screen (it was behind all work screens); empty states now get one slow ring, matching the landing and sign-in rings. The Settings "Ambient motion" switch now stills all of them.
+- Motion: every spring in the app now uses the shared Apple-style tokens (smooth, snappy, bouncy, quick, glide); only the landing pointer-follow springs keep their deliberate lag.
+- Welcome: waits for the loader's star to open, writes "Good evening," on letter by letter, rests, then glides up into the page heading. Fixed a missing space between words.
+- Remaining browser confirm boxes (delete group, remove type, new connect code, disconnect) now use the app's red confirmation dialog.
+- Clients: view toggle moved into the header, duplicate count removed, card buttons fill their row. Invoice types are cards (grid by default).
+- Pinned @grpc/grpc-js 1.13.6 (Firebase dependency, unused in the browser) so the audit is clean.

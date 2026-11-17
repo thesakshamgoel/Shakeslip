@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useRef, type RefObject } from 'react'
+import { snappy } from '../lib/motion'
 import { animate } from 'motion/react'
 import { markSwipeNav, takeSwipeNav, tick } from './basics'
 import { swipeX } from './swipeX'
@@ -44,7 +45,7 @@ export function useSwipe(el: RefObject<HTMLElement | null>, claim: RefObject<Cla
     if (!root || !enabled) return
     let sx = 0, sy = 0, t0 = 0, on: 'x' | 'y' | '' = '', edge = false, active = false, lastX = 0
     /* the screen itself follows the finger: one write per touch event, no layout, no React render */
-    const back = (from: number) => { const mv = swipeX.mv(); if (mv) animate(mv, 0, { type: 'spring', stiffness: 420, damping: 40, velocity: 0 }); else swipeX.set(0); void from }
+    const back = (from: number) => { const mv = swipeX.mv(); if (mv) animate(mv, 0, snappy); else swipeX.set(0); void from }
     /* where can this swipe go? asked before the page moves, so the edges feel firm instead of broken */
     const dest = (dx: number): boolean => {
       const cl = claim.current, left = dx < 0

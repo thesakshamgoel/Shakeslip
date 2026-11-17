@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { snappy } from '../lib/motion'
 import { Check, ChevronUp, LogOut, Moon, Plus, Sun, X } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -89,7 +90,7 @@ export function AccountMenu() {
   return (
     <div className="acc" ref={box}>
       <AnimatePresence>
-        {open && <motion.div className="acc-pop" role="menu" initial={{ opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.98, transition: { duration: 0.12 } }} transition={{ type: 'spring', stiffness: 520, damping: 34 }}><AccountRows onDone={() => setOpen(false)} /></motion.div>}
+        {open && <motion.div className="acc-pop" role="menu" initial={{ opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: 8, scale: 0.98, transition: { duration: 0.12 } }} transition={snappy}><AccountRows onDone={() => setOpen(false)} /></motion.div>}
       </AnimatePresence>
       <button type="button" className="acc-btn tap" aria-haspopup="menu" aria-expanded={open} onClick={() => setOpen((o) => !o)}>
         <Avatar name={u.name} photo={u.photo} size={36} />

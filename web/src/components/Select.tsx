@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from 'motion/react'
 import { Check, ChevronDown, PenLine, Search } from 'lucide-react'
 import { useEffect, useId, useMemo, useRef, useState } from 'react'
+import { fadeOut, snappy } from '../lib/motion'
 import { usePlacement } from '../lib/placement'
 import './select.css'
 
@@ -57,11 +58,11 @@ export function Select({ label, value, options, onChange, name, placeholder = 'C
       {name && <input type="hidden" name={name} value={cur} />}
       <button ref={btn} type="button" className="input sel-btn" disabled={disabled} aria-haspopup="listbox" aria-expanded={open} aria-labelledby={label ? `${id}-l` : undefined} onClick={() => setOpen((o) => !o)}>
         <span className={sel ? '' : 'sel-ph'}>{sel?.label ?? placeholder}</span>
-        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={{ type: 'spring', stiffness: 500, damping: 30 }} className="sel-chev"><ChevronDown size={18} aria-hidden /></motion.span>
+        <motion.span animate={{ rotate: open ? 180 : 0 }} transition={snappy} className="sel-chev"><ChevronDown size={18} aria-hidden /></motion.span>
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div className={`sel-pop ${pos.up ? 'sel-up' : ''}`} style={{ maxHeight: pos.maxH }} initial={{ opacity: 0, y: pos.up ? 6 : -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }} transition={{ type: 'spring', stiffness: 520, damping: 34 }}>
+          <motion.div className={`sel-pop ${pos.up ? 'sel-up' : ''}`} style={{ maxHeight: pos.maxH }} initial={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.94 }} animate={{ opacity: 1, y: 0, scale: 1, transition: { ...snappy, opacity: { duration: 0.14 } } }} exit={{ opacity: 0, transition: fadeOut }}>
             {options.length > 8 && <label className="sel-search"><Search size={15} aria-hidden /><input autoFocus value={q} onChange={(e) => { setQ(e.target.value); setHi(0) }} placeholder="Search" aria-label="Search options" /></label>}
             <ul role="listbox" aria-labelledby={label ? `${id}-l` : undefined}>
               {list.length === 0 && <li className="sel-empty">Nothing matches.</li>}

@@ -7,7 +7,7 @@ export type InvoiceType = {
 }
 export type LineItem = { id: string; desc: string; qty: number; rate: number; unit?: string }
 export type Honorific = '' | 'Mr.' | 'Ms.' | 'Mrs.' | 'Dr.' | 'M/s.'
-export type BillTo = { name: string; company: string; gstin: string; city: string; address: string; email: string; phone: string; state?: string; honorific?: Honorific; attention?: string; area?: string; pin?: string; pan?: string; logo?: string }
+export type BillTo = { phones?: Phone[]; emails?: Email[]; name: string; company: string; gstin: string; city: string; address: string; email: string; phone: string; state?: string; honorific?: Honorific; attention?: string; area?: string; pin?: string; pan?: string; logo?: string }
 export type Signature = { kind?: 'none' | 'typed' | 'image'; text?: string; font?: 'great-vibes' | 'allura' | 'caveat' | 'dancing-script' | 'sacramento' | 'parisienne'; image?: string }
 export type Business = {
   name: string; gstin: string; address: string; area?: string; pin?: string; city: string; email: string; phone: string
@@ -21,7 +21,7 @@ export type Catalogue = { services: CatService[]; packages: CatPackage[] }
 export type Email = { id: string; label: string; address: string; isDefault: boolean }
 export type Phone = { id: string; label: string; number: string; isDefault: boolean }
 export type PlanKind = 'none' | 'advance_balance' | 'full_advance' | 'on_completion' | 'due_on_receipt' | 'net15' | 'net30' | 'custom'
-export type Extra = {
+export type Extra = { clientEmailIds?: string[] | null; clientPhoneIds?: string[] | null;
   currency: string; category: string; completionDate: string; banner: string; salutation: string; intro: string
   plan: { kind: PlanKind; advancePct: number; text: string }; showBank: boolean; showQr: boolean; showMobile: boolean; showTerms?: boolean; annexure: string; customTerms: string; qrMode?: 'upi' | 'image' | 'none'; discountPct?: number; emailIds?: string[] | null; phoneIds?: string[] | null; phoneId?: string; layout?: 'classic' | 'minimal' | 'band' | 'compact' | 'bold' | 'ledger'; job?: { what: string; kind: string; name: string }; termsAckAt?: string
   reminders?: { before: number[]; onDue: boolean; afterEvery: number | null } | null; remindersOff?: boolean; repeat?: 'none' | 'monthly'
@@ -42,11 +42,11 @@ export type Mark = { id?: string; page: number; x: number; y: number; text: stri
 export type Acceptance = { required: boolean; at: string | null; name: string; signature: string }
 export type InvoiceRow = { id: string; number: string | null; status: Status; currency?: string; client?: string; linkId?: string; project?: string; from?: string; typeName?: string; due: string; issued: string; total: number; balance: number }
 export type Group = { id: string; name: string; typeId: string | null; theme: string; dueDays: number; clients: number; reminders: { before: number[]; onDue: boolean; afterEvery: number | null } }
-export type Link = { id: string; name: string; email: string; phone: string; company: string; gstin: string; city: string; address: string; state?: string; honorific?: Honorific; attention?: string; area?: string; pin?: string; pan?: string; logo?: string; groupId: string | null; status: 'invited' | 'pending' | 'active'; joined: 0 | 1; invoices: number }
+export type Link = { phones?: Phone[]; emails?: Email[]; id: string; name: string; email: string; phone: string; company: string; gstin: string; city: string; address: string; state?: string; honorific?: Honorific; attention?: string; area?: string; pin?: string; pan?: string; logo?: string; groupId: string | null; status: 'invited' | 'pending' | 'active'; joined: 0 | 1; invoices: number }
 export type Me = {
   user: { id: string; email: string; name: string; phone: string; photo?: string } | null
   business?: (Business & { id: string; slug: string; slugAt?: string; autoApprove: boolean; profession: string }) | null
-  profile?: { company: string; gstin: string; address: string; city: string; pin: string; state?: string; honorific?: Honorific; area?: string; pan?: string; logo?: string }
+  profile?: { phones?: Phone[]; emails?: Email[]; company: string; gstin: string; address: string; city: string; pin: string; state?: string; honorific?: Honorific; area?: string; pan?: string; logo?: string }
   unread?: number
 }
 export type Notice = { id: string; title: string; body: string; link: string; at: string; readAt: string | null }

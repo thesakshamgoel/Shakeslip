@@ -21,9 +21,10 @@ const phoneOf = (link: LinkRow) => (link.user_id ? (db.query('SELECT phone FROM 
 
 function billTo(link: LinkRow) {
   /* The client's own profile wins; the business's record of them fills any gaps. */
-  const prof = link.user_id ? (db.query('SELECT company,gstin,city,address,state,honorific,area,pin,pan,logo FROM client_profiles WHERE user_id = ?').get(link.user_id) as Record<string, string> | null) : null
+  const prof = link.user_id ? (db.query('SELECT company,gstin,city,address,state,honorific,area,pin,pan,logo,phones,emails FROM client_profiles WHERE user_id = ?').get(link.user_id) as Record<string, string> | null) : null
   const pick = (k: string) => (prof?.[k] || (link as Record<string, unknown>)[k] || '') as string
-  return { name: link.name, company: pick('company'), gstin: pick('gstin'), city: pick('city'), address: pick('address'), state: pick('state'), email: link.email, phone: phoneOf(link),
+  const contacts = (key: string) => json(prof?.[key] && prof[key] !== '[]' ? prof[key] : String((link as any)[key] ?? '[]'), [])
+  return { phones: contacts('phones'), emails: contacts('emails'), name: link.name, company: pick('company'), gstin: pick('gstin'), city: pick('city'), address: pick('address'), state: pick('state'), email: link.email, phone: phoneOf(link),
     honorific: pick('honorific'), attention: link.attention || link.name, area: pick('area'), pin: pick('pin'), pan: pick('pan'), logo: pick('logo') }
 }
 

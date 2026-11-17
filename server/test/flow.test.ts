@@ -364,3 +364,53 @@ test('login is rate limited and passwords are hashed', async () => {
   const row = db.query('SELECT password_hash FROM users LIMIT 1').get() as { password_hash: string }
   expect(row.password_hash.startsWith('$argon2id$')).toBe(true)
 })
+
+test('writing templates are private to each business and support formatted documents', async () => {
+  const a = agent(), b = agent()
+  for (const [who, email] of [[a, 'templates-a@test.example'], [b, 'templates-b@test.example']] as const) {
+    expect((await who('POST', '/api/account/signup', { name: 'Template tester', email, password: pw, role: 'studio', acceptTerms: true })).status).toBe(200)
+    expect((await who('POST', '/api/studio', { name: 'Template test business', gstin: '', address: '', city: '', email: '', phone: '' })).status).toBe(200)
+  }
+  const content = 'ssdoc:1:' + JSON.stringify({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Keep this bold', marks: [{ type: 'bold' }] }] }] })
+  const created = await a('POST', '/api/studio/document-templates', { name: 'Payment terms', kind: 'terms', content })
+  expect(created.status).toBe(200)
+  expect((await b('GET', '/api/studio/document-templates')).body).toEqual([])
+  await b('DELETE', `/api/studio/document-templates/${created.body.id}`)
+  expect((await a('GET', '/api/studio/document-templates')).body[0].content).toBe(content)
+  expect((await a('POST', '/api/studio/document-templates', { name: '', kind: 'terms', content })).status).toBe(422)
+  await a('DELETE', `/api/studio/document-templates/${created.body.id}`)
+  expect((await a('GET', '/api/studio/document-templates')).body).toEqual([])
+})
+
+test('additional client contacts validate, persist and freeze on sent invoices', async () => {
+  const a = agent()
+  await a('POST', '/api/account/signup', { name: 'Contact tester', email: 'contacts@test.example', password: pw, role: 'studio', acceptTerms: true })
+  await a('POST', '/api/studio', { name: 'Contacts studio', gstin: '', address: '', city: '', email: '', phone: '' })
+  const emails = [{ id: 'billing', label: 'Billing', address: 'billing@test.example', isDefault: true }]
+  const phones = [{ id: 'office', label: 'Office', number: '+91 9999999999', isDefault: true }]
+  const profile = { name: 'Contact tester', phone: '', company: '', gstin: '', address: '', city: '', pin: '', emails, phones }
+  expect((await a('PUT', '/api/account/me', profile)).status).toBe(200)
+  expect((await a('GET', '/api/account/me')).body.profile.emails).toEqual(emails)
+  expect((await a('PUT', '/api/account/me', { ...profile, emails: [{ ...emails[0], address: 'javascript:bad' }] })).status).toBe(422)
+  const invited = await a('POST', '/api/studio/links/invite', { name: 'Client', email: 'client-contacts@test.example', phone: '', groupId: null, phones, emails })
+  expect(invited.status).toBe(200)
+  const type = (await a('GET', '/api/studio/types')).body[0]
+  const doc = 'ssdoc:1:' + JSON.stringify({ type: 'doc', content: [{ type: 'paragraph', content: [{ type: 'text', text: 'Rich terms', marks: [{ type: 'bold' }] }] }] })
+  const draft = await a('POST', '/api/studio/invoices', { linkId: invited.body.id, typeId: type.id, theme: 'classic', items: [{ id: 'line', desc: 'Work', qty: 1, rate: 10000 }], fields: {}, gstPct: 0, discount: 0, advance: 0, issued: new Date().toISOString(), due: new Date().toISOString(), note: '', extra: { customTerms: doc, clientEmailIds: ['billing'] } })
+  expect(draft.status).toBe(200)
+  expect((await a('POST', `/api/studio/invoices/${draft.body.id}/send`, { delivery: 'pdf' })).status).toBe(200)
+  await a('PATCH', `/api/studio/links/${invited.body.id}`, { emails: [{ ...emails[0], address: 'changed@test.example' }] })
+  const saved = (await a('GET', `/api/studio/invoices/${draft.body.id}`)).body
+  expect(saved.billTo.emails).toEqual(emails)
+  expect(saved.extra.customTerms).toBe(doc)
+  expect(saved.extra.clientEmailIds).toEqual(['billing'])
+})
+
+test('account deletion requires explicit confirmation and revokes the session', async () => {
+  const a = agent()
+  await a('POST', '/api/account/signup', { name: 'Deletion tester', email: 'delete-confirm@test.example', password: pw, role: 'slip', acceptTerms: true })
+  expect((await a('POST', '/api/account/me/delete')).status).toBe(422)
+  expect((await a('GET', '/api/account/me')).body.user).not.toBeNull()
+  expect((await a('POST', '/api/account/me/delete', { confirmation: 'DELETE' })).status).toBe(200)
+  expect((await a('GET', '/api/account/me')).body.user).toBeNull()
+})

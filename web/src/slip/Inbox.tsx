@@ -1,5 +1,6 @@
 import { Link, useSearchParams } from 'react-router-dom'
-import { Button } from '../components/Button'
+import { LayoutGrid, List } from 'lucide-react'
+import { Button, IconButton } from '../components/Button'
 import { StatusBadge } from '../components/Status'
 import { fmtDate } from '../lib/dates'
 import { inr, money } from '../lib/money'
@@ -9,12 +10,15 @@ import type { InvoiceRow } from '../lib/types'
 import { useApi } from '../lib/useApi'
 import '../components/page.css'
 import '../components/ui.css'
+import '../studio/invoices.css'
 
 const F = [{ id: 'pay', label: 'To pay' }, { id: 'paid', label: 'Paid' }, { id: 'all', label: 'All' }] as const
 
 export default function Inbox() {
   const { me } = useSession()
   const [params, setParams] = useSearchParams()
+  const view = params.get('view') ?? 'grid'
+  const set = (key: string, value: string, fallback: string) => { const next = new URLSearchParams(params); if (value === fallback) next.delete(key); else next.set(key, value); setParams(next, { replace: true }) }
   const f = (params.get('show') ?? 'pay') as (typeof F)[number]['id']
   const { data, loading } = useApi<InvoiceRow[]>('/slip/invoices')
   const all = data ?? []
@@ -29,8 +33,9 @@ export default function Inbox() {
         <div className="stat"><small>Businesses</small><b className="num">{new Set(all.map((r) => r.from)).size}</b><span>Send you invoices</span></div>
       </section>
       <div className="chips" role="group" aria-label="Filter">
-        {F.map((x) => <button key={x.id} className="chip tap" aria-pressed={f === x.id} onClick={() => setParams(x.id === 'pay' ? {} : { show: x.id }, { replace: true })}>{x.label}</button>)}
+        {F.map((x) => <button key={x.id} className="chip tap" aria-pressed={f === x.id} onClick={() => set('show', x.id, 'pay')}>{x.label}</button>)}
       </div>
+      <div className="inv-view" role="radiogroup" aria-label="View"><IconButton label="Grid view" role="radio" aria-checked={view === 'grid'} onClick={() => set('view', 'grid', 'grid')}><LayoutGrid size={18} /></IconButton><IconButton label="List view" role="radio" aria-checked={view === 'list'} onClick={() => set('view', 'list', 'grid')}><List size={18} /></IconButton></div>
       {!loading && list.length === 0 ? (
         <div className="empty">
           <h3>{all.length ? 'Nothing here' : 'No invoices yet'}</h3>
@@ -38,9 +43,9 @@ export default function Inbox() {
           {!all.length && <Link to="/slip/connections"><Button variant="primary">Connect with a business</Button></Link>}
         </div>
       ) : (
-        <div className="rows">
+        <div className={view === 'grid' ? 'inv-grid' : 'rows'}>
           {list.map((r) => (
-            <Link key={r.id} to={`/slip/invoices/${r.id}`} className="row tap">
+            <Link key={r.id} to={`/slip/invoices/${r.id}`} className={view === 'grid' ? 'inv-card tap' : 'row tap'}>
               <span className="row-main"><b className="trunc">{r.from}</b><span className="num">{r.number}</span></span>
               <span className="row-sub num">Due {fmtDate(r.due)}</span>
               <span className="row-amt num">{money(r.balance, r.currency ?? 'INR')}</span>

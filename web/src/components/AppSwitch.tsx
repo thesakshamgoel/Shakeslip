@@ -1,4 +1,5 @@
 import { motion } from 'motion/react'
+import { snappy } from '../lib/motion'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { SlipIcon, StudioIcon } from '../brand/icons'
@@ -23,7 +24,7 @@ export function AppSwitch({ app, otherTo, id }: { app: App; otherTo: string; id:
     <div className="appsw" role="tablist" aria-label="Switch between Studio and Slip">
       {APPS.map(({ k, label, Icon }) => (
         <button key={k} type="button" role="tab" aria-selected={on === k} className="appsw-b tap" onClick={() => go(k)} title={k === app ? `You are in ${label}` : `Open ${label}`}>
-          {on === k && <motion.span layoutId={`appsw-${id}`} className="appsw-pill" transition={{ type: 'spring', stiffness: 520, damping: 36 }} />}
+          {on === k && <motion.span layoutId={`appsw-${id}`} className="appsw-pill" transition={snappy} />}
           <Icon size={22} spinning={on === k && on !== app} /><span>{label}</span>
         </button>
       ))}

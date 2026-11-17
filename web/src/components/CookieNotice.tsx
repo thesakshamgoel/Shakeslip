@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { smooth } from '../lib/motion'
 import { Cookie } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
@@ -15,7 +16,7 @@ export function CookieNotice() {
   return (
     <AnimatePresence>
       {!seen && (
-        <motion.aside className="ck" role="region" aria-label="Cookie notice" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ type: 'spring', stiffness: 320, damping: 30, delay: 1.2 }}>
+        <motion.aside className="ck" role="region" aria-label="Cookie notice" initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 20 }} transition={{ ...smooth, delay: 1.2 }}>
           <Cookie size={20} aria-hidden />
           <p>We use one essential cookie to keep you signed in. No ads, no tracking. <Link to="/cookies">Cookie policy</Link></p>
           <Button variant="primary" onClick={ok}>Got it</Button>

@@ -1,4 +1,5 @@
 import { Link2, X } from 'lucide-react'
+import { askConfirm } from '../components/ConfirmHost'
 import { useState } from 'react'
 import { useLocation } from 'react-router-dom'
 import { Button, IconButton } from '../components/Button'
@@ -44,7 +45,7 @@ export default function Connections() {
               <span className="avatar" aria-hidden>{c.name.slice(0, 1)}</span>
               <span className="row-main"><b className="trunc">{c.name}</b><span>{c.city}</span></span>
               <span className={`badge ${c.status === 'active' ? 'badge-ok' : 'badge-warn'}`}><span className="badge-dot" aria-hidden />{c.status === 'active' ? 'Connected' : 'Waiting for approval'}</span>
-              <IconButton label={`Disconnect from ${c.name}`} onClick={() => { if (window.confirm(`Disconnect from ${c.name}? You will stop receiving new invoices from them.`)) void del(`/slip/connections/${c.id}`).then(reload) }}><X size={18} /></IconButton>
+              <IconButton className="danger-text" label={`Disconnect from ${c.name}`} onClick={async () => { if (await askConfirm({ title: `Disconnect from ${c.name}?`, description: 'You will stop receiving new invoices from them. Invoices you already have stay in your inbox.', action: 'Disconnect' })) void del(`/slip/connections/${c.id}`).then(reload) }}><X size={18} /></IconButton>
             </div>))}</div>
         )}
       </section>

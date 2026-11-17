@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { askConfirm } from '../components/ConfirmHost'
 import { Select } from '../components/Select'
 import { Button } from '../components/Button'
 import { Dialog } from '../components/Dialog'
@@ -23,7 +24,7 @@ export function GroupDialog({ open, onClose, group, types, onDone }: { open: boo
     try { if (group) await put(`/studio/groups/${group.id}`, body); else await post('/studio/groups', body); toast.ok(group ? 'Group updated.' : 'Group created.'); onDone(); onClose() } catch (e) { toast.bad(errText(e)) } finally { setBusy(false) }
   }
   async function remove() {
-    if (!group || !window.confirm(`Delete the group "${group.name}"? Its clients stay, they just won't be in a group.`)) return
+    if (!group || !(await askConfirm({ title: `Delete the group "${group.name}"?`, description: "Its clients stay, they just won't be in a group.", action: 'Delete group' }))) return
     try { await del(`/studio/groups/${group.id}`); toast.ok('Group deleted.'); onDone(); onClose() } catch (e) { toast.bad(errText(e)) }
   }
 
@@ -38,7 +39,7 @@ export function GroupDialog({ open, onClose, group, types, onDone }: { open: boo
         </div>
         <fieldset className="remind"><legend>Automatic reminders</legend><ReminderRules value={rules} onChange={setRules} /></fieldset>
         <Button variant="primary" type="submit" block disabled={busy}>{busy ? 'Saving' : group ? 'Save group' : 'Create group'}</Button>
-        {group && <Button variant="ghost" block onClick={remove}>Delete group</Button>}
+        {group && <Button type="button" variant="danger" onClick={remove}>Delete group</Button>}
       </form>
     </Dialog>
   )

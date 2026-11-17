@@ -1,6 +1,8 @@
-import { Check, FilePlus2, FolderPlus, Pencil, QrCode, RefreshCw, UserPlus, X } from 'lucide-react'
+import { ConnectShare } from '../components/ConnectShare'
+import { ConfirmAction } from '../components/ConfirmAction'
+import { LayoutGrid, List, Check, FilePlus2, FolderPlus, Pencil, QrCode, RefreshCw, UserPlus, X } from 'lucide-react'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useSearchParams } from 'react-router-dom'
 import { Button, IconButton } from '../components/Button'
 import { CopyButton } from '../components/CopyButton'
 import { Dialog } from '../components/Dialog'
@@ -27,6 +29,9 @@ const remindText = (g: Group) => {
 }
 
 export default function Clients() {
+  const [params, setParams] = useSearchParams()
+  const view = params.get('view') ?? 'grid'
+  const [remove, setRemove] = useState<ClientLink | null>(null)
   const { me } = useSession()
   const groups = useApi<Group[]>('/studio/groups')
   const links = useApi<ClientLink[]>('/studio/links')
@@ -48,6 +53,7 @@ export default function Clients() {
       <div className="ph">
         <div><h1>Clients</h1><p>The people you invoice. Group them and each group runs on its own look, terms and reminders.</p></div>
         <div className="ph-actions">
+          <div className="inv-view" role="radiogroup" aria-label="Client view">{(['grid', 'list'] as const).map((v) => <IconButton key={v} label={`${v === 'grid' ? 'Grid' : 'List'} view`} role="radio" aria-checked={view === v} className={view === v ? 'on' : ''} onClick={() => { const next = new URLSearchParams(params); next.set('view', v); setParams(next, { replace: true }) }}>{v === 'grid' ? <LayoutGrid size={18} /> : <List size={18} />}</IconButton>)}</div>
           <Button onClick={() => setShare(true)}><QrCode size={18} aria-hidden />Connect link</Button>
           <Button onClick={() => setGrp({ open: true, group: null })}><FolderPlus size={18} aria-hidden />New group</Button>
           <Button variant="primary" onClick={() => setInvite(true)}><UserPlus size={18} aria-hidden />Add a client</Button>
@@ -84,7 +90,7 @@ export default function Clients() {
               <div><h2>{g.name}</h2><span className="grp-count">{mine.length} {mine.length === 1 ? 'client' : 'clients'}</span></div>
               {g.id && <div className="grp-side"><ul className="grp-rules"><li>{g.theme ? `${getInvoiceTheme(g.theme).name} look` : 'Your default look'}</li><li>Due in {g.dueDays} days</li><li>{remindText(g)}</li></ul><IconButton label={`Edit ${g.name}`} onClick={() => setGrp({ open: true, group: g })}><Pencil size={18} /></IconButton></div>}
             </header>
-            <div className="rows">
+            <div className={view === 'grid' ? 'client-grid' : 'rows'}>
               {mine.map((l) => (
                 <div className="crow" key={l.id}>
                   {l.logo ? <img src={l.logo} alt="" className="client-logo" /> : <span className="avatar" aria-hidden>{(l.company || l.name).slice(0, 1)}</span>}
@@ -94,7 +100,7 @@ export default function Clients() {
                     <IconButton label={`Edit ${l.company || l.name}`} onClick={() => setEdit(l)}><Pencil size={17} /></IconButton>
                     {l.status === 'invited' && <Button onClick={() => act(() => post(`/studio/links/${l.id}/resend`), 'Invite sent again.')}><RefreshCw size={18} aria-hidden />Resend</Button>}
                     <Link to={`/studio/new?client=${l.id}`}><Button><FilePlus2 size={18} aria-hidden />Invoice</Button></Link>
-                    <IconButton label={`Remove ${l.name}`} onClick={() => { if (window.confirm(`Remove ${l.name}? Their past invoices stay in your records.`)) void act(() => del(`/studio/links/${l.id}`), 'Client removed.') }}><X size={18} /></IconButton>
+                    <IconButton label={`Remove ${l.name}`} className="danger-text" onClick={() => setRemove(l)}><X size={18} /></IconButton>
                   </span>
                 </div>
               ))}
@@ -103,12 +109,13 @@ export default function Clients() {
         )
       })}
 
+      <ConfirmAction open={!!remove} title={`Remove ${remove?.name ?? 'client'}?`} description="Their past invoices stay in your records. This ends your connection." action="Remove client" onClose={() => setRemove(null)} onConfirm={async () => { if (remove) { await del(`/studio/links/${remove.id}`); reload() } }} />
       <ClientDialog link={edit} onClose={() => setEdit(null)} onSaved={reload} />
       <InviteDialog open={invite} onClose={() => setInvite(false)} groups={groups.data ?? []} onDone={reload} />
       <GroupDialog key={grp.group?.id ?? 'new'} open={grp.open} onClose={() => setGrp({ open: false, group: null })} group={grp.group} types={types.data ?? []} onDone={reload} />
       <Dialog open={share} onClose={() => setShare(false)} title="Your connect link">
-        <p style={{ color: 'var(--text-2)' }}>Put this on your website, business card or invoices. Clients scan it or open it, create a free account, and are connected straight away (you can switch this to approve each request in Settings). {me?.business?.autoApprove ? 'They are connected straight away.' : 'You approve each request.'}</p>
-        <div className="share-qr"><QR value={connectUrl} size={168} /><div className="dlg-form"><code className="code">{me?.business?.slug}</code><small className="hint">{codeLeft(me?.business?.slugAt)}</small><CopyButton text={connectUrl} /><p className="hint">Clients can also type the code on their Connections page.</p></div></div>
+        <p style={{ color: 'var(--text-2)' }}>Clients open this link or scan the code to connect with your business. {me?.business?.autoApprove ? 'They are connected straight away.' : 'You approve each request.'}</p>
+        <ConnectShare url={connectUrl} name={me?.business?.name ?? 'your studio'} /><div className="share-qr"><QR value={connectUrl} size={168} /><div className="dlg-form"><code className="code">{me?.business?.slug}</code><small className="hint">{codeLeft(me?.business?.slugAt)}</small><CopyButton text={connectUrl} /><p className="hint">Clients can also type the code on their Connections page.</p></div></div>
       </Dialog>
     </>
   )

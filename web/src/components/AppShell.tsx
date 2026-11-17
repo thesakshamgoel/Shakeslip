@@ -1,10 +1,11 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
+import { ConfirmHost } from './ConfirmHost'
 import { ChevronLeft, Ellipsis, X, Search, type LucideIcon } from 'lucide-react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { SlipIcon, StudioIcon } from '../brand/icons'
 import { useBusy } from '../lib/busy'
-import { spring } from '../lib/motion'
+import { smooth, spring } from '../lib/motion'
 import { CommandPalette } from './CommandPalette'
 import { useSession } from '../lib/session'
 import { AccountMenu } from './Account'
@@ -39,11 +40,8 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
   /* arriving from the other app: its logo turns like the loader for a moment while this one settles in */
   const [arrive, setArrive] = useState(() => { try { const v = sessionStorage.getItem('ss-switch') === '1'; sessionStorage.removeItem('ss-switch'); return v } catch { return false } })
   useEffect(() => { if (!arrive) return; const t = setTimeout(() => setArrive(false), 650); return () => clearTimeout(t) }, [arrive])
-  useEffect(() => {
-    if (!welcome) return
-    const t = setTimeout(() => setWelcome(false), matchMedia('(prefers-reduced-motion: reduce)').matches ? 600 : 1700)
-    return () => clearTimeout(t)
-  }, [welcome])
+  /* the greeting decides when it is finished (it waits for the loader, writes itself on, then rests) */
+  const endWelcome = useCallback(() => setWelcome(false), [])
   useEffect(() => {
     const id = setInterval(touchSeen, 60_000)
     addEventListener('pagehide', touchSeen)
@@ -86,11 +84,12 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
   return (
     <LayoutGroup id="welcome"><WelcomeCtx.Provider value={welcome}>
       <div className={`shell ${welcome ? 'shell-wait' : 'shell-in'} ${kb ? 'kb' : ''} ${flow ? 'flow' : ''}`} data-app={app} data-depth={depth}>
-        <WelcomeOverlay name={me?.user?.name.split(' ')[0] ?? ''} open={welcome} />
+        <ConfirmHost />
+        <WelcomeOverlay name={me?.user?.name.split(' ')[0] ?? ''} open={welcome} onDone={endWelcome} />
         <AnimatePresence>
           {arrive && !welcome && (
             <motion.div className="switch-ov" initial={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }} aria-hidden>
-              <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: 'spring', stiffness: 320, damping: 24 }} className="switch-ov-in">
+              <motion.div initial={{ scale: 0.6, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={smooth} className="switch-ov-in">
                 <Icon size={92} spinning /><b className="glow-text">{name}</b>
               </motion.div>
             </motion.div>

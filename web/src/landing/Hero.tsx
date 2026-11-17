@@ -1,11 +1,12 @@
 import { AnimatePresence, motion, useMotionValue, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react'
+import { smooth, snappy } from '../lib/motion'
 import { BellRing, CircleCheck, Eye, Send, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LoginPanel } from '../auth/Login'
 import './hero.css'
 
-const rise = { type: 'spring', stiffness: 260, damping: 26 } as const
+const rise = smooth
 
 /* Each word slides up from behind its own line, one after another. */
 function Words({ text, start = 0, className }: { text: string; start?: number; className?: string }) {
@@ -36,7 +37,7 @@ function Story() {
     <div className="hx-story" aria-live="off">
       <span className="hx-story-dot" aria-hidden />
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.span key={i} className={`hx-story-t ${s.tone}`} initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -18, opacity: 0 }} transition={{ type: 'spring', stiffness: 380, damping: 32 }}>
+        <motion.span key={i} className={`hx-story-t ${s.tone}`} initial={{ y: 18, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -18, opacity: 0 }} transition={snappy}>
           <s.icon size={16} aria-hidden />{s.text}
         </motion.span>
       </AnimatePresence>

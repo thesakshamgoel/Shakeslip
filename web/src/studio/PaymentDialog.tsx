@@ -57,7 +57,7 @@ export function RemovePaymentDialog({ open, onClose, payment, busy, onConfirm }:
       <div className="dlg-form">
         {payment && <p style={{ color: 'var(--text-2)' }}>The {money(payment.amount)} you recorded stops counting toward this invoice. It stays on the record as removed, and your client is told.</p>}
         <Field label="Why? (optional)" value={reason} maxLength={200} onChange={(e) => setReason(e.target.value)} placeholder="Cheque bounced, recorded twice, wrong invoice" />
-        <Button variant="primary" block disabled={busy} onClick={() => { onConfirm(reason.trim()); setReason('') }}>Remove payment</Button>
+        <Button variant="danger" disabled={busy} onClick={() => { onConfirm(reason.trim()); setReason('') }}>Remove payment</Button>
         <Button variant="ghost" block onClick={() => { setReason(''); onClose() }}>Keep it</Button>
       </div>
     </Dialog>

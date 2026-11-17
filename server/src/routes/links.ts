@@ -25,10 +25,10 @@ studioLinks.get('/', (c) => {
   if (!biz) return c.json([])
   /* the client's own profile wins over what the business typed, same as on invoices; so does their own phone number */
   const rows = db.query(`SELECT l.id,l.name,l.email,COALESCE(NULLIF(u.phone, ''), l.phone) AS phone,l.attention,COALESCE(NULLIF(cp.company, ''), l.company) AS company,COALESCE(NULLIF(cp.gstin, ''), l.gstin) AS gstin,COALESCE(NULLIF(cp.city, ''), l.city) AS city,COALESCE(NULLIF(cp.address, ''), l.address) AS address,COALESCE(NULLIF(cp.state, ''), l.state) AS state,COALESCE(NULLIF(cp.honorific, ''), l.honorific) AS honorific,COALESCE(NULLIF(cp.area, ''), l.area) AS area,COALESCE(NULLIF(cp.pin, ''), l.pin) AS pin,COALESCE(NULLIF(cp.pan, ''), l.pan) AS pan,COALESCE(NULLIF(cp.logo, ''), l.logo) AS logo,
-    l.group_id AS groupId,l.status,(l.user_id IS NOT NULL) AS joined,
+    CASE WHEN cp.phones IS NOT NULL AND cp.phones != '[]' THEN cp.phones ELSE l.phones END AS phones, CASE WHEN cp.emails IS NOT NULL AND cp.emails != '[]' THEN cp.emails ELSE l.emails END AS emails, l.group_id AS groupId,l.status,(l.user_id IS NOT NULL) AS joined,
     (SELECT COUNT(*) FROM invoices i WHERE i.link_id = l.id AND i.deleted_at IS NULL) AS invoices
     FROM links l LEFT JOIN client_profiles cp ON cp.user_id = l.user_id LEFT JOIN users u ON u.id = l.user_id WHERE l.business_id = ? AND l.deleted_at IS NULL AND l.status != 'ended' ORDER BY l.created_at DESC`).all(biz.id)
-  return c.json(rows)
+  return c.json(rows.map((r: any) => ({ ...r, phones: JSON.parse(r.phones || '[]'), emails: JSON.parse(r.emails || '[]') })))
 })
 
 function issueInvite(link: Link, biz: { name: string }) {
@@ -55,6 +55,8 @@ studioLinks.post('/invite', async (c) => {
       .run(id, biz.id, b.groupId, b.name, b.email, b.phone, b.company, b.gstin, b.gstin ? b.gstin.slice(0, 2) : b.state, b.honorific, b.attention, b.address, b.area, b.city, b.pin, b.pan, nowIso())
     link = db.query('SELECT * FROM links WHERE id = ?').get(id) as Link
   }
+  if (b.phones !== undefined) db.query('UPDATE links SET phones = ? WHERE id = ?').run(JSON.stringify(b.phones), link.id)
+  if (b.emails !== undefined) db.query('UPDATE links SET emails = ? WHERE id = ?').run(JSON.stringify(b.emails), link.id)
   const { url, message } = issueInvite(link, biz)
   if (b.email) {
     const existing = db.query('SELECT id FROM users WHERE email = ? AND deleted_at IS NULL').get(b.email) as { id: string } | null
@@ -82,6 +84,8 @@ studioLinks.patch('/:id', async (c) => {
   if (!link) return fail(c, 404, 'ERR-LINK-404', 'That client was not found.')
   const v = p.data
   if (v.groupId && !db.query('SELECT 1 FROM groups WHERE id = ? AND business_id = ? AND deleted_at IS NULL').get(v.groupId, biz.id)) return fail(c, 422, 'ERR-VAL-422', 'Pick one of your own groups.')
+  if (v.phones !== undefined) db.query('UPDATE links SET phones = ? WHERE id = ?').run(JSON.stringify(v.phones), link.id)
+  if (v.emails !== undefined) db.query('UPDATE links SET emails = ? WHERE id = ?').run(JSON.stringify(v.emails), link.id)
   for (const [col, val] of [['group_id', v.groupId], ['name', v.name], ['company', v.company], ['gstin', v.gstin], ['city', v.city], ['address', v.address], ['state', v.gstin ? v.gstin.slice(0, 2) : v.state],
     ['honorific', v.honorific], ['attention', v.attention], ['area', v.area], ['pin', v.pin], ['pan', v.pan], ['logo', v.logo], ['email', v.email], ['phone', v.phone]] as const)
     if (val !== undefined) db.query(`UPDATE links SET ${col} = ? WHERE id = ?`).run(val, link.id)

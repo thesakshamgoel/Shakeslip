@@ -1,4 +1,5 @@
 import { AnimatePresence, LayoutGroup, motion } from 'motion/react'
+import { bouncy, smooth, snappy } from '../lib/motion'
 import { BellRing, CheckCheck, Eye, FilePlus2, Mail, Send } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { SlipIcon, StudioIcon } from '../brand/icons'
@@ -8,7 +9,7 @@ import { inr } from '../lib/money'
 const LINES = [['Cinematography, 2 days', 13000000], ['Highlight film, 4K', 4500000], ['Colour grading', 1500000]] as const
 const TOTAL = 22420000 // sample: lines plus 18% GST, in paise
 const BEATS = ['Write', 'Send', 'Viewed', 'Paid'] as const
-const spring = { type: 'spring', stiffness: 170, damping: 24, mass: 1 } as const
+const spring = smooth
 const FEED = [
   { icon: FilePlus2, text: 'Invoice drafted' },
   { icon: Mail, text: 'Emailed to Mehta Weddings, and in their Slip inbox' },
@@ -38,7 +39,7 @@ export function HeroScene() {
         </motion.div>
       ))}
       <div className="hp-total"><span>Total incl. GST</span><b className="num">{inr(TOTAL)}</b></div>
-      <AnimatePresence>{beat === 3 && <motion.div className="hp-stamp" initial={{ opacity: 0, scale: 2.2, rotate: -22 }} animate={{ opacity: 1, scale: 1, rotate: -12 }} exit={{ opacity: 0 }} transition={{ type: 'spring', stiffness: 380, damping: 18 }}>Paid</motion.div>}</AnimatePresence>
+      <AnimatePresence>{beat === 3 && <motion.div className="hp-stamp" initial={{ opacity: 0, scale: 2.2, rotate: -22 }} animate={{ opacity: 1, scale: 1, rotate: -12 }} exit={{ opacity: 0 }} transition={bouncy}>Paid</motion.div>}</AnimatePresence>
     </motion.div>
   )
 
@@ -74,7 +75,7 @@ export function HeroScene() {
           <div className="hs-chrome"><SlipIcon size={22} /><b>Slip</b></div>
           <AnimatePresence>
             {beat === 1 && (
-              <motion.div className="hs-banner" initial={{ opacity: 0, y: -30, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16 }} transition={{ type: 'spring', stiffness: 420, damping: 30 }}>
+              <motion.div className="hs-banner" initial={{ opacity: 0, y: -30, scale: 0.9 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -16 }} transition={snappy}>
                 <BellRing size={14} /><span><b>Northlight Films</b> sent you an invoice for {inr(TOTAL)}</span>
               </motion.div>
             )}

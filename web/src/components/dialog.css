@@ -1,6 +1,5 @@
 .dlg { border: 0; padding: 0; background: transparent; color: var(--text); max-width: min(520px, calc(100vw - 24px)); width: 100%; margin: auto; }
-.dlg::backdrop { background: rgba(4, 5, 8, .6); backdrop-filter: blur(4px); }
-.dlg[open] { animation: dlg-in var(--d-slow) var(--ease-sheet); }
+.dlg::backdrop { background: rgba(4, 5, 8, .6);  }
 .dlg[open]::backdrop { animation: dlg-fade var(--d-base) var(--ease-out); }
 .dlg-body { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r-xl); padding: var(--s-5); display: grid; gap: var(--s-4); max-height: calc(100dvh - 24px); overflow: auto; box-shadow: var(--shadow); }
 .dlg-grab { display: none; }

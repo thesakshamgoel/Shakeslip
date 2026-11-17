@@ -1,4 +1,4 @@
-Shakeslip v2 credits
+Shakeslip v5 credits
 Fonts (self-hosted via npm, SIL Open Font License 1.1): Plus Jakarta Sans, Hanken Grotesk, and for signatures Great Vibes, Allura, Caveat, Dancing Script, Sacramento, Parisienne (fontsource packages)
 Icons: Lucide (ISC licence) via lucide-react; Studio and Slip app icons drawn for this project
 Libraries: React, React Router, Motion, Vite (MIT)
@@ -6,3 +6,9 @@ Logo and loader mark: Shakeslip logo supplied by the owner. The personal brush l
 QR codes: qrcode (MIT), generated in the browser.
 Terms of use wording: adapted from the owner's original Shakeslip terms.
 Demo logos: simple fictional marks drawn for this project (server/src/demoLogos.ts), local testing only.
+
+2026-11-17 writing and interface refinements
+Tiptap 3.34.0 (@tiptap/react, @tiptap/pm, @tiptap/starter-kit): MIT, https://github.com/ueberdosis/tiptap
+Mammoth 1.13.0: BSD-2-Clause, https://github.com/mwilliamson/mammoth.js ; converts local Word files in the browser.
+WhatsApp glyph: Simple Icons 15.22.0, CC0-1.0, https://github.com/simple-icons/simple-icons/blob/15.22.0/icons/whatsapp.svg . WhatsApp remains its owner's trademark; used to identify the requested sharing action.
+Design references (inspiration, no exported Apple/Figma assets included): Apple Human Interface Guidelines / Motion, https://developer.apple.com/design/human-interface-guidelines/motion ; user-supplied macOS 27 Community Figma reference, https://www.figma.com/design/7rJAfaZ7ZhAev7tFIHddNc . Existing Shakeslip palette and typography retained.

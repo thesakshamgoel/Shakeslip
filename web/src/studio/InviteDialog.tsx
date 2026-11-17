@@ -1,4 +1,5 @@
-import { Check, Mail, MessageCircle, MessageSquareText, Send, Share2 } from 'lucide-react'
+import { WhatsAppIcon } from '../components/WhatsAppIcon'
+import { Check, Mail, MessageSquareText, Send, Share2 } from 'lucide-react'
 import { Select } from '../components/Select'
 import { useState } from 'react'
 import { Button } from '../components/Button'
@@ -55,7 +56,7 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
               <small className="hint">Anyone can open it, create a free Slip account and ask to connect. No details needed.</small>
               <div className="share">
                 {typeof navigator !== 'undefined' && 'share' in navigator && <Button variant="primary" onClick={() => { void navigator.share({ title: 'Connect on Shakeslip', text: quick }).catch(() => {}) }}><Share2 size={18} aria-hidden />Send link</Button>}
-                <a href={`https://wa.me/?text=${encodeURIComponent(quick)}`} target="_blank" rel="noopener noreferrer" className="btn"><MessageCircle size={18} aria-hidden />WhatsApp</a>
+                <a href={`https://wa.me/?text=${encodeURIComponent(quick)}`} target="_blank" rel="noopener noreferrer" className="btn"><WhatsAppIcon size={18} aria-hidden />WhatsApp</a>
                 <a href={`sms:?&body=${encodeURIComponent(quick)}`} className="btn"><MessageSquareText size={18} aria-hidden />SMS</a>
                 <a href={`mailto:?subject=${encodeURIComponent(`${biz?.name} on Shakeslip`)}&body=${encodeURIComponent(quick)}`} className="btn"><Mail size={18} aria-hidden />Email</a>
                 <CopyButton text={connectUrl} />
@@ -78,7 +79,7 @@ export function InviteDialog({ open, onClose, groups, onDone }: { open: boolean;
             {typeof navigator !== 'undefined' && 'share' in navigator && <Button variant="primary" onClick={() => { void navigator.share({ title: 'Shakeslip invite', text: res.message }).catch(() => {}) }}><Share2 size={18} aria-hidden />Send link</Button>}
             {res.phone && <a href={`sms:${res.phone.replace(/[^\d+]/g, '')}?&body=${encodeURIComponent(res.message)}`} className="btn"><MessageSquareText size={18} aria-hidden />SMS</a>}
             {res.email && <a href={`mailto:${res.email}?subject=${encodeURIComponent('Your Shakeslip invite')}&body=${encodeURIComponent(res.message)}`} className="btn"><Mail size={18} aria-hidden />Email</a>}
-            {res.phone && <a href={whatsappUrl(res.phone, res.message)} target="_blank" rel="noopener noreferrer" className="btn"><MessageCircle size={18} aria-hidden />Send on WhatsApp</a>}
+            {res.phone && <a href={whatsappUrl(res.phone, res.message)} target="_blank" rel="noopener noreferrer" className="btn"><WhatsAppIcon size={18} aria-hidden />Send on WhatsApp</a>}
             <CopyButton text={res.inviteUrl} />
           </div>
           <div className="share-qr"><QR value={res.inviteUrl} size={148} /><p className="hint">Or let them scan this with their phone camera. The link works once and expires in 24 hours.</p></div>

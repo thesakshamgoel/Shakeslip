@@ -5,7 +5,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { get } from '../lib/api'
 import { inr } from '../lib/money'
-import { springSoft } from '../lib/motion'
+import { snappy, springSoft } from '../lib/motion'
 import type { InvoiceRow, Link } from '../lib/types'
 import type { NavItem } from './AppShell'
 import './palette.css'
@@ -67,7 +67,7 @@ export function CommandPalette({ app, actions }: { app: 'studio' | 'slip'; actio
               {items.length === 0 && <li className="pal-empty">Nothing matches "{q}".</li>}
               {items.map((it, n) => (
                 <li key={it.group + it.id} role="option" aria-selected={n === i} className="pal-i" onMouseMove={() => setI(n)} onClick={() => go(it)}>
-                  {n === i && <motion.span layoutId="pal-hl" className="pal-hl" transition={{ type: 'spring', stiffness: 600, damping: 40 }} />}
+                  {n === i && <motion.span layoutId="pal-hl" className="pal-hl" transition={snappy} />}
                   <it.icon size={16} aria-hidden /><span className="trunc">{it.label}</span><small>{it.hint ?? it.group}</small>{n === i && <CornerDownLeft size={14} aria-hidden />}
                 </li>
               ))}

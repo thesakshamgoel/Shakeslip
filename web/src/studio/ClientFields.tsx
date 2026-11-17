@@ -1,3 +1,4 @@
+import { ContactFields } from '../components/ContactFields'
 import { AnimatePresence, motion } from 'motion/react'
 import { STATE_OPTIONS } from '../lib/gst'
 import { Select } from '../components/Select'
@@ -10,9 +11,9 @@ import { ImageUpload } from '../components/ImageUpload'
 import { gstinValid, STATES } from '../lib/gst'
 import { springSoft } from '../lib/motion'
 import { parseContact } from '../lib/smartPaste'
-import type { Honorific } from '../lib/types'
+import type { Honorific, Phone, Email } from '../lib/types'
 
-export type ClientForm = { name: string; company: string; email: string; phone: string; honorific: Honorific; attention: string; gstin: string; pan: string; address: string; area: string; city: string; pin: string; state: string; logo: string }
+export type ClientForm = { phones?: Phone[]; emails?: Email[]; name: string; company: string; email: string; phone: string; honorific: Honorific; attention: string; gstin: string; pan: string; address: string; area: string; city: string; pin: string; state: string; logo: string }
 export const emptyClient = (): ClientForm => ({ name: '', company: '', email: '', phone: '', honorific: '', attention: '', gstin: '', pan: '', address: '', area: '', city: '', pin: '', state: '', logo: '' })
 const TITLES: Honorific[] = ['', 'Mr.', 'Ms.', 'Mrs.', 'Dr.', 'M/s.']
 
@@ -33,7 +34,7 @@ export function ClientFields({ v, set, logo = true }: { v: ClientForm; set: (p: 
         <Button variant="ghost" onClick={() => setPaste((x) => !x)}><ClipboardPaste size={16} aria-hidden />Paste their details</Button>
         <AnimatePresence initial={false}>
           {paste && (
-            <motion.div className="cf-paste-box" initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} transition={springSoft}>
+            <motion.div className="cf-paste-box" initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={springSoft}>
               <textarea className="input" rows={5} value={raw} onChange={(e) => setRaw(e.target.value)} placeholder={'Paste an email signature, a WhatsApp message or a letterhead.\nWe pick out the name, company, email, phone, GSTIN, PAN and PIN.'} aria-label="Paste client details" autoFocus />
               <Button variant="primary" disabled={!raw.trim()} onClick={fill}><Sparkles size={16} aria-hidden />Fill the form</Button>
             </motion.div>
@@ -58,6 +59,7 @@ export function ClientFields({ v, set, logo = true }: { v: ClientForm; set: (p: 
         <Field label="City" value={v.city} onChange={(e) => set({ city: e.target.value })} />
         <Field label="PIN" value={v.pin} inputMode="numeric" maxLength={6} onChange={(e) => set({ pin: e.target.value.replace(/\D/g, '') })} />
       </div>
+      <ContactFields phones={v.phones ?? []} emails={v.emails ?? []} onChange={set} />
       <Select label="State" value={v.state} onChange={(x) => set({ state: x })} options={STATE_OPTIONS} disabled={v.gstin.length === 15 && gstinValid(v.gstin)} />
     </div>
   )

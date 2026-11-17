@@ -14,3 +14,7 @@
 .switch-ov { position: fixed; inset: 0; z-index: 190; display: grid; place-items: center; background: var(--bg); }
 .switch-ov-in { display: grid; justify-items: center; gap: var(--s-3); } .switch-ov-in b { font: 800 var(--t-xl)/1.2 var(--font-display); letter-spacing: -.02em; }
 .switch-ov .logo-mark.is-spinning { animation-duration: 1s; }
+
+/* the greeting is written on letter by letter; words never break in the middle */
+.greet-word { display: inline-block; white-space: nowrap; }
+.greet-ch { display: inline-block; will-change: transform, opacity; }

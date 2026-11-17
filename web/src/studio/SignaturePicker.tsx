@@ -5,7 +5,7 @@ import { Field } from '../components/Field'
 import { ImageUpload } from '../components/ImageUpload'
 import { SignaturePad } from '../components/SignaturePad'
 import { errText, put } from '../lib/api'
-import { spring } from '../lib/motion'
+import { smooth, spring } from '../lib/motion'
 import { useSession } from '../lib/session'
 import { useToast } from '../lib/toast'
 import type { Signature } from '../lib/types'
@@ -41,7 +41,7 @@ export function SignaturePicker() {
         ))}
       </div>
       <AnimatePresence mode="popLayout" initial={false}>
-        <motion.div key={mode} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={{ type: 'spring', stiffness: 300, damping: 30 }}>
+        <motion.div key={mode} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -6 }} transition={smooth}>
           {mode === 'draw' && <SignaturePad busy={busy} onSave={(png) => save({ kind: 'image', image: png })} />}
           {mode === 'type' && (
             <div className="dlg-form">

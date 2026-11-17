@@ -3,7 +3,7 @@ import { syncShared } from '../shared.ts'
 import { bizOf } from '../access.ts'
 import { requireUser, type Vars } from '../auth.ts'
 import { audit, db, nowIso, uid } from '../db.ts'
-import { businessBody, catalogueBody, defaultsBody, groupBody, logoBody, emailsBody, phonesBody, qrBody, signatureBody, typeSchema } from '../schemas.ts'
+import { documentTemplateBody, businessBody, catalogueBody, defaultsBody, groupBody, logoBody, emailsBody, phonesBody, qrBody, signatureBody, typeSchema } from '../schemas.ts'
 import { seedBusiness } from '../seed.ts'
 import { fail } from '../security.ts'
 import { json, token } from '../util.ts'
@@ -195,5 +195,28 @@ business.delete('/groups/:id', (c) => {
   const id = c.req.param('id')
   db.query('UPDATE links SET group_id = NULL WHERE group_id = ? AND business_id = ?').run(id, biz.id)
   db.query('UPDATE groups SET deleted_at = ? WHERE id = ? AND business_id = ?').run(nowIso(), id, biz.id)
+  return c.json({ ok: true })
+})
+
+business.get('/document-templates', (c) => {
+  const biz = bizOf(c.get('user').id)
+  if (!biz) return fail(c, 404, 'ERR-BIZ-404', 'Set up your Studio first.')
+  return c.json(db.query('SELECT id,name,kind,content FROM document_templates WHERE business_id = ? ORDER BY created_at DESC').all(biz.id))
+})
+business.post('/document-templates', async (c) => {
+  const biz = bizOf(c.get('user').id)
+  if (!biz) return fail(c, 404, 'ERR-BIZ-404', 'Set up your Studio first.')
+  const p = documentTemplateBody.safeParse(await c.req.json().catch(() => ({})))
+  if (!p.success) return fail(c, 422, 'ERR-VAL-422', 'Give the template a name and some text, within the document limit.')
+  const count = db.query('SELECT COUNT(*) AS n FROM document_templates WHERE business_id = ?').get(biz.id) as { n: number }
+  if (count.n >= 50) return fail(c, 422, 'ERR-VAL-422', 'You have 50 templates. Remove one before saving another.')
+  const id = uid(), b = p.data
+  db.query('INSERT INTO document_templates (id,business_id,name,kind,content,created_at) VALUES (?,?,?,?,?,?)').run(id, biz.id, b.name, b.kind, b.content, nowIso())
+  return c.json({ id })
+})
+business.delete('/document-templates/:id', (c) => {
+  const biz = bizOf(c.get('user').id)
+  if (!biz) return fail(c, 404, 'ERR-BIZ-404', 'Set up your Studio first.')
+  db.query('DELETE FROM document_templates WHERE id = ? AND business_id = ?').run(c.req.param('id'), biz.id)
   return c.json({ ok: true })
 })

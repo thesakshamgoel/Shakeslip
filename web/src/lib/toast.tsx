@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { snappy } from './motion'
 import { Check, CircleAlert } from 'lucide-react'
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
 import './toast.css'
@@ -7,7 +8,7 @@ type T = { id: number; text: string; tone: 'ok' | 'bad' }
 const Ctx = createContext<{ ok: (t: string) => void; bad: (t: string) => void }>({ ok: () => {}, bad: () => {} })
 export const useToast = () => useContext(Ctx)
 let n = 0
-const island = { type: 'spring', stiffness: 520, damping: 34, mass: 0.8 } as const
+const island = snappy
 
 /* Messages arrive in an island at the top: it grows out of a pill, holds, then tucks back in. */
 export function ToastProvider({ children }: { children: ReactNode }) {

@@ -184,3 +184,18 @@ Working preferences seen in this project: the user wants custom controls (not na
 - Production serves static files and returns 404 for missing asset-like paths; everything else falls back to `index.html`.
 - Demo data and dev-only routes must never reach production. Check `isProd` guards before adding new dev helpers.
 - Do not use `window.prompt` for new flows (a few older ones remain); use the Dialog component.
+
+## 2026-11-17 UX and document editing pass
+The approved work is implemented locally in v5; not committed or deployed. Read the latest CHANGES.txt entry and test/README.md. Backup: ../backups/shakeslip-v5-before-ux-2026-11-16.tar.gz.
+
+Terms and annexure now store supported Tiptap document JSON with the `ssdoc:1:` prefix inside the existing string fields. `web/src/lib/richText.ts` handles legacy plain text and normalizes supported nodes/marks; `docParts.tsx` renders both formats. Never substitute placeholders directly into serialized JSON. DOCX import is local, lazy-loaded and strips unsupported markup; no PDF upload/OCR. Writing templates are business-owned rows in document_templates. Contact arrays use additive JSON columns on links/client_profiles and are frozen in bill_to on invoice send. Primary delivery email remains separate from printed-contact selection.
+
+Review limitations before deployment: existing Firebase transitive grpc audit findings; Node/Vite version warning and main bundle size warning; physical-device keyboard/motion and full release checks remain. User supplied CLAUDE.md rules still apply. No production data migration command or deployment was performed; startup performs additive local schema setup as before.
+
+## 14. Motion system (2026-11-17)
+
+All motion uses named tokens in `web/src/lib/motion.ts` (springs described by look-duration and bounce, like SwiftUI) with identical CSS curves `--spring-*` in `styles/tokens.css`:
+- `smooth` large surfaces (sheets, pages), `snappy` small controls (menus, toggles, toasts), `glide` long hero moves (welcome greeting), `bouncy` rare success moments, `quick` press feedback, `smoothOut` sheet dismissal (reaches off-screen exactly at its end), `fadeOut` menus closing.
+- Do not add new hand-tuned stiffness/damping values; pick a token. Exception: landing pointer-follow springs.
+- `askConfirm()` (components/ConfirmHost) is the only way to ask "are you sure?": red button, never `window.confirm`.
+- The welcome greeting waits for the loader event `ss-splash-open`.

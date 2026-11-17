@@ -1,10 +1,11 @@
-import { Banknote, BellRing, CheckCheck, Eye, FilePlus2, HandCoins, Mail, MessageCircle, MessageSquareWarning, PenLine, Pencil, Trash2, UserCheck, type LucideIcon } from 'lucide-react'
+import { Banknote, BellRing, CheckCheck, Eye, FilePlus2, HandCoins, Mail, MessageSquareWarning, PenLine, Pencil, Trash2, UserCheck, type LucideIcon } from 'lucide-react'
+import { WhatsAppIcon } from './WhatsAppIcon'
 import type { EventKind, TimelineEvent } from '../lib/types'
 import { fmtDateTime } from '../lib/dates'
 import './page.css'
 
 const ICON: Record<EventKind, { icon: LucideIcon; tone: string }> = {
-  created: { icon: FilePlus2, tone: '' }, sent: { icon: Mail, tone: 'info' }, whatsapp: { icon: MessageCircle, tone: 'ok' }, viewed: { icon: Eye, tone: 'info' },
+  created: { icon: FilePlus2, tone: '' }, sent: { icon: Mail, tone: 'info' }, whatsapp: { icon: WhatsAppIcon as unknown as LucideIcon, tone: 'ok' }, viewed: { icon: Eye, tone: 'info' },
   reminder: { icon: BellRing, tone: 'warn' }, payment: { icon: Banknote, tone: 'ok' }, claimed: { icon: HandCoins, tone: 'warn' }, confirmed: { icon: CheckCheck, tone: 'ok' },
   details: { icon: UserCheck, tone: 'info' }, accepted: { icon: PenLine, tone: 'ok' }, change: { icon: MessageSquareWarning, tone: 'warn' }, payment_edit: { icon: Pencil, tone: 'info' }, payment_void: { icon: Trash2, tone: 'warn' },
 }

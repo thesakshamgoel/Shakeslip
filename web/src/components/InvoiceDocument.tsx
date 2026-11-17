@@ -1,5 +1,5 @@
 import type { CSSProperties, ReactNode } from 'react'
-import { fillClause, type ClauseContext } from '../lib/clauses'
+import { type ClauseContext } from '../lib/clauses'
 import { fmtDate } from '../lib/dates'
 import { financialYear } from '../lib/fy'
 import { stateName, stateOf, supplyLabel } from '../lib/gst'
@@ -9,7 +9,7 @@ import type { Acceptance, BillTo, Business, CustomField, Extra, InvoiceType, Lin
 import { upiLink } from '../lib/upi'
 import { amountInWords } from '../lib/words'
 import { getInvoiceTheme } from '../themes/invoice'
-import { Blocks, numberHeadings, paginate, parseFormatted, termBlocks } from './docParts'
+import { Blocks, numberHeadings, paginate, formattedBlocks, termBlocks } from './docParts'
 import { planInvoice, payFlags } from './docPlan'
 import { QR } from './QR'
 import './document.css'
@@ -46,7 +46,7 @@ export function docCtx(d: DocData): ClauseContext {
 }
 export function docPages(d: DocData) {
   const x = d.extra ?? DEFAULT_EXTRA
-  return { inv: planInvoice(d), terms: x.showTerms === false ? [] : paginate(termBlocks(d.terms, x.customTerms, docCtx(d)), 4600), annex: paginate(numberHeadings(parseFormatted(fillClause(x.annexure, docCtx(d)))), 4800) }
+  return { inv: planInvoice(d), terms: x.showTerms === false ? [] : paginate(termBlocks(d.terms, x.customTerms, docCtx(d)), 4600), annex: paginate(numberHeadings(formattedBlocks(x.annexure, docCtx(d))), 4800) }
 }
 export function docPageCount(d: DocData) { const p = docPages(d); return p.inv.length + p.terms.length + p.annex.length }
 export function docPageLabels(d: DocData) { const p = docPages(d); return [d.type.title, ...p.inv.slice(1).map((_, i) => (p.inv.length > 2 ? `${d.type.title} ${i + 2}` : `${d.type.title} 2`)), ...p.terms.map((_, i) => (p.terms.length > 1 ? `Terms ${i + 1}` : 'Terms')), ...p.annex.map((_, i) => (p.annex.length > 1 ? `Annexure ${i + 1}` : 'Annexure'))] }
@@ -73,7 +73,8 @@ export function InvoiceDocument({ d, only, focus = '', errors = [] }: { d: DocDa
   const stamp = STAMPS[d.status ?? ''] ?? ''
   const phones = d.from.phones ?? []
   const payPhone = (phones.find((p) => p.id === x.phoneId) ?? phones.find((p) => p.isDefault))?.number || d.from.phone
-  const b = d.billTo
+  const selectedContacts = (items: { id: string; isDefault: boolean; address?: string; number?: string }[] | undefined, ids: string[] | null | undefined, fallback: string) => items?.length ? items.filter((p) => ids == null ? p.isDefault : ids.includes(p.id)).map((p) => p.address ?? p.number).join(' · ') : fallback
+  const b = d.billTo ? { ...d.billTo, email: selectedContacts(d.billTo.emails, x.clientEmailIds, d.billTo.email), phone: selectedContacts(d.billTo.phones, x.clientPhoneIds, d.billTo.phone) } : null
   /* the header shows the emails and numbers chosen for this invoice (nothing chosen means none); untouched means the defaults */
   const allE = d.from.emails?.length ? d.from.emails : d.from.email ? [{ id: 'main', address: d.from.email, isDefault: true }] : []
   const allP = d.from.phones?.length ? d.from.phones.map((p) => ({ id: p.id, address: p.number, isDefault: p.isDefault })) : d.from.phone ? [{ id: 'main', address: d.from.phone, isDefault: true }] : []

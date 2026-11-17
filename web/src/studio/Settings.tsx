@@ -1,3 +1,5 @@
+import { ConnectShare } from '../components/ConnectShare'
+import { askConfirm } from '../components/ConfirmHost'
 import { motion } from 'motion/react'
 import { Building2, ChevronRight, FileCog, Link2, PenLine, ShieldCheck, Tags, Wallet, Workflow, type LucideIcon } from 'lucide-react'
 import { useState } from 'react'
@@ -99,13 +101,14 @@ function ConnectSection() {
   return (
     <section className="set-card">
       <header><h2>Connect link</h2><p>Share it on your website, card or invoices. Clients scan or open it, create a free Slip account and ask to connect.</p></header>
+      <ConnectShare url={`${location.origin}/c/${me?.business?.slug}`} name={me?.business?.name ?? 'your studio'} />
       <div className="connect">
         <QR value={url} size={180} />
         <div className="dlg-form">
           <code className="code">{b.slug}</code>
           <small className="hint">{codeLeft(b.slugAt)}. Old codes stop working, so share the link rather than a screenshot.</small>
           <CopyButton text={url} />
-          <Button variant="ghost" onClick={async () => { if (!window.confirm('Make a new code? The old link and QR stop working.')) return; try { await post('/studio/rotate-code'); await refresh(); toast.ok('New connect code created.') } catch (x) { toast.bad(errText(x)) } }}>Make a new code</Button>
+          <Button variant="ghost" onClick={async () => { if (!(await askConfirm({ title: 'Make a new connect code?', description: 'The old link and QR code stop working straight away. Anyone you already shared them with will need the new one.', action: 'Make a new code' }))) return; try { await post('/studio/rotate-code'); await refresh(); toast.ok('New connect code created.') } catch (x) { toast.bad(errText(x)) } }}>Make a new code</Button>
         </div>
       </div>
       <label className="switch-row"><span><b>Connect people straight away</b><small>Off means you approve each request in Clients.</small></span><input type="checkbox" role="switch" checked={auto} onChange={async (e) => { const v = e.target.checked; setAuto(v); try { await saveBusiness(me!, { autoApprove: v }); await refresh(); toast.ok(v ? 'People connect straight away.' : 'You will approve each request.') } catch (x) { setAuto(!v); toast.bad(errText(x)) } }} /></label>
@@ -114,6 +117,7 @@ function ConnectSection() {
 }
 
 function AccountSection() {
+  const [ambient, setAmbient] = useState(() => { try { return localStorage.getItem('ss-ambient') !== 'off' } catch { return true } })
   const { me } = useSession()
   return (
     <>
@@ -121,6 +125,7 @@ function AccountSection() {
         <header><h2>Account</h2><p>Signed in as {me?.user?.email}.</p></header>
         <ul className="legal-links"><li><Link to="/faq">Questions and answers</Link></li><li><Link to="/terms">Terms of use</Link></li><li><Link to="/privacy">Privacy policy</Link></li><li><Link to="/cookies">Cookie policy</Link></li><li><Link to="/licence">Software licence</Link></li></ul>
       </section>
+      <section className="set-card"><label className="switch-row"><span><b>Ambient motion</b><small>The slowly turning logo rings on the welcome, sign-in and empty screens. Your device's reduce-motion setting always wins.</small></span><input type="checkbox" role="switch" checked={ambient} onChange={(e) => { const on = e.target.checked; setAmbient(on); try { localStorage.setItem('ss-ambient', on ? 'on' : 'off') } catch { /* storage may be off */ } document.documentElement.dataset.ambient = on ? 'on' : 'off' }} /></label></section>
       <section className="set-card"><DeleteAccount /></section>
     </>
   )

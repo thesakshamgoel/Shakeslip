@@ -41,6 +41,8 @@ export function mountSplash(): void {
     }
     setTimeout(() => {
       s.classList.add('out')
+      /* the welcome greeting waits for this, so it never plays underneath the loader */
+      window.dispatchEvent(new Event('ss-splash-open'))
       document.body.classList.add('app-enter')
       setTimeout(() => document.body.classList.remove('app-enter'), 2000)
       setTimeout(() => host.replaceChildren(), 2300)

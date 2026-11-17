@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { useEffect, useMemo, useRef } from 'react'
 import { useLocation, useOutlet } from 'react-router-dom'
 import { pageVariants } from '../lib/motion'
@@ -21,6 +21,7 @@ const SLIDE = {
 }
 
 export function SlideOutlet({ phone, tabs }: { phone: boolean; tabs: string[] }) {
+  const reduced = useReducedMotion()
   const outlet = useOutlet()
   const { pathname } = useLocation()
   const prev = useRef(pathname)
@@ -43,6 +44,7 @@ export function SlideOutlet({ phone, tabs }: { phone: boolean; tabs: string[] })
   const x = useMemo(() => newPageX(), [pathname]) // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => { bindSwipeX(x) }, [x])
 
+  if (reduced) return <div className="page">{outlet}</div>
   if (!phone) return <motion.div key={pathname} variants={pageVariants} initial="initial" animate="animate" className="page">{outlet}</motion.div>
   return (
     <div className="slide-host">

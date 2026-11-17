@@ -33,7 +33,7 @@ export default function Invoices() {
   const q = p.get('q') ?? ''
   const sort = p.get('sort') ?? 'issued-desc'
   const group = p.get('group') ?? 'none'
-  const view = p.get('view') ?? 'list'
+  const view = p.get('view') ?? 'grid'
   const set = (k: string, v: string, def: string) => { const n = new URLSearchParams(p); if (v === def) n.delete(k); else n.set(k, v); setP(n, { replace: true }) }
   const { data, error, loading } = useApi<InvoiceRow[]>('/studio/invoices')
   const all = data ?? []
@@ -69,8 +69,8 @@ export default function Invoices() {
         <div className="inv-sel"><Select value={sort} onChange={(v) => set('sort', v, 'issued-desc')} options={SORTS} /></div>
         <div className="inv-sel"><Select value={group} onChange={(v) => set('group', v, 'none')} options={GROUPS} /></div>
         <div className="inv-view" role="radiogroup" aria-label="View">
-          <IconButton label="List view" aria-checked={view === 'list'} role="radio" className={view === 'list' ? 'on' : ''} onClick={() => set('view', 'list', 'list')}><List size={18} /></IconButton>
-          <IconButton label="Grid view" aria-checked={view === 'grid'} role="radio" className={view === 'grid' ? 'on' : ''} onClick={() => set('view', 'grid', 'list')}><LayoutGrid size={18} /></IconButton>
+          <IconButton label="List view" aria-checked={view === 'list'} role="radio" className={view === 'list' ? 'on' : ''} onClick={() => set('view', 'list', 'grid')}><List size={18} /></IconButton>
+          <IconButton label="Grid view" aria-checked={view === 'grid'} role="radio" className={view === 'grid' ? 'on' : ''} onClick={() => set('view', 'grid', 'grid')}><LayoutGrid size={18} /></IconButton>
         </div>
       </div>
 

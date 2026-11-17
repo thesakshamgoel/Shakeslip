@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { snappy } from '../lib/motion'
 import { CalendarDays, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useEffect, useId, useRef, useState } from 'react'
 import { usePlacement } from '../lib/placement'
@@ -50,7 +51,7 @@ export function DatePicker({ label, value, onChange, min, name, hint, error, tod
       </button>
       <AnimatePresence>
         {open && (
-          <motion.div className={`sel-pop cal ${pos.up ? 'sel-up' : ''} ${pos.end ? 'sel-end' : ''}`} role="dialog" aria-label="Choose a date" style={{ maxHeight: pos.maxH }} initial={{ opacity: 0, y: pos.up ? 6 : -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }} transition={{ type: 'spring', stiffness: 520, damping: 34 }}>
+          <motion.div className={`sel-pop cal ${pos.up ? 'sel-up' : ''} ${pos.end ? 'sel-end' : ''}`} role="dialog" aria-label="Choose a date" style={{ maxHeight: pos.maxH }} initial={{ opacity: 0, y: pos.up ? 6 : -6, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: pos.up ? 4 : -4, scale: 0.98 }} transition={snappy}>
             <div className="cal-h">
               <button type="button" className="icon-btn" aria-label="Previous month" onClick={() => move(-1)}><ChevronLeft size={18} /></button>
               <b>{MF.format(view)}</b>
@@ -58,7 +59,7 @@ export function DatePicker({ label, value, onChange, min, name, hint, error, tod
             </div>
             <div className="cal-g cal-wd" aria-hidden>{WD.map((w) => <span key={w}>{w}</span>)}</div>
             <AnimatePresence mode="popLayout" initial={false} custom={dir}>
-              <motion.div key={ymd(view)} className="cal-g" custom={dir} initial={{ opacity: 0, x: 24 * dir }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 * dir }} transition={{ type: 'spring', stiffness: 420, damping: 34 }}>
+              <motion.div key={ymd(view)} className="cal-g" custom={dir} initial={{ opacity: 0, x: 24 * dir }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -24 * dir }} transition={snappy}>
                 {cells.map((d, i) => {
                   if (!d) return <span key={`e${i}`} />
                   const v = ymd(d), off = !!min && v < min

@@ -1,4 +1,6 @@
-import { ArrowLeft, ArrowRightLeft, Ban, Banknote, Check, Copy, Download, MessageCircle, Pencil, Receipt, Send, Trash2 } from 'lucide-react'
+import { ConfirmAction } from '../components/ConfirmAction'
+import { WhatsAppIcon } from '../components/WhatsAppIcon'
+import { ArrowLeft, ArrowRightLeft, Ban, Banknote, Check, Copy, Download, Pencil, Receipt, Send, Trash2 } from 'lucide-react'
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { Button, IconButton } from '../components/Button'
@@ -23,6 +25,7 @@ const KIND_NAME: Record<string, string> = { payment: 'Payment', advance: 'Advanc
 export default function InvoiceDetail() {
   const { id } = useParams()
   const { data: inv, error, reload } = useApi<InvoiceView>(`/studio/invoices/${id}`)
+  const [voidOpen, setVoidOpen] = useState(false)
   const [pay, setPay] = useState(false)
   const [busy, setBusy] = useState('')
   const toast = useToast()
@@ -56,6 +59,7 @@ export default function InvoiceDetail() {
 
   return (
     <>
+      <ConfirmAction open={voidOpen} onClose={() => setVoidOpen(false)} title="Void this invoice?" description="This cancels the invoice and notifies your client. To change it later, create a new invoice." action="Void invoice" reason onConfirm={async (reason) => { await post(`/studio/invoices/${inv.id}/void`, { message: reason }); await reload() }} />
       <Link to="/studio/invoices" className="back tap"><ArrowLeft size={16} aria-hidden />Invoices</Link>
       <div className="ph">
         <div><h1 className="num">{inv.number}</h1><p>{inv.billTo.company || inv.billTo.name} · {inv.type.title}</p></div>
@@ -85,8 +89,8 @@ export default function InvoiceDetail() {
               ? <Button variant="primary" block disabled={inv.status === 'void' || !!busy} onClick={() => copy('?as=invoice', 'Invoice drafted from this quotation. Check it and send.')}><ArrowRightLeft size={18} aria-hidden />Turn into invoice</Button>
               : <Button variant="primary" block disabled={inv.status === 'void'} onClick={() => setPay(true)}><Banknote size={18} aria-hidden />Record payment or refund</Button>}
             <Button block disabled={!!busy || inv.status === 'paid' || inv.status === 'void'} onClick={() => run('remind', () => post(`/studio/invoices/${inv.id}/remind`), 'Reminder sent by email and in their inbox.')}><Send size={18} aria-hidden />Send reminder</Button>
-            <Button block onClick={wa}><MessageCircle size={18} aria-hidden />Share on WhatsApp</Button>
-            {!['paid', 'void'].includes(inv.status) && <Button block variant="ghost" onClick={async () => { const reason = window.prompt('Why are you cancelling this invoice? Your client will see this.'); if (!reason?.trim()) return; await run('void', () => post(`/studio/invoices/${inv.id}/void`, { message: reason.trim() }), 'Invoice voided. Your client was told.') }}><Ban size={18} aria-hidden />Void invoice</Button>}
+            <Button block onClick={wa}><WhatsAppIcon size={18} aria-hidden />Share on WhatsApp</Button>
+            {!['paid', 'void'].includes(inv.status) && <Button variant="danger" onClick={() => setVoidOpen(true)}><Ban size={18} aria-hidden />Void invoice</Button>}
             <Button block onClick={() => copy('', 'Copied into a new draft.')}><Copy size={18} aria-hidden />Duplicate</Button>
             <Button block variant="ghost" disabled={pdfBusy} onClick={async () => { setPdfBusy(true); try { await downloadPdf(`/studio/invoices/${inv.id}/pdf`, `${inv.number ?? 'invoice'}.pdf`); toast.ok('PDF downloaded.') } catch (e) { toast.bad((e as Error).message) } finally { setPdfBusy(false) } }}><Download size={18} aria-hidden />{pdfBusy ? 'Making your PDF' : 'Download PDF'}</Button>
           </div>
@@ -95,7 +99,7 @@ export default function InvoiceDetail() {
             <ul className="paylist">{inv.payments.filter((p) => p.status === 'confirmed').map((p) => (
               <li key={p.id}><span><b>{KIND_NAME[p.kind ?? 'payment']}</b><small>{fmtDate(p.paidAt)}{p.ref ? ` · ${p.ref}` : ''}{p.note ? ` · ${p.note}` : ''}{p.editedAt ? ' · edited' : ''}</small></span>
                 <span className="pay-r"><b className={`num ${p.kind === 'refund' ? 'neg' : ''}`}>{p.kind === 'refund' ? '+' : '-'}{m(p.amount)}</b>
-                  {inv.status !== 'void' && <span className="pay-acts"><IconButton label="Edit this payment" onClick={() => setEditPay(p)}><Pencil size={16} /></IconButton><IconButton label="Remove this payment" onClick={() => setRemovePay(p)}><Trash2 size={16} /></IconButton></span>}</span></li>
+                  {inv.status !== 'void' && <span className="pay-acts"><IconButton label="Edit this payment" onClick={() => setEditPay(p)}><Pencil size={16} /></IconButton><IconButton className="danger-text" label="Remove this payment" onClick={() => setRemovePay(p)}><Trash2 size={16} /></IconButton></span>}</span></li>
             ))}</ul>
             {inv.payments.some((p) => p.status === 'voided') && <>
               <h3 className="side-h pay-gone-h">Removed</h3>

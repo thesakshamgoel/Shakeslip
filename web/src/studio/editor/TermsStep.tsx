@@ -1,97 +1,58 @@
-import { AnimatePresence, motion } from 'motion/react'
-import { Check, FileText, Pencil, PenLine, Plus, Sparkles, Wand2, X } from 'lucide-react'
+import { FileText, Save, Sparkles } from 'lucide-react'
 import { useState } from 'react'
-import { Button, IconButton } from '../../components/Button'
-import { BlockEditorDialog, BlockPreview } from '../../components/BlockEditor'
-import { Chip } from '../../components/Chip'
-import { autoMatch, CLAUSES, clauseTitle, fillClause, groupTerms, suggestClauses, type ClauseContext } from '../../lib/clauses'
-import { fmtDate } from '../../lib/dates'
-import { springSoft } from '../../lib/motion'
-import { splitPaste } from '../../lib/paste'
-import type { Draft } from './state'
+import { Button } from '../../components/Button'
+import { DocumentEditor } from '../../components/BlockEditor'
+import { Select } from '../../components/Select'
+import { Dialog } from '../../components/Dialog'
+import { Field } from '../../components/Field'
+import { CLAUSES, clauseTitle, groupTerms, suggestClauses, type ClauseContext } from '../../lib/clauses'
 import { ANNEX_TEMPLATES } from '../../lib/annexures'
+import { appendDocument, readDocument, writeDocument } from '../../lib/richText'
+import { del, post, errText } from '../../lib/api'
+import { useApi } from '../../lib/useApi'
+import { useToast } from '../../lib/toast'
+import type { Draft } from './state'
 
-export function TermsStep({ d, set, ctx, profession, services, auto, setAuto, markGenerated }: { d: Draft; set: (p: Partial<Draft>, m?: string) => void; ctx: ClauseContext; profession: string; services: string[]; auto: boolean; setAuto: (v: boolean) => void; markGenerated: () => void }) {
-  const [custom, setCustom] = useState('')
-  const [edit, setEdit] = useState<'terms' | 'annex' | null>(null)
-  const [at, setAt] = useState<number | null>(null)
-  const [text, setText] = useState('')
-  const has = (t: string) => d.terms.includes(t)
-  const toggle = (t: string) => { setAuto(false); set({ terms: has(t) ? d.terms.filter((x) => x !== t) : [...d.terms, t] }) }
-  const words = `${services.join(' ')} ${d.items.map((i) => i.desc).join(' ')}`
-  const matched = autoMatch(words, d.extra.category)
-  const ex = (p: Partial<Draft['extra']>) => set({ extra: { ...d.extra, ...p } })
-  /* Moves the suggested clauses into the editor as headings and points, so every word can be changed.
-     Names and amounts stay as {tokens}, so they keep filling in. Undo brings the clauses back. */
-  function editAll() {
-    const lib = groupTerms(d.terms).map((g) => [`# ${g.label}`, ...g.items.map((t) => `- ${t}`)].join('\n')).join('\n')
+type Template = { id: string; name: string; kind: 'terms' | 'annex'; content: string }
+export function TermsStep({ d, set, ctx, profession, setAuto, markGenerated }: { d: Draft; set: (p: Partial<Draft>, m?: string) => void; ctx: ClauseContext; profession: string; services: string[]; auto: boolean; setAuto: (v: boolean) => void; markGenerated: () => void }) {
+  const [tab, setTab] = useState<'terms' | 'annex'>('terms')
+  const [name, setName] = useState(''), [saveOpen, setSaveOpen] = useState(false), [busy, setBusy] = useState(false)
+  const [selected, setSelected] = useState(''), [remove, setRemove] = useState(false)
+  const templates = useApi<Template[]>('/studio/document-templates')
+  const toast = useToast()
+  // Existing suggested clauses are shown in the same document, without changing saved drafts until edited.
+  const legacy = groupTerms(d.terms).map((g) => `# ${g.label}\n${g.items.map((t) => `- ${t}`).join('\n')}`).join('\n')
+  const terms = legacy ? appendDocument(legacy, d.extra.customTerms) : d.extra.customTerms
+  const value = tab === 'terms' ? terms : d.extra.annexure
+  function update(text: string) {
     setAuto(false)
-    set({ terms: [], extra: { ...d.extra, customTerms: [lib, d.extra.customTerms.trim()].filter(Boolean).join('\n') } })
-    setEdit('terms')
+    if (tab === 'terms') set({ terms: [], extra: { ...d.extra, customTerms: text } }, 'terms-document')
+    else set({ extra: { ...d.extra, annexure: text } }, 'annex-document')
   }
-  /* An annexure written from the scope: what is included, when, and how it is paid. */
-  function writeAnnexure() {
-    const lines = ['# Scope of work', ...d.items.filter((i) => i.desc.trim()).map((i) => `- ${i.desc}${i.qty !== 1 || i.unit ? ` (${i.qty}${i.unit ? ` ${i.unit}` : ''})` : ''}`)]
-    if (d.extra.category || d.project) lines.push('# Deliverables', `- ${[d.extra.category, d.project].filter(Boolean).join(': ')}`)
-    if (d.extra.completionDate) lines.push('# Timeline', `- Shoot or completion date: ${fmtDate(new Date(`${d.extra.completionDate}T09:00:00+05:30`).toISOString())}`)
-    lines.push('# Not included', '- Anything not listed above is out of scope and will be quoted separately.')
-    ex({ annexure: lines.join('\n') })
-    markGenerated()
+  const add = (text: string, generated = false) => { update(appendDocument(value, text)); if (generated) markGenerated() }
+  async function save() {
+    if (busy || !name.trim() || !value.trim()) return
+    setBusy(true)
+    try { await post('/studio/document-templates', { name: name.trim(), kind: tab, content: writeDocument(readDocument(value)) }); await templates.reload(); setSaveOpen(false); setName(''); toast.ok('Template saved for future invoices.') } catch (e) { toast.bad(errText(e)) } finally { setBusy(false) }
   }
-  return (
-    <div className="st">
-      <div className="st-block">
-        <label className="switch-row"><span><b>Terms page</b><small>Print the terms on their own page after the invoice</small></span><input type="checkbox" role="switch" checked={d.extra.showTerms !== false} onChange={(e) => ex({ showTerms: e.target.checked })} /></label>
-        <div className="st-row"><h3>Terms and conditions</h3>
-          <span className="st-acts">
-            <Button onClick={() => { setAuto(true); set({ terms: [...new Set([...suggestClauses({ advance: d.advance, dueDays: ctx.dueDays, profession, plan: d.extra.plan.kind }), ...matched])] }) }}><Sparkles size={16} aria-hidden />Suggest</Button>
-            <Button onClick={editAll} title="Opens one editor with every clause on this invoice, so you can change any word"><PenLine size={16} aria-hidden />Edit all in one place</Button>
-            <Button disabled={!matched.length} onClick={() => set({ terms: [...new Set([...d.terms, ...matched])] })} title="Adds deliverable terms that match your services"><Wand2 size={16} aria-hidden />Match services</Button>
-          </span>
-        </div>
-        {auto && d.terms.length > 0 && <p className="auto-note"><Sparkles size={14} aria-hidden />Suggested terms follow your plan, services and due date. Edit any clause to take over.</p>}
-        <p className="hint">They print on their own page, grouped under headings. Names, amounts and dates fill in by themselves. Starting points, not legal advice.</p>
-        {CLAUSES.map((g) => (
-          <div key={g.id} className="cg">
-            <small>{g.label}</small>
-            <div className="chips2">{g.clauses.map((c) => <Chip key={c.id} on={has(c.text)} onClick={() => toggle(c.text)}>{clauseTitle(c)}</Chip>)}</div>
-          </div>
-        ))}
-      </div>
-      <div className="st-block">
-        <h3>On this invoice <span className="count num">{d.terms.length}</span></h3>
-        {!d.terms.length && <p className="hint">No clauses yet. Tap Suggest, or pick from above.</p>}
-        <ol className="tl">
-          <AnimatePresence initial={false}>
-            {d.terms.map((t, i) => (
-              <motion.li key={`${i}-${t}`} layout initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8, transition: { duration: 0.14 } }} transition={springSoft}>
-                {at === i
-                  ? <div className="cl-edit"><textarea className="input" rows={3} value={text} maxLength={600} aria-label="Edit this clause" onChange={(e) => setText(e.target.value)} />
-                    <small className="hint">Names and amounts fill in by themselves: {'{client}'}, {'{total}'}, {'{balance}'}, {'{due_date}'}.</small>
-                    <div className="cl-acts"><Button variant="primary" disabled={!text.trim()} onClick={() => { setAuto(false); set({ terms: d.terms.map((x, j) => (j === i ? text.trim() : x)) }); setAt(null) }}><Check size={16} aria-hidden />Save clause</Button><Button variant="ghost" onClick={() => setAt(null)}>Cancel</Button></div></div>
-                  : <><span>{fillClause(t, ctx)}</span><span className="cl-btns"><IconButton label="Edit this clause" onClick={() => { setAt(i); setText(t) }}><Pencil size={16} /></IconButton><IconButton label="Remove this clause" onClick={() => toggle(t)}><X size={16} /></IconButton></span></>}
-              </motion.li>
-            ))}
-          </AnimatePresence>
-        </ol>
-        <form className="inline-add" onSubmit={(e) => { e.preventDefault(); const v = custom.trim(); if (v && !has(v)) { set({ terms: [...d.terms, v] }); setCustom('') } }}>
-          <input className="input" value={custom} maxLength={600} onChange={(e) => setCustom(e.target.value)} onPaste={(e) => { const t = e.clipboardData.getData('text'); if (!/[\r\n]/.test(t) && t.length + custom.length <= 600) return; e.preventDefault(); const add = splitPaste(t).filter((x) => !has(x)); if (add.length) set({ terms: [...d.terms, ...add] }) }} placeholder="Add one clause. You can use {client}, {total}, {due_date}." aria-label="Add a clause" />
-          <Button type="submit" disabled={!custom.trim()}><Plus size={16} aria-hidden />Add</Button>
-        </form>
-      </div>
-      <div className="st-block">
-        <div className="st-row"><h3>Your own terms</h3><span className="st-acts"><Button onClick={() => setEdit('terms')}><PenLine size={16} aria-hidden />{d.extra.customTerms.trim() ? 'Edit' : 'Write your own'}</Button>{d.terms.length > 0 && <Button onClick={editAll}><PenLine size={16} aria-hidden />Edit with the suggested terms</Button>}</span></div>
-        <BlockPreview value={d.extra.customTerms} empty="Nothing written yet. Open the editor to add headings and points in your own words." />
-      </div>
-      <div className="st-block">
-        <div className="st-row"><h3>Annexure page</h3><Button onClick={writeAnnexure}><FileText size={16} aria-hidden />Write from scope</Button></div>
-        <p className="hint">An optional last page that spells out the scope. Leave empty to leave it out. Templates fill in names, amounts and dates.</p>
-        <div className="chips2">{ANNEX_TEMPLATES.map((a) => <Chip key={a.id} on={d.extra.annexure.includes(a.text.split('\n')[0])} onClick={() => { markGenerated(); ex({ annexure: d.extra.annexure.includes(a.text.split('\n')[0]) ? d.extra.annexure : [d.extra.annexure.trim(), a.text].filter(Boolean).join('\n') }) }}>{a.label}</Chip>)}</div>
-        <div className="st-row"><span className="hint">{d.extra.annexure.trim() ? 'On the last page of the invoice.' : 'Empty, so no annexure page.'}</span><Button onClick={() => setEdit('annex')}><PenLine size={16} aria-hidden />{d.extra.annexure.trim() ? 'Edit annexure' : 'Write annexure'}</Button></div>
-        <BlockPreview value={d.extra.annexure} empty="" />
-        <BlockEditorDialog open={edit === 'annex'} onClose={() => setEdit(null)} title="Annexure" value={d.extra.annexure} max={6000} onChange={(v) => ex({ annexure: v })} />
-        <BlockEditorDialog open={edit === 'terms'} onClose={() => setEdit(null)} title="Terms" value={d.extra.customTerms} onChange={(v) => ex({ customTerms: v })} />
-      </div>
+  return <div className="terms-workspace">
+    <div className="st-row"><div><h3>Write your terms and annexure</h3><p className="hint">Edit everything in one document. Suggestions and templates are starting points.</p></div></div>
+    <div className="terms-tabs" role="tablist" aria-label="Invoice documents">{(['terms', 'annex'] as const).map((t) => <Button key={t} role="tab" aria-selected={tab === t} onClick={() => { setTab(t); setSelected('') }}>{t === 'terms' ? 'Terms & conditions' : 'Annexure'}</Button>)}</div>
+    <div className="template-tools">
+      <Select label="Saved templates" value={selected} onChange={setSelected} options={[{ value: '', label: 'Choose a template' }, ...(templates.data ?? []).filter((t) => t.kind === tab).map((t) => ({ value: t.id, label: t.name }))]} />
+      <Button disabled={!selected} onClick={() => { const t = templates.data?.find((x) => x.id === selected); if (t) add(t.content) }}>Insert template</Button>
+      <Button disabled={!value.trim()} onClick={() => setSaveOpen(true)}><Save size={16} />Save as template</Button>
+      {selected && <Button variant="danger" onClick={() => setRemove(true)}>Delete template</Button>}
     </div>
-  )
+    <DocumentEditor key={tab} label={tab === 'terms' ? 'Terms document' : 'Annexure document'} value={value} onChange={update} max={tab === 'terms' ? 10000 : 6000} />
+    <details className="terms-options"><summary>{tab === 'terms' ? 'Suggested clauses' : 'Annexure starting points'}</summary>
+      {tab === 'terms' ? <>
+        <Button onClick={() => add(suggestClauses({ advance: d.advance, dueDays: ctx.dueDays, profession, plan: d.extra.plan.kind }).map((t) => `- ${t}`).join('\n'), true)}><Sparkles size={16} />Insert suggested terms</Button>
+        {CLAUSES.map((g) => <div className="cg" key={g.id}><h4>{g.label}</h4><div className="chips2">{g.clauses.map((c) => <Button key={c.id} onClick={() => add(`- ${c.text}`, true)}>{clauseTitle(c)}</Button>)}</div></div>)}
+      </> : <><Button onClick={() => add(`# Scope of work\n${d.items.filter((i) => i.desc.trim()).map((i) => `- ${i.desc}`).join('\n')}`, true)}><FileText size={16} />Insert from scope</Button><div className="chips2">{ANNEX_TEMPLATES.map((a) => <Button key={a.id} onClick={() => add(a.text, true)}>{a.label}</Button>)}</div></>}
+    </details>
+    <details className="terms-options"><summary>Page options</summary><label className="switch-row"><span><b>Include terms page</b><small>Annexure prints when it contains text.</small></span><input type="checkbox" role="switch" checked={d.extra.showTerms !== false} onChange={(e) => set({ extra: { ...d.extra, showTerms: e.target.checked } })} /></label></details>
+    <Dialog open={saveOpen} onClose={() => { if (!busy) setSaveOpen(false) }} title="Save a writing template"><Field label="Template name" value={name} maxLength={80} onChange={(e) => setName(e.target.value)} /><Button variant="primary" disabled={busy || !name.trim()} onClick={() => void save()}>{busy ? 'Saving' : 'Save template'}</Button></Dialog>
+    <Dialog open={remove} onClose={() => { if (!busy) setRemove(false) }} title="Delete this template?"><p>Existing invoices keep their text. This template will no longer be available for new invoices.</p><div className="st-row"><Button onClick={() => setRemove(false)}>Keep template</Button><Button variant="danger" disabled={busy} onClick={async () => { if (busy) return; setBusy(true); try { await del(`/studio/document-templates/${selected}`); setSelected(''); setRemove(false); await templates.reload() } catch (e) { toast.bad(errText(e)) } finally { setBusy(false) } }}>Delete template</Button></div></Dialog>
+  </div>
 }

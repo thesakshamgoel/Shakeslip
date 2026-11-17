@@ -17,11 +17,12 @@ export const lateFeeSchema = z.object({ kind: z.enum(['none', 'percent', 'flat']
 export type LateFee = z.infer<typeof lateFeeSchema>
 export const automationBody = z.object({ reminders: reminderRules, lateFee: lateFeeSchema })
 export const extraSchema = z.object({
+  clientEmailIds: z.array(z.string().max(40)).max(8).nullable().default(null), clientPhoneIds: z.array(z.string().max(40)).max(8).nullable().default(null),
   currency: z.enum(CURRENCIES).default('INR'), category: z.string().trim().max(40).default(''), completionDate: z.string().regex(/^(\d{4}-\d{2}-\d{2})?$/).default(''),
   banner: z.string().trim().max(300).default(''), salutation: z.string().trim().max(120).default(''), intro: z.string().trim().max(300).default(''),
   plan: z.object({ kind: z.enum(['none', 'advance_balance', 'full_advance', 'on_completion', 'due_on_receipt', 'net15', 'net30', 'custom']).default('none'), advancePct: z.number().int().min(1).max(99).default(50), text: z.string().trim().max(200).default('') }).default({ kind: 'none', advancePct: 50, text: '' }),
   showBank: z.boolean().default(true), showQr: z.boolean().default(true), showMobile: z.boolean().default(false), showTerms: z.boolean().default(true),
-  annexure: z.string().max(6000).default(''), customTerms: z.string().max(10000).default(''),
+  annexure: z.string().max(120000).default(''), customTerms: z.string().max(120000).default(''),
   qrMode: z.enum(['upi', 'image', 'none']).default('upi'), layout: z.enum(['classic', 'minimal', 'band', 'compact', 'bold', 'ledger']).default('classic'),
   job: z.object({ what: z.string().trim().max(60).default(''), kind: z.string().trim().max(60).default(''), name: z.string().trim().max(120).default('') }).default({ what: '', kind: '', name: '' }), termsAckAt: z.string().max(40).default(''), phoneId: z.string().max(40).default(''),
   discountPct: z.number().min(0).max(100).default(0), emailIds: z.array(z.string().max(40)).max(8).nullable().default(null), phoneIds: z.array(z.string().max(40)).max(8).nullable().default(null),
@@ -30,7 +31,7 @@ export const extraSchema = z.object({
 export type Extra = z.infer<typeof extraSchema>
 export const phonesBody = z.object({ phones: z.array(z.object({ id: z.string().min(1).max(40), label: z.string().trim().min(1).max(30), number: z.string().trim().min(6).max(20).regex(/^[+\d\s()-]+$/, 'Use digits, spaces, + or - only'), isDefault: z.boolean().default(false) })).max(8) })
 export const emailsBody = z.object({ emails: z.array(z.object({ id: z.string().min(1).max(40), label: z.string().trim().min(1).max(30), address: z.string().trim().toLowerCase().email('Enter a valid email address').max(120), isDefault: z.boolean().default(false) })).max(8) })
-export const defaultsBody = z.object({ theme: z.string().min(1).max(30), layout: z.enum(['classic', 'minimal', 'band', 'compact', 'bold', 'ledger']).default('classic'), terms: z.array(z.string().trim().max(600)).max(40), customTerms: z.string().max(10000) })
+export const defaultsBody = z.object({ theme: z.string().min(1).max(30), layout: z.enum(['classic', 'minimal', 'band', 'compact', 'bold', 'ledger']).default('classic'), terms: z.array(z.string().trim().max(600)).max(40), customTerms: z.string().max(120000) })
 const catItem = z.object({ id: z.string().min(1).max(40), name: z.string().trim().min(1, 'Give each service a name').max(80), unit: z.string().trim().max(24).default(''), rate: z.number().int().min(0).max(100_000_000_00, 'Rates can be up to ₹10 crore'), note: z.string().trim().max(200).default(''), fav: z.boolean().default(false) })
 export const catalogueBody = z.object({
   services: z.array(catItem).max(80),
@@ -80,14 +81,15 @@ export const signatureBody = z.discriminatedUnion('kind', [
   z.object({ kind: z.literal('typed'), text: text(60).min(1), font: z.enum(['great-vibes', 'allura', 'caveat', 'dancing-script', 'sacramento', 'parisienne']) }),
   z.object({ kind: z.literal('image'), image: z.string().max(280_000).regex(/^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/, 'Use a PNG, JPG or WebP image under 200 KB') }),
 ])
-export const clientProfileBody = z.object({ name: text(80).min(1), phone, company: text(100), gstin, address: text(200), city: text(60), pin, state: stateCode.optional().default(''), honorific: honorific.optional().default(''), area: text(100).optional().default(''), pan: pan.optional().default('') })
+const contacts = { phones: phonesBody.shape.phones.optional(), emails: emailsBody.shape.emails.optional() }
+export const clientProfileBody = z.object({ ...contacts, name: text(80).min(1), phone, company: text(100), gstin, address: text(200), city: text(60), pin, state: stateCode.optional().default(''), honorific: honorific.optional().default(''), area: text(100).optional().default(''), pan: pan.optional().default('') })
 
-export const inviteBody = z.object({
+export const inviteBody = z.object({ ...contacts,
   name: text(80).min(1), email: email.or(z.literal('')), phone, company: text(100).optional().default(''), groupId: z.string().nullable(),
   gstin: gstin.optional().default(''), state: stateCode.optional().default(''), honorific: honorific.optional().default(''), attention: text(80).optional().default(''),
   address: text(200).optional().default(''), area: text(100).optional().default(''), city: text(60).optional().default(''), pin: pin.optional().default(''), pan: pan.optional().default(''),
 }).refine((v) => v.email || v.phone, { message: 'Add an email or a WhatsApp number so we can reach them', path: ['email'] })
-export const linkPatch = z.object({ groupId: z.string().nullable().optional(), name: text(80).min(1).optional(), company: text(100).optional(), gstin: gstin.optional(), city: text(60).optional(), address: text(200).optional(), state: stateCode.optional(),
+export const linkPatch = z.object({ ...contacts, groupId: z.string().nullable().optional(), name: text(80).min(1).optional(), company: text(100).optional(), gstin: gstin.optional(), city: text(60).optional(), address: text(200).optional(), state: stateCode.optional(),
   honorific: honorific.optional(), attention: text(80).optional(), area: text(100).optional(), pin: pin.optional(), pan: pan.optional(), logo: imageData.or(z.literal('')).optional(), email: email.or(z.literal('')).optional(), phone: phone.optional() })
 
 export const itemSchema = z.object({ id: z.string().max(40), desc: text(300), qty: z.number().min(0).max(1_000_000), rate: z.number().int().min(0).max(100_000_000_00, 'Rates can be up to ₹10 crore'), unit: text(24).optional().default('') })
@@ -115,3 +117,5 @@ export const codeBody = z.object({ code: text(60).min(2) })
 
 export const forgotBody = z.object({ email })
 export const resetBody = z.object({ token: z.string().min(10).max(100), password: z.string().min(10, 'Use at least 10 characters').max(200) })
+
+export const documentTemplateBody = z.object({ name: text(80).min(1), kind: z.enum(['terms', 'annex']), content: z.string().min(1).max(120000) })

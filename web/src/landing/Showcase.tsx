@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { smooth, snappy } from '../lib/motion'
 import { useEffect, useRef, useState } from 'react'
 import { InvoiceDocument } from '../components/InvoiceDocument'
 import { invoiceThemes } from '../themes/invoice'
 import { sampleDoc } from './sample'
 
-const spring = { type: 'spring', stiffness: 380, damping: 34 } as const
+const spring = snappy
 
 /* One sample invoice, every design. It cycles on its own while visible; tap a design to hold it. */
 export function DesignShowcase() {
@@ -36,7 +37,7 @@ export function DesignShowcase() {
       </div>
       <div className="sc-stage">
         <AnimatePresence mode="popLayout" initial={false}>
-          <motion.div key={t.id} className="sc-doc" initial={{ opacity: 0, y: 24, rotate: -1.2, scale: 0.97 }} animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }} exit={{ opacity: 0, y: -16, rotate: 1, scale: 0.98 }} transition={{ type: 'spring', stiffness: 220, damping: 28 }}>
+          <motion.div key={t.id} className="sc-doc" initial={{ opacity: 0, y: 24, rotate: -1.2, scale: 0.97 }} animate={{ opacity: 1, y: 0, rotate: 0, scale: 1 }} exit={{ opacity: 0, y: -16, rotate: 1, scale: 0.98 }} transition={smooth}>
             <InvoiceDocument d={sampleDoc(t.id)} only={0} />
           </motion.div>
         </AnimatePresence>
@@ -65,7 +66,7 @@ export function PasteDemo() {
         {FIELDS.map(([k, v], i) => (
           <div key={k} className="pd-f">
             <small>{k}</small>
-            <AnimatePresence>{i < filled && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={{ type: 'spring', stiffness: 400, damping: 30 }}>{v}</motion.span>}</AnimatePresence>
+            <AnimatePresence>{i < filled && <motion.span initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} transition={snappy}>{v}</motion.span>}</AnimatePresence>
           </div>
         ))}
       </div>

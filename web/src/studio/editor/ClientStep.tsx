@@ -1,6 +1,8 @@
-import { Mail, MapPin, MessageCircle, Pencil, UserPlus } from 'lucide-react'
+import { WhatsAppIcon } from '../../components/WhatsAppIcon'
+import { Mail, MapPin, Pencil, UserPlus } from 'lucide-react'
 import { DatePicker } from '../../components/DatePicker'
 import { Button } from '../../components/Button'
+import { Chip } from '../../components/Chip'
 import { Field } from '../../components/Field'
 import { fromDateInput, toDateInput } from '../../lib/dates'
 import { gstinValid, stateName, stateOf } from '../../lib/gst'
@@ -18,7 +20,7 @@ export function ClientStep({ d, set, type, links, groups, onEditClient, onAdd, s
     const l = links.find((x) => x.id === id)
     const g = groups.find((x) => x.id === l?.groupId)
     const greet = d.extra.salutation ? { salutation: salutationFor(l?.honorific, l?.attention || l?.name || '') } : {}
-    set({ linkId: id, ...(g ? { theme: g.theme, due: isoIn(g.dueDays, new Date(d.issued)) } : {}), extra: { ...d.extra, ...greet } })
+    set({ linkId: id, ...(g ? { theme: g.theme, due: isoIn(g.dueDays, new Date(d.issued)) } : {}), extra: { ...d.extra, clientEmailIds: null, clientPhoneIds: null, ...greet } })
   }
   const greeting = !!(d.extra.salutation || d.extra.intro)
   return (
@@ -37,9 +39,10 @@ export function ClientStep({ d, set, type, links, groups, onEditClient, onAdd, s
         {link && (<>
           <ul className="facts" aria-label="How it reaches them">
             <li className={link.email ? 'ok' : ''}><Mail size={14} aria-hidden />{link.email ? `Emailed to ${link.email}` : 'No email: add one so they get a copy'}</li>
-            <li className={link.phone ? 'ok' : ''}><MessageCircle size={14} aria-hidden />{link.phone ? `WhatsApp ready for ${link.phone}` : 'No WhatsApp number'}</li>
+            <li className={link.phone ? 'ok' : ''}><WhatsAppIcon size={14} aria-hidden />{link.phone ? `WhatsApp ready for ${link.phone}` : 'No WhatsApp number'}</li>
             <li className={st ? 'ok' : ''}><MapPin size={14} aria-hidden />{st ? `${st}${link.gstin ? (gstinValid(link.gstin) ? ', GSTIN checks out' : ', GSTIN looks wrong') : ''}` : 'State unknown: tax is treated as same-state'}</li>
           </ul>
+          {(!!link.emails?.length || !!link.phones?.length) && <div className="field"><span>Contacts shown on this invoice</span><small className="hint">These print on the invoice. Delivery still uses the client's primary email.</small><div className="chips2">{link.emails?.map((e) => <Chip key={e.id} on={d.extra.clientEmailIds == null ? e.isDefault : d.extra.clientEmailIds.includes(e.id)} onClick={() => { const ids = d.extra.clientEmailIds ?? link.emails!.filter((x) => x.isDefault).map((x) => x.id); set({ extra: { ...d.extra, clientEmailIds: ids.includes(e.id) ? ids.filter((x) => x !== e.id) : [...ids, e.id] } }) }}>{e.label}: {e.address}</Chip>)}{link.phones?.map((p) => <Chip key={p.id} on={d.extra.clientPhoneIds == null ? p.isDefault : d.extra.clientPhoneIds.includes(p.id)} onClick={() => { const ids = d.extra.clientPhoneIds ?? link.phones!.filter((x) => x.isDefault).map((x) => x.id); set({ extra: { ...d.extra, clientPhoneIds: ids.includes(p.id) ? ids.filter((x) => x !== p.id) : [...ids, p.id] } }) }}>{p.label}: {p.number}</Chip>)}</div></div>}
           <Button variant="ghost" onClick={() => onEditClient(link)}><Pencil size={16} aria-hidden />Edit {link.company || link.name}'s details and logo</Button>
         </>)}
       </div>

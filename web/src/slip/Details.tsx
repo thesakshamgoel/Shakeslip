@@ -1,3 +1,4 @@
+import { ContactFields } from '../components/ContactFields'
 import { Lock } from 'lucide-react'
 import { STATE_OPTIONS } from '../lib/gst'
 import { Select } from '../components/Select'
@@ -24,6 +25,8 @@ export default function Details() {
   const toast = useToast()
   const [busy, setBusy] = useState(false)
   const p = me!.profile!
+  const [phones, setPhones] = useState(p.phones ?? [])
+  const [emails, setEmails] = useState(p.emails ?? [])
   const [title, setTitle] = useState<Honorific>(p.honorific ?? '')
   const [gst, setGst] = useState(p.gstin)
   const gBad = gst.length > 0 && !gstinValid(gst)
@@ -35,7 +38,7 @@ export default function Details() {
     const v = (k: string) => String(f.get(k) ?? '').trim()
     setBusy(true)
     try {
-      await put('/account/me', { name: v('name'), phone: v('phone'), company: v('company'), gstin: gst, address: v('address'), area: v('area'), city: v('city'), pin: v('pin'), state: v('state'), pan: v('pan').toUpperCase(), honorific: title })
+      await put('/account/me', { phones, emails, name: v('name'), phone: v('phone'), company: v('company'), gstin: gst, address: v('address'), area: v('area'), city: v('city'), pin: v('pin'), state: v('state'), pan: v('pan').toUpperCase(), honorific: title })
       await refresh(); toast.ok('Saved. Businesses you are connected to use these on future invoices.')
     } catch (x) { toast.bad(errText(x)) } finally { setBusy(false) }
   }
@@ -62,6 +65,7 @@ export default function Details() {
           </div>
           <Field label="Billing address" name="address" defaultValue={p.address} autoComplete="street-address" />
           <Select label="State" name="state" value={p.state ?? ''} options={STATE_OPTIONS} disabled={gst.length === 15 && !gBad} hint={gst.length === 15 && !gBad ? 'Taken from your GSTIN.' : 'Decides whether you are charged IGST or CGST and SGST.'} />
+          <ContactFields phones={phones} emails={emails} onChange={(v) => { if (v.phones) setPhones(v.phones); if (v.emails) setEmails(v.emails) }} />
           <p className="hint">Signed in as {me!.user!.email}</p>
           <Button variant="primary" type="submit" disabled={busy || gBad}>{busy ? 'Saving' : 'Save details'}</Button>
           <DeleteAccount />

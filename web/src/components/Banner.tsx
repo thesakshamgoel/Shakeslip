@@ -1,4 +1,5 @@
 import { AnimatePresence, motion } from 'motion/react'
+import { snappy } from '../lib/motion'
 import { CircleAlert, Info, TriangleAlert } from 'lucide-react'
 import type { ReactNode } from 'react'
 import './banner.css'
@@ -9,7 +10,7 @@ export function Banner({ tone = 'info', title, children, shake = 0 }: { tone?: '
   return (
     <AnimatePresence>
       <motion.div key={shake} className={`bn bn-${tone}`} role={tone === 'error' ? 'alert' : 'status'}
-        initial={shake ? { x: 0 } : { opacity: 0, y: -8 }} animate={shake ? { x: [0, -8, 7, -5, 3, 0] } : { opacity: 1, y: 0 }} transition={shake ? { duration: 0.42 } : { type: 'spring', stiffness: 400, damping: 30 }}>
+        initial={shake ? { x: 0 } : { opacity: 0, y: -8 }} animate={shake ? { x: [0, -8, 7, -5, 3, 0] } : { opacity: 1, y: 0 }} transition={shake ? { duration: 0.42 } : snappy}>
         <Icon size={18} aria-hidden /><div><b>{title}</b>{children && <div className="bn-body">{children}</div>}</div>
       </motion.div>
     </AnimatePresence>

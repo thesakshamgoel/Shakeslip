@@ -1,6 +1,5 @@
 import { animate, motion, useReducedMotion } from 'motion/react'
-import { createContext, useContext, useEffect, useRef, useState } from 'react'
-import { glide } from '../lib/motion'
+import { createContext, useContext, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { greeting } from '../lib/welcome'
 import './welcome.css'
 
@@ -13,15 +12,13 @@ export function GreetHeading({ name }: { name: string }) {
   return <h1 className="greet-h" data-greet-target style={waiting ? { visibility: 'hidden' } : undefined}>{greeting()}, <span className="greet-name">{name}</span></h1>
 }
 
-const WRITE = 0.95 // seconds the greeting takes to be written on
-const HOLD = 600 // ms the finished greeting rests before it rises
 
 /* The loader's star must open first; without a loader (signing in inside the app) the greeting starts at once. */
 function useAfterSplash(): boolean {
   const [ready, setReady] = useState(() => { const s = document.getElementById('splash'); return !s || s.classList.contains('out') })
   useEffect(() => {
     if (ready) return
-    const go = () => setTimeout(() => setReady(true), 280)
+    const go = () => setTimeout(() => setReady(true), 120)
     addEventListener('ss-splash-open', go, { once: true })
     const t = setTimeout(() => setReady(true), 6000) // never wait forever
     return () => { removeEventListener('ss-splash-open', go); clearTimeout(t) }
@@ -43,49 +40,82 @@ function place() {
   return { r, S, x, y, type, oneLine }
 }
 
-/* The greeting is the page heading itself, drawn large on a clear screen: written on letter by letter, it rests,
-   glides up onto the real heading while the screen stays clear, and only then does the page appear around it. */
+type Letter = { ch: string; x: number; y: number; h: number; name: boolean; nx: number; ny: number; nw: number; nh: number }
+
+/* Where every letter of the real heading text sits (in the heading's own unscaled coordinates), so each letter can be
+   animated in at exactly its place: the font's kerning and spacing stay untouched. */
+function measure(h: HTMLElement, S: number): Letter[] {
+  const box = h.getBoundingClientRect(), plain = h.querySelector('.greet-plain')
+  const nameEl = h.querySelector<HTMLElement>('.greet-plain .greet-name'), nb = nameEl?.getBoundingClientRect()
+  if (!plain) return []
+  const out: Letter[] = [], range = document.createRange(), walk = document.createTreeWalker(plain, NodeFilter.SHOW_TEXT)
+  for (let n = walk.nextNode(); n; n = walk.nextNode()) {
+    const text = n.textContent ?? '', inName = !!nameEl?.contains(n)
+    for (let i = 0; i < text.length; i++) {
+      if (!text[i].trim()) continue
+      range.setStart(n, i); range.setEnd(n, i + 1)
+      const r = range.getBoundingClientRect()
+      out.push({ ch: text[i], x: (r.left - box.left) / S, y: (r.top - box.top) / S, h: r.height / S, name: inName,
+        nx: nb ? (r.left - nb.left) / S : 0, ny: nb ? (r.top - nb.top) / S : 0, nw: nb ? nb.width / S : 0, nh: nb ? nb.height / S : 0 })
+    }
+  }
+  return out
+}
+
+const STEP = 0.03 // seconds between letters
+const LETTER = 0.32 // seconds each letter takes to arrive
+const REST = 280 // ms the finished greeting rests before it rises
+const RISE = { type: 'spring', visualDuration: 0.48, bounce: 0 } as const
+
+/* The greeting is the page heading itself, drawn large on a clear screen: written on letter by letter, a short rest,
+   then it rises onto the real heading while the screen stays clear, and only then does the page appear around it. */
 export function WelcomeOverlay({ name, onReveal, onDone }: { name: string; onReveal: () => void; onDone: () => void }) {
   const reduced = useReducedMotion()
   const ready = useAfterSplash()
   const [pos, setPos] = useState<ReturnType<typeof place>>(null)
+  const [letters, setLetters] = useState<Letter[] | null>(null)
+  const [plain, setPlain] = useState(false)
   const head = useRef<HTMLHeadingElement>(null), back = useRef<HTMLDivElement>(null)
 
   /* measure once the page behind has settled */
   useEffect(() => { if (ready) { const id = requestAnimationFrame(() => setPos(place())); return () => cancelAnimationFrame(id) } }, [ready])
+  useLayoutEffect(() => { if (pos && head.current && !letters) setLetters(reduced ? [] : measure(head.current, pos.S)) }, [pos, letters, reduced])
 
   useEffect(() => {
-    if (!pos) return
+    if (!pos || !letters) return
     let stop = false
-    const written = reduced ? 300 : WRITE * 1000 + 250
-    const t = setTimeout(async () => {
+    const written = reduced || !letters.length ? 0 : (letters.length * STEP + LETTER) * 1000
+    const timers = [setTimeout(() => setPlain(true), written)]
+    timers.push(setTimeout(async () => {
       const h = head.current, b = back.current
       if (!h || !b || stop) return
       if (!reduced) {
         const now = place() ?? pos // the page may have moved a pixel or two; land on where it is now
         h.style.left = `${now.r.left}px`; h.style.top = `${now.r.top}px`
-        await animate(h, { x: 0, y: 0, scale: 1 }, glide)
+        await animate(h, { x: 0, y: 0, scale: 1 }, RISE)
       }
       if (stop) return
       onReveal() // the real heading is now exactly underneath
-      await animate(b, { opacity: 0 }, { duration: reduced ? 0.2 : 0.45, ease: [0.22, 1, 0.36, 1] })
+      await animate(b, { opacity: 0 }, { duration: reduced ? 0.2 : 0.32, ease: [0.22, 1, 0.36, 1] })
       if (!stop) onDone()
-    }, written + HOLD)
-    return () => { stop = true; clearTimeout(t) }
-  }, [pos, reduced, onReveal, onDone])
+    }, written + (reduced ? 400 : REST)))
+    return () => { stop = true; timers.forEach(clearTimeout) }
+  }, [pos, letters, reduced, onReveal, onDone])
 
-  /* written on with a reveal that sweeps left to right over one ordinary line of text: the same letters, spacing and
-     wrapping as the real heading, so when it lands nothing shifts by even a pixel */
   return (
     <div className="welcome" aria-hidden>
       <div className="welcome-back" ref={back} />
       {pos && (
         <motion.h1 ref={head} className={`greet-h greet-fly ${pos.oneLine ? 'one-line' : ''}`} style={{ ...pos.type, left: pos.r.left, top: pos.r.top, width: pos.r.width + 2, originX: 0, originY: 0 }}
           initial={{ x: pos.x, y: pos.y, scale: pos.S }}>
-          <motion.span className="greet-ink" initial={reduced ? { opacity: 0 } : { clipPath: 'inset(-30% 100% -30% 0)', opacity: 0.4 }} animate={{ clipPath: 'inset(-30% 0% -30% 0)', opacity: 1 }}
-            transition={{ clipPath: { duration: WRITE, ease: [0.45, 0.05, 0.25, 1] }, opacity: { duration: WRITE * 0.5 } }}>
-            {greeting()}, <span className="greet-name">{name}</span>
-          </motion.span>
+          {/* the real text: laid out from the start (for measuring), shown the moment the last letter lands, pixel for pixel the same */}
+          <span className="greet-plain" style={{ opacity: plain ? 1 : 0 }}>{greeting()}, <span className="greet-name" style={plain ? undefined : { animation: 'none' }}>{name}</span></span>
+          {!plain && letters && letters.map((l, i) => (
+            <motion.span key={i} className={`greet-letter ${l.name ? 'greet-name greet-name-ch' : ''}`}
+              style={{ left: l.x, top: l.y, height: l.h, lineHeight: `${l.h}px`, ...(l.name ? { backgroundSize: `${l.nw * 2}px ${l.nh}px`, backgroundPosition: `${-l.nx}px ${-l.ny}px` } : {}) }}
+              initial={{ opacity: 0, y: '0.35em' }} animate={{ opacity: 1, y: 0 }}
+              transition={{ type: 'spring', visualDuration: LETTER, bounce: 0, delay: i * STEP, opacity: { duration: 0.16, delay: i * STEP } }}>{l.ch}</motion.span>
+          ))}
         </motion.h1>
       )}
     </div>

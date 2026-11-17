@@ -219,3 +219,7 @@ Before launch (not done)
 - Switching clients no longer changes the invoice design: it follows the group look only when you have not picked one, and an empty group look means your default (it used to blank the design back to Classic).
 - Welcome rebuilt: the greeting is the page heading drawn large, written on with a left-to-right reveal (normal text, so spacing matches exactly), rests, glides onto the real heading while the screen stays clear, then the page fades in around it. No more text crossing the dashboard, ghosting, or wrapped duplicate name.
 - Terms editor: switching a line between bullets and numbers changes only that line (like Word), also for the keyboard shortcuts; every toolbar button shows its shortcut (Cmd/Ctrl B, U, Alt 2/3/0, Shift 8/7, Tab, Z).
+
+2026-11-17 welcome: letter by letter, faster
+- The greeting is written on letter by letter again, each letter animated in at the exact spot the real text puts it (measured, so kerning and the name shimmer stay identical), then it becomes the real text with no shift.
+- Faster: letters in about 0.55 s, short rest, quicker rise and fade (about 2.4 s in total instead of about 3.5 s).

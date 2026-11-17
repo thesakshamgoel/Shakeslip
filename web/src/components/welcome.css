@@ -18,4 +18,7 @@
 
 /* after a welcome the app is simply there behind the fading backdrop: no second fade or rise, so the heading never moves or ghosts */
 .shell-ready { opacity: 1; }
-.greet-fly.one-line { white-space: nowrap; } .greet-ink { display: inline; }
+.greet-fly.one-line { white-space: nowrap; }
+/* each letter sits exactly where the real text puts it; the name's letters share one continuous shimmer gradient */
+.greet-letter { position: absolute; white-space: pre; padding: 0 !important; will-change: transform, opacity; }
+.greet-name-ch { display: block; animation: none !important; }

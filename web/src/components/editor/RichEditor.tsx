@@ -9,6 +9,17 @@ import { Button, IconButton } from '../Button'
 import { documentText, readDocument, writeDocument } from '../../lib/richText'
 import { cleanImport, importDocument, DocumentImportError } from './importDocument'
 
+/* Like Word: switching a line between bullets and numbers changes only that line, never the whole list above it. */
+type Ed = NonNullable<ReturnType<typeof useEditor>>
+function setList(editor: Ed, type: 'bulletList' | 'orderedList'): boolean {
+  const other = type === 'bulletList' ? 'orderedList' : 'bulletList'
+  const toggle = () => (type === 'bulletList' ? editor.chain().focus().toggleBulletList().run() : editor.chain().focus().toggleOrderedList().run())
+  if (editor.isActive(other)) { editor.chain().focus().liftListItem('listItem').run(); return toggle() }
+  return toggle()
+}
+const MAC = typeof navigator !== 'undefined' && /Mac|iPhone|iPad/.test(navigator.platform)
+const K = (k: string) => (MAC ? k.replace(/Mod-/g, '⌘').replace(/Shift-/g, '⇧').replace(/Alt-/g, '⌥') : k.replace(/Mod-/g, 'Ctrl+').replace(/Shift-/g, 'Shift+').replace(/Alt-/g, 'Alt+'))
+
 export default function RichEditor({ value, onChange, max = 10000, label = 'Document' }: { value: string; onChange: (value: string) => void; max?: number; label?: string }) {
   const current = useRef(value), change = useRef(onChange)
   change.current = onChange
@@ -18,7 +29,7 @@ export default function RichEditor({ value, onChange, max = 10000, label = 'Docu
   const input = useRef<HTMLInputElement>(null)
   const limit = useRef(max); limit.current = max
   const editor = useEditor({
-    extensions: [StarterKit.configure({ italic: false, link: false, code: false, codeBlock: false, horizontalRule: false, heading: { levels: [2, 3] } }), Extension.create({ name: 'documentLimit', addProseMirrorPlugins() { return [new Plugin({ filterTransaction(tr) { if (!tr.docChanged) return true; const ok = tr.doc.textContent.length <= limit.current && JSON.stringify(tr.doc.toJSON()).length <= 110000; if (!ok) queueMicrotask(() => setError(`This document is too long. Keep it within ${limit.current.toLocaleString('en-IN')} characters.`)); return ok } })] } })],
+    extensions: [StarterKit.configure({ italic: false, link: false, code: false, codeBlock: false, horizontalRule: false, heading: { levels: [2, 3] } }), Extension.create({ name: 'listShortcuts', addKeyboardShortcuts() { return { 'Mod-Shift-8': () => setList(this.editor, 'bulletList'), 'Mod-Shift-7': () => setList(this.editor, 'orderedList') } } }), Extension.create({ name: 'documentLimit', addProseMirrorPlugins() { return [new Plugin({ filterTransaction(tr) { if (!tr.docChanged) return true; const ok = tr.doc.textContent.length <= limit.current && JSON.stringify(tr.doc.toJSON()).length <= 110000; if (!ok) queueMicrotask(() => setError(`This document is too long. Keep it within ${limit.current.toLocaleString('en-IN')} characters.`)); return ok } })] } })],
     content: readDocument(value),
     editorProps: { attributes: { role: 'textbox', 'aria-multiline': 'true', 'aria-label': label, class: 'rich-page' }, transformPastedHTML: cleanImport, handlePaste(view, event) {
       const html = event.clipboardData?.getData('text/html'), text = event.clipboardData?.getData('text/plain') ?? ''
@@ -37,13 +48,13 @@ export default function RichEditor({ value, onChange, max = 10000, label = 'Docu
   if (!editor) return <div className="editor-skeleton" aria-busy="true" />
   const run = (fn: () => void) => { setError(''); fn() }
   const tools = [
-    { name: 'Paragraph', icon: Pilcrow, active: editor.isActive('paragraph'), fn: () => editor.chain().focus().setParagraph().run() },
-    { name: 'Heading', icon: Heading2, active: editor.isActive('heading', { level: 2 }), fn: () => editor.chain().focus().toggleHeading({ level: 2 }).run() },
-    { name: 'Subheading', icon: Heading3, active: editor.isActive('heading', { level: 3 }), fn: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
-    { name: 'Bold', icon: Bold, active: editor.isActive('bold'), fn: () => editor.chain().focus().toggleBold().run() },
-    { name: 'Underline', icon: Underline, active: editor.isActive('underline'), fn: () => editor.chain().focus().toggleUnderline().run() },
-    { name: 'Bullet list', icon: List, active: editor.isActive('bulletList'), fn: () => editor.chain().focus().toggleBulletList().run() },
-    { name: 'Numbered list', icon: ListOrdered, active: editor.isActive('orderedList'), fn: () => editor.chain().focus().toggleOrderedList().run() },
+    { name: 'Paragraph', keys: 'Mod-Alt-0', icon: Pilcrow, active: editor.isActive('paragraph'), fn: () => editor.chain().focus().setParagraph().run() },
+    { name: 'Heading', keys: 'Mod-Alt-2', icon: Heading2, active: editor.isActive('heading', { level: 2 }), fn: () => editor.chain().focus().toggleHeading({ level: 2 }).run() },
+    { name: 'Subheading', keys: 'Mod-Alt-3', icon: Heading3, active: editor.isActive('heading', { level: 3 }), fn: () => editor.chain().focus().toggleHeading({ level: 3 }).run() },
+    { name: 'Bold', keys: 'Mod-B', icon: Bold, active: editor.isActive('bold'), fn: () => editor.chain().focus().toggleBold().run() },
+    { name: 'Underline', keys: 'Mod-U', icon: Underline, active: editor.isActive('underline'), fn: () => editor.chain().focus().toggleUnderline().run() },
+    { name: 'Bullet list', keys: 'Mod-Shift-8', icon: List, active: editor.isActive('bulletList'), fn: () => setList(editor, 'bulletList') },
+    { name: 'Numbered list', keys: 'Mod-Shift-7', icon: ListOrdered, active: editor.isActive('orderedList'), fn: () => setList(editor, 'orderedList') },
   ]
   async function upload(file?: File) {
     if (!file || busy || !editor) return
@@ -57,11 +68,11 @@ export default function RichEditor({ value, onChange, max = 10000, label = 'Docu
   }
   return <div className="rich-editor">
     <div className="rich-toolbar" role="toolbar" aria-label={`${label} formatting`}>
-      {tools.map(({ name, icon: Icon, active, fn }) => <IconButton key={name} type="button" label={name} aria-pressed={active} onMouseDown={(e) => e.preventDefault()} onClick={() => run(fn)}><Icon size={18} /></IconButton>)}
-      <IconButton type="button" label="Indent list" disabled={!editor.can().sinkListItem('listItem')} onClick={() => editor.chain().focus().sinkListItem('listItem').run()}><IndentIncrease size={18} /></IconButton>
-      <IconButton type="button" label="Outdent list" disabled={!editor.can().liftListItem('listItem')} onClick={() => editor.chain().focus().liftListItem('listItem').run()}><IndentDecrease size={18} /></IconButton>
-      <IconButton type="button" label="Undo" disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()}><Undo2 size={18} /></IconButton>
-      <IconButton type="button" label="Redo" disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()}><Redo2 size={18} /></IconButton>
+      {tools.map(({ name, keys, icon: Icon, active, fn }) => <IconButton key={name} type="button" label={name} title={`${name} (${K(keys)})`} aria-pressed={active} onMouseDown={(e) => e.preventDefault()} onClick={() => run(fn)}><Icon size={18} /></IconButton>)}
+      <IconButton type="button" label="Indent list" title={`Indent list (Tab)`} disabled={!editor.can().sinkListItem('listItem')} onClick={() => editor.chain().focus().sinkListItem('listItem').run()}><IndentIncrease size={18} /></IconButton>
+      <IconButton type="button" label="Outdent list" title={`Outdent list (${K('Shift-')}Tab)`} disabled={!editor.can().liftListItem('listItem')} onClick={() => editor.chain().focus().liftListItem('listItem').run()}><IndentDecrease size={18} /></IconButton>
+      <IconButton type="button" label="Undo" title={`Undo (${K('Mod-Z')})`} disabled={!editor.can().undo()} onClick={() => editor.chain().focus().undo().run()}><Undo2 size={18} /></IconButton>
+      <IconButton type="button" label="Redo" title={`Redo (${K('Mod-Shift-Z')})`} disabled={!editor.can().redo()} onClick={() => editor.chain().focus().redo().run()}><Redo2 size={18} /></IconButton>
       <Button type="button" disabled={busy} onClick={() => input.current?.click()}><Upload size={16} />{busy ? 'Importing…' : 'Import'}</Button>
       <Button type="button" onClick={async () => { try { if (typeof ClipboardItem !== 'undefined' && navigator.clipboard?.write) await navigator.clipboard.write([new ClipboardItem({ 'text/html': new Blob([editor.getHTML()], { type: 'text/html' }), 'text/plain': new Blob([editor.getText()], { type: 'text/plain' }) })]); else await navigator.clipboard.writeText(editor.getText()); setCopied(true) } catch { setError('Copy is unavailable here. Select the text and use your device’s Copy command.') } }}><Copy size={16} />{copied ? 'Copied' : 'Copy'}</Button>
       <input hidden ref={input} type="file" accept=".docx,.txt" onChange={(e) => void upload(e.target.files?.[0])} />

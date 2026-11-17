@@ -37,11 +37,15 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
   const mac = /Mac|iPhone|iPad/.test(navigator.platform)
   /* the welcome greeting: once after signing in or a long break, held for a beat, then it slides into the page heading */
   const [welcome, setWelcome] = useState(() => takeWelcome())
+  /* the overlay outlives the wait: it stays on top until its backdrop has faded away around the real heading */
+  const [overlay, setOverlay] = useState(welcome)
+  const [greeted, setGreeted] = useState(false)
   /* arriving from the other app: its logo turns like the loader for a moment while this one settles in */
   const [arrive, setArrive] = useState(() => { try { const v = sessionStorage.getItem('ss-switch') === '1'; sessionStorage.removeItem('ss-switch'); return v } catch { return false } })
   useEffect(() => { if (!arrive) return; const t = setTimeout(() => setArrive(false), 650); return () => clearTimeout(t) }, [arrive])
   /* the greeting decides when it is finished (it waits for the loader, writes itself on, then rests) */
-  const endWelcome = useCallback(() => setWelcome(false), [])
+  const revealWelcome = useCallback(() => { setGreeted(true); setWelcome(false) }, [])
+  const endWelcome = useCallback(() => setOverlay(false), [])
   useEffect(() => {
     const id = setInterval(touchSeen, 60_000)
     addEventListener('pagehide', touchSeen)
@@ -83,9 +87,9 @@ export function AppShell({ app, nav, more, switchTo }: Props) {
 
   return (
     <LayoutGroup id="welcome"><WelcomeCtx.Provider value={welcome}>
-      <div className={`shell ${welcome ? 'shell-wait' : 'shell-in'} ${kb ? 'kb' : ''} ${flow ? 'flow' : ''}`} data-app={app} data-depth={depth}>
+      <div className={`shell ${welcome ? 'shell-wait' : greeted ? 'shell-ready' : 'shell-in'} ${kb ? 'kb' : ''} ${flow ? 'flow' : ''}`} data-app={app} data-depth={depth}>
         <ConfirmHost />
-        <WelcomeOverlay name={me?.user?.name.split(' ')[0] ?? ''} open={welcome} onDone={endWelcome} />
+        {overlay && <WelcomeOverlay name={me?.user?.name.split(' ')[0] ?? ''} onReveal={revealWelcome} onDone={endWelcome} />}
         <AnimatePresence>
           {arrive && !welcome && (
             <motion.div className="switch-ov" initial={{ opacity: 1 }} exit={{ opacity: 0, transition: { duration: 0.35, ease: [0.22, 1, 0.36, 1] } }} aria-hidden>

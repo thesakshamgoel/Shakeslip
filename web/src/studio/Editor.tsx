@@ -256,7 +256,7 @@ function Form({ type, links, groups, existing, preClient, memory, reloadLinks }:
   }
 
   const panel = [
-    <ClientStep key="c" d={d} set={set} type={type} links={links} groups={groups} onEditClient={setEditing} onAdd={() => setInvite(true)} showErrors={tried.has(0)} />,
+    <ClientStep key="c" d={d} set={set} type={type} links={links} groups={groups} defaultTheme={biz.defaultTheme} onEditClient={setEditing} onAdd={() => setInvite(true)} showErrors={tried.has(0)} />,
     <ScopeStep key="s" d={d} set={set} type={type} memory={memory} profession={biz.profession} services={services} setServices={setServices} />,
     <AmountsStep key="a" d={d} set={set} type={type} link={link} from={from} t={t} memory={lineMemory} showErrors={tried.has(2)} />,
     <PaymentStep key="p" d={d} set={set} type={type} from={from} total={t.total} group={groups.find((g) => g.id === link?.groupId)} />,

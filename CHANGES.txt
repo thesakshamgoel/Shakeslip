@@ -214,3 +214,8 @@ Before launch (not done)
 - Remaining browser confirm boxes (delete group, remove type, new connect code, disconnect) now use the app's red confirmation dialog.
 - Clients: view toggle moved into the header, duplicate count removed, card buttons fill their row. Invoice types are cards (grid by default).
 - Pinned @grpc/grpc-js 1.13.6 (Firebase dependency, unused in the browser) so the audit is clean.
+
+2026-11-17 fixes: design colour, welcome, terms editor
+- Switching clients no longer changes the invoice design: it follows the group look only when you have not picked one, and an empty group look means your default (it used to blank the design back to Classic).
+- Welcome rebuilt: the greeting is the page heading drawn large, written on with a left-to-right reveal (normal text, so spacing matches exactly), rests, glides onto the real heading while the screen stays clear, then the page fades in around it. No more text crossing the dashboard, ghosting, or wrapped duplicate name.
+- Terms editor: switching a line between bullets and numbers changes only that line (like Word), also for the keyboard shortcuts; every toolbar button shows its shortcut (Cmd/Ctrl B, U, Alt 2/3/0, Shift 8/7, Tab, Z).

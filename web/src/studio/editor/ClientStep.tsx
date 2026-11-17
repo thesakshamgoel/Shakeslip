@@ -13,14 +13,20 @@ import { daysBetween, isoIn, type Draft } from './state'
 
 export const INTRO = 'Following is the summary of the invoice for the work delivered.'
 
-export function ClientStep({ d, set, type, links, groups, onEditClient, onAdd, showErrors }: { d: Draft; set: (p: Partial<Draft>, m?: string) => void; type: InvoiceType; links: ClientLink[]; groups: Group[]; onEditClient: (l: ClientLink) => void; onAdd: () => void; showErrors: boolean }) {
+export function ClientStep({ d, set, type, links, groups, defaultTheme, onEditClient, onAdd, showErrors }: { d: Draft; set: (p: Partial<Draft>, m?: string) => void; type: InvoiceType; links: ClientLink[]; groups: Group[]; defaultTheme?: string; onEditClient: (l: ClientLink) => void; onAdd: () => void; showErrors: boolean }) {
   const link = links.find((l) => l.id === d.linkId)
   const st = stateName(stateOf(link?.gstin, link?.state))
   function pick(id: string) {
     const l = links.find((x) => x.id === id)
     const g = groups.find((x) => x.id === l?.groupId)
     const greet = d.extra.salutation ? { salutation: salutationFor(l?.honorific, l?.attention || l?.name || '') } : {}
-    set({ linkId: id, ...(g ? { theme: g.theme, due: isoIn(g.dueDays, new Date(d.issued)) } : {}), extra: { ...d.extra, clientEmailIds: null, clientPhoneIds: null, ...greet } })
+    /* the design only follows the client's group when you have not picked one yourself, and an empty group look
+       means "my default design", never "no design" */
+    const lookOf = (gr?: Group) => gr?.theme || defaultTheme || type.theme
+    const before = groups.find((x) => x.id === link?.groupId)
+    const chosenByHand = !!d.linkId && d.theme !== lookOf(before)
+    const theme = chosenByHand ? d.theme : lookOf(g)
+    set({ linkId: id, theme, ...(g ? { due: isoIn(g.dueDays, new Date(d.issued)) } : {}), extra: { ...d.extra, clientEmailIds: null, clientPhoneIds: null, ...greet } })
   }
   const greeting = !!(d.extra.salutation || d.extra.intro)
   return (

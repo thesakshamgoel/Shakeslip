@@ -1,36 +1,21 @@
-# Publishes a static preview (home, FAQ, legal pages, Google sign-in). Studio, Slip and invoices need the server: see deploy/README.md.
+# GitHub Pages only forwards visitors to the live app (see deploy/README.md). Change the address in deploy/pages/index.html.
 name: Pages
 on:
-  push: { branches: [main] }
+  push:
+    branches: [main]
+    paths: ['deploy/pages/**', '.github/workflows/pages.yml']
   workflow_dispatch:
 permissions: { contents: read, pages: write, id-token: write }
 concurrency: { group: pages, cancel-in-progress: true }
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-      - run: bun install --frozen-lockfile
-        working-directory: web
-      - run: bun run build
-        working-directory: web
-        env:
-          PAGES_BASE: /Shakeslip/
-          VITE_STATIC_PREVIEW: "1"
-          # Firebase web config: public by design, access is limited by the authorised domains
-          VITE_FIREBASE_API_KEY: AIzaSyC4P9VHD51dlxfEky9mjSfc4vE5M5_wwMw
-          VITE_FIREBASE_AUTH_DOMAIN: shakeslip.firebaseapp.com
-          VITE_FIREBASE_PROJECT_ID: shakeslip
-          VITE_FIREBASE_APP_ID: 1:437281079346:web:0550e5d22be298bb093c2b
-      # deep links such as /Shakeslip/terms load the app
-      - run: cp web/dist/index.html web/dist/404.html
-      - uses: actions/upload-pages-artifact@v3
-        with: { path: web/dist }
   deploy:
-    needs: build
     runs-on: ubuntu-latest
     environment: { name: github-pages, url: "${{ steps.d.outputs.page_url }}" }
     steps:
+      - uses: actions/checkout@v4
+      # the same page answers deep links
+      - run: cp deploy/pages/index.html deploy/pages/404.html
+      - uses: actions/upload-pages-artifact@v3
+        with: { path: deploy/pages }
       - id: d
         uses: actions/deploy-pages@v4

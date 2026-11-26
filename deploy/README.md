@@ -1,7 +1,7 @@
 # Free always-on hosting (one Linux server)
 
 Written for an Oracle Cloud "Always Free" Ampere A1 server running Ubuntu. Any Linux server with Docker should work.
-Not yet run on a real server.
+Running since 2026-11-26 on a Google Cloud e2-micro with Debian.
 
 ## 1. Open the web ports
 
@@ -47,3 +47,13 @@ Restore (replaces the live database):
 ## 6. Update
 
     cd ~/Shakeslip && git pull && cd deploy && docker compose up -d --build
+
+## Small servers (1 GB, for example Google Cloud e2-micro)
+
+Add 2 GB of swap, and build the image on your own computer (x86-64) instead of on the server:
+
+    docker build --platform linux/amd64 -t shakeslip:latest <the four VITE_ build args> .
+    docker save shakeslip:latest | gzip -1 | ssh USER@SERVER 'gunzip | sudo docker load'
+    ssh USER@SERVER 'sudo docker tag shakeslip:latest deploy-app:latest && cd Shakeslip && git pull && cd deploy && sudo docker compose up -d --no-build'
+
+The Oracle firewall steps in section 1 do not apply to Google Cloud: tick "Allow HTTP" and "Allow HTTPS" when creating the server.

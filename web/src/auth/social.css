@@ -3,10 +3,3 @@
 .soc-b:hover { background: var(--surface-2); }
 .soc-or { display: flex; align-items: center; gap: var(--s-3); color: var(--text-3); font-size: var(--t-xs); margin: var(--s-2) 0; }
 .soc-or::before, .soc-or::after { content: ''; flex: 1; height: 1px; background: var(--line); }
-/* preview build sign-in */
-.pv { display: grid; gap: var(--s-3); width: 100%; max-width: 360px; justify-self: center; }
-.pv-who { display: flex; align-items: center; justify-content: center; gap: var(--s-3); text-align: left; min-width: 0; }
-.pv-who > span:last-child { display: grid; min-width: 0; overflow-wrap: anywhere; }
-.pv-who small { color: var(--text-2); }
-.pv-note { color: var(--text-2); font-size: var(--t-xs); text-align: center; }
-.pv-note a { color: var(--accent); font-weight: 700; }

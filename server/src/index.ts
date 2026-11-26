@@ -45,5 +45,6 @@ app.onError((e, c) => { console.error('ERR-SRV-500', e); return c.json({ code: '
 
 setInterval(() => { runReminders().catch((e) => console.error('ERR-REM-500', e)) }, 5 * 60_000).unref()
 
-export default { port: env.PORT, fetch: app.fetch }
+/* the first PDF after a restart can take over 20 s on a small server (the browser has to start), so wait longer than Bun's 10 s default */
+export default { port: env.PORT, fetch: app.fetch, idleTimeout: 90 }
 console.log(`Shakeslip API on http://localhost:${env.PORT}`)

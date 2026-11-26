@@ -16,9 +16,9 @@ cd web && npm install && npm run dev
 
 Open http://localhost:5173. Emails are saved to the in-app "Test mailbox" and printed in the API terminal, so you can follow invite and reset links without an email provider. To send real email, put a Resend key in `server/.env`.
 
-## GitHub Pages preview
+## Live app
 
-Pushing to `main` publishes a preview to https://thesakshamgoel.github.io/Shakeslip/ (`.github/workflows/pages.yml`). Pages cannot run the server, so the build sets `VITE_STATIC_PREVIEW=1`: the home page, FAQ, legal pages and Google sign-in work (Firebase only; the app saves nothing). Studio, Slip and invoices show as opening soon. The Pages domain must be in the Firebase authorised domains. For the full app on a free server, see `deploy/README.md`.
+https://146-148-87-0.sslip.io runs on a Google Cloud free server. https://thesakshamgoel.github.io/Shakeslip/ forwards there (`deploy/pages/index.html`). Server setup and updates: `deploy/README.md`.
 
 ## Checks
 

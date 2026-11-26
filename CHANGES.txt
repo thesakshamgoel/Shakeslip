@@ -243,3 +243,10 @@ Before launch (not done)
 2026-11-26  Google sign-in on the Pages preview
 - Sign in and sign out with Google through Firebase on the home card and account pages. Studio, Slip and invoices still need the server.
 - Server build: sign-in behaves as before (Firebase loading code shared).
+
+2026-11-26  Live on a Google Cloud free server
+- https://146-148-87-0.sslip.io (e2-micro, us-central1, 30 GB standard disk, 2 GB swap). Image built on the PC and copied over; nightly database backup on the server.
+- Fix: the server now waits up to 90 s for a response, so the first PDF after a restart no longer fails.
+
+2026-11-26  GitHub Pages forwards to the live app
+- Pages now redirects to https://146-148-87-0.sslip.io, keeping the path. The preview-only code was removed (it is in git history, commit 3cebba1).

@@ -15,7 +15,6 @@ import More from './components/More'
 import Notifications from './components/Notifications'
 import Home from './Home'
 import Maintenance from './Maintenance'
-import PreviewNotice from './PreviewNotice'
 import PrintPage from './PrintPage'
 import Landing from './landing/Landing'
 import SlipConnections from './slip/Connections'
@@ -32,7 +31,6 @@ import Setup from './studio/Setup'
 import TypeBuilder from './studio/TypeBuilder'
 import Types from './studio/Types'
 import { useSession } from './lib/session'
-import { STATIC_PREVIEW } from './lib/staticPreview'
 
 const mail: NavItem[] = import.meta.env.DEV ? [{ to: '/mailbox', label: 'Test mailbox', icon: Mail }] : []
 const STUDIO: NavItem[] = [
@@ -53,26 +51,11 @@ function NotFound() {
   return <main className="land"><div className="land-in"><h1 className="land-h">Page not found</h1><p className="land-p">That page does not exist or has moved.</p><Link to="/home"><Button variant="primary">Go home</Button></Link></div></main>
 }
 
-function PreviewRoutes() {
-  return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/faq" element={<Faq />} />
-      <Route path="/terms" element={<Terms />} />
-      <Route path="/privacy" element={<Privacy />} />
-      <Route path="/cookies" element={<Cookies />} />
-      <Route path="/licence" element={<Licence />} />
-      <Route path="*" element={<PreviewNotice />} />
-    </Routes>
-  )
-}
-
 export default function App() {
   const { me } = useSession()
   const hasBiz = !!me?.business
   const toSlip = { switchTo: '/slip', switchLabel: 'Open Slip (my inbox)' }
   const toStudio = hasBiz ? { switchTo: '/studio', switchLabel: 'Open Studio' } : { switchTo: '/studio/setup', switchLabel: 'Set up Studio for my business' }
-  if (STATIC_PREVIEW) return <PreviewRoutes />
   return (
     <>
     <CookieNotice />

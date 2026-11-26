@@ -4,8 +4,6 @@ import { BellRing, CircleCheck, Eye, Send, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LoginPanel } from '../auth/Login'
-import { PreviewAccount } from '../auth/PreviewAccount'
-import { STATIC_PREVIEW } from '../lib/staticPreview'
 import './hero.css'
 
 const rise = smooth
@@ -75,12 +73,10 @@ export function Hero({ first }: { first: boolean }) {
 
       <motion.div className="hx-card-wrap" style={reduce ? undefined : { y: cardY }}>
         <motion.aside className="lp-login" initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ ...rise, delay: 0.3 }} aria-label="Sign in">
-          {STATIC_PREVIEW ? <PreviewAccount /> : <>
           <h2>{first ? 'Welcome to Shakeslip' : 'Welcome back'}</h2>
           <p className="lp-login-lead">{first ? 'Sign in if you have an account. New here? It takes under a minute to create one, and it is free.' : 'Sign in to pick up where you left off.'}</p>
           <LoginPanel next={null} />
           <p className="lp-login-new">New to Shakeslip? <Link to="/signup">Create a free account</Link></p>
-          </>}
         </motion.aside>
       </motion.div>
     </section>

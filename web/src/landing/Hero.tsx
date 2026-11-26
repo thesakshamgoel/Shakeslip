@@ -4,7 +4,8 @@ import { BellRing, CircleCheck, Eye, Send, type LucideIcon } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { LoginPanel } from '../auth/Login'
-import { PREVIEW_TEXT, PREVIEW_TITLE, STATIC_PREVIEW } from '../lib/staticPreview'
+import { PreviewAccount } from '../auth/PreviewAccount'
+import { STATIC_PREVIEW } from '../lib/staticPreview'
 import './hero.css'
 
 const rise = smooth
@@ -73,12 +74,8 @@ export function Hero({ first }: { first: boolean }) {
       </motion.div>
 
       <motion.div className="hx-card-wrap" style={reduce ? undefined : { y: cardY }}>
-        <motion.aside className="lp-login" initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ ...rise, delay: 0.3 }} aria-label={STATIC_PREVIEW ? PREVIEW_TITLE : 'Sign in'}>
-          {STATIC_PREVIEW ? <>
-            <h2>{PREVIEW_TITLE}</h2>
-            <p className="lp-login-lead">{PREVIEW_TEXT}</p>
-            <p className="lp-login-new"><Link to="/faq">Read the FAQ</Link></p>
-          </> : <>
+        <motion.aside className="lp-login" initial={{ opacity: 0, y: 28, scale: 0.97 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ ...rise, delay: 0.3 }} aria-label="Sign in">
+          {STATIC_PREVIEW ? <PreviewAccount /> : <>
           <h2>{first ? 'Welcome to Shakeslip' : 'Welcome back'}</h2>
           <p className="lp-login-lead">{first ? 'Sign in if you have an account. New here? It takes under a minute to create one, and it is free.' : 'Sign in to pick up where you left off.'}</p>
           <LoginPanel next={null} />

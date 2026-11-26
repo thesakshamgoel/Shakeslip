@@ -18,7 +18,7 @@ Open http://localhost:5173. Emails are saved to the in-app "Test mailbox" and pr
 
 ## GitHub Pages preview
 
-Pushing to `main` publishes a preview to https://thesakshamgoel.github.io/Shakeslip/ (`.github/workflows/pages.yml`). Pages cannot run the server, so the build sets `VITE_STATIC_PREVIEW=1`: the home page, FAQ and legal pages work, and every account page says accounts open soon. For the full app on a free server, see `deploy/README.md`.
+Pushing to `main` publishes a preview to https://thesakshamgoel.github.io/Shakeslip/ (`.github/workflows/pages.yml`). Pages cannot run the server, so the build sets `VITE_STATIC_PREVIEW=1`: the home page, FAQ, legal pages and Google sign-in work (Firebase only; the app saves nothing). Studio, Slip and invoices show as opening soon. The Pages domain must be in the Firebase authorised domains. For the full app on a free server, see `deploy/README.md`.
 
 ## Checks
 

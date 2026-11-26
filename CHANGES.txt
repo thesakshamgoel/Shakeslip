@@ -239,3 +239,7 @@ Before launch (not done)
 2026-11-26  GitHub Pages preview
 - Pages workflow added. The preview build shows the home page, FAQ and legal pages; account pages and the home sign-in box say accounts open soon.
 - The normal (server) build behaves as before.
+
+2026-11-26  Google sign-in on the Pages preview
+- Sign in and sign out with Google through Firebase on the home card and account pages. Studio, Slip and invoices still need the server.
+- Server build: sign-in behaves as before (Firebase loading code shared).

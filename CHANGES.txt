@@ -231,3 +231,7 @@ Before launch (not done)
 - Logo ring in empty states: drawn contained inside the whole box, so it can no longer be cropped.
 - Slip inbox: the grid/list toggle no longer shows when there is nothing to list.
 - Create tab: types grouped With GST / Without tax; each card has a kind icon (GST invoice, quotation, event, plain bill), a tax badge with the rate, what it calculates and its numbering; compact on phone.
+
+2026-11-26  Free hosting files (not deployed)
+- New deploy folder: Docker Compose with Caddy for automatic HTTPS, env.example, database backup script and README, for a free Linux server.
+- No app code changed. Checked on Windows with Docker: image build, type check, 22 tests, local signup and PDF smoke test.

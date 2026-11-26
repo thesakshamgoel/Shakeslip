@@ -16,6 +16,10 @@ cd web && npm install && npm run dev
 
 Open http://localhost:5173. Emails are saved to the in-app "Test mailbox" and printed in the API terminal, so you can follow invite and reset links without an email provider. To send real email, put a Resend key in `server/.env`.
 
+## GitHub Pages preview
+
+Pushing to `main` publishes a preview to https://thesakshamgoel.github.io/Shakeslip/ (`.github/workflows/pages.yml`). Pages cannot run the server, so the build sets `VITE_STATIC_PREVIEW=1`: the home page, FAQ and legal pages work, and every account page says accounts open soon. For the full app on a free server, see `deploy/README.md`.
+
 ## Checks
 
 ```bash

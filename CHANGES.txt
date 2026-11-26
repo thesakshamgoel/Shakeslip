@@ -235,3 +235,7 @@ Before launch (not done)
 2026-11-26  Free hosting files (not deployed)
 - New deploy folder: Docker Compose with Caddy for automatic HTTPS, env.example, database backup script and README, for a free Linux server.
 - No app code changed. Checked on Windows with Docker: image build, type check, 22 tests, local signup and PDF smoke test.
+
+2026-11-26  GitHub Pages preview
+- Pages workflow added. The preview build shows the home page, FAQ and legal pages; account pages and the home sign-in box say accounts open soon.
+- The normal (server) build behaves as before.
